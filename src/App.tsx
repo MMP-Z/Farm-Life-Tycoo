@@ -21,7 +21,12 @@ import {
   saveFarmState,
   exportSaveFile,
   createNewFarmWithProfile,
+  loadCloudFarmState,
+  saveCloudFarmState,
 } from './utils/storageEngine';
+import { auth, signInWithGoogle, logout } from './config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { LoginScreen } from './components/LoginScreen';
 import { advanceGameTime } from './utils/timeEngine';
 import { getSoilYieldFactor } from './utils/seedEngine';
 import { sound } from './utils/sound';
@@ -51,6 +56,8 @@ export default function App() {
   const [levelUpData, setLevelUpData] = useState<{ level: number; rewardMoney: number } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showNewGameModal, setShowNewGameModal] = useState<boolean>(false);
+  const [user, setUser] = useState<any>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -60,17 +67,37 @@ export default function App() {
     sound.setEnabled(state.settings.soundEnabled);
   }, [state.settings.soundEnabled]);
 
+  // Firebase Auth sync & Cloud Load
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const cloudState = await loadCloudFarmState(currentUser.uid);
+        if (cloudState) {
+          setState(cloudState);
+        }
+      }
+      setLoadingAuth(false);
+    });
+    return unsubscribe;
+  }, []);
+
   // Periodic Auto-save
   useEffect(() => {
     const timer = setInterval(() => {
       saveFarmState(stateRef.current);
+      if (user) {
+        saveCloudFarmState(user.uid, stateRef.current);
+      }
     }, 15000);
     return () => clearInterval(timer);
-  }, []);
+  }, [user]);
 
   // Save on state change
   useEffect(() => {
     saveFarmState(state);
+    // Note: To avoid too many writes, we only save to local storage immediately,
+    // and rely on the 15-second interval for cloud saves.
   }, [state]);
 
   const showToast = useCallback((msg: string) => {
@@ -1522,6 +1549,18 @@ export default function App() {
   const emptyPlotsCount = state.plots.filter((p) => p.state === 'plowed').length;
   const hasPestOnField = state.plots.some((p) => p.hasPest);
   const hasDryPlotsOnField = state.plots.some((p) => p.moisture < 30);
+
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen bg-[#F3EFE0] flex items-center justify-center">
+        <div className="animate-spin text-4xl">🚜</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen onLogin={signInWithGoogle} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F5EE] text-slate-800 flex flex-col font-sans selection:bg-amber-200">

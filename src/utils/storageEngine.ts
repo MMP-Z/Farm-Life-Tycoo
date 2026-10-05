@@ -7,6 +7,8 @@ import {
 } from './seedEngine';
 import { STARTING_PROFILES_CONFIG } from '../config/variabilityData';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const STORAGE_KEY = 'cute_farm_game_save_v2';
 
@@ -232,6 +234,15 @@ export function loadSavedFarmState(): FarmGameState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createInitialFarmState();
     const parsed = JSON.parse(raw);
+    return parseFarmState(parsed);
+  } catch (e) {
+    console.warn('Lỗi đọc dữ liệu save từ localStorage:', e);
+    return createInitialFarmState();
+  }
+}
+
+export function parseFarmState(parsed: any): FarmGameState {
+    if (!parsed) return createInitialFarmState();
 
     const seed = parsed.worldSeed || 'FARM-8291';
     const profileId = parsed.startingProfileId || 'hardworking_farmer';
@@ -273,9 +284,28 @@ export function loadSavedFarmState(): FarmGameState {
       settings: { ...createInitialFarmState().settings, ...(parsed.settings || {}) },
       stats: { ...createInitialFarmState().stats, ...(parsed.stats || {}) },
     };
+}
+
+export async function loadCloudFarmState(uid: string): Promise<FarmGameState | null> {
+  try {
+    const docRef = doc(db, 'saves', uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return parseFarmState(docSnap.data());
+    }
+    return null;
   } catch (e) {
-    console.warn('Lỗi đọc dữ liệu save từ localStorage:', e);
-    return createInitialFarmState();
+    console.error("Lỗi đọc dữ liệu save từ cloud:", e);
+    return null;
+  }
+}
+
+export async function saveCloudFarmState(uid: string, state: FarmGameState): Promise<void> {
+  try {
+    const docRef = doc(db, 'saves', uid);
+    await setDoc(docRef, state);
+  } catch (e) {
+    console.error("Lỗi ghi dữ liệu save lên cloud:", e);
   }
 }
 
