@@ -1,0 +1,6 @@
+{
+  "name": "Nông Trại Vui Vẻ - Farm Life Tycoon",
+  "description": "Trò chơi quản lý nông trại sống động chuẩn phong cách Flutter UI với trồng trọt, chăn nuôi, xưởng chế biến và xe tải giao hàng.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

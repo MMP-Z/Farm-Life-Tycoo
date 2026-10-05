@@ -1,0 +1,294 @@
+import React from 'react';
+import { InventoryItem, OrderItem, Season, MarketProfile } from '../types/farmSystem';
+import { ALL_ITEMS_CATALOG } from '../config/farmData';
+import { MARKET_TRAITS_CONFIG } from '../config/variabilityData';
+import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
+
+interface Props {
+  inventory: InventoryItem[];
+  demandMultipliers: Record<string, number>;
+  orders: OrderItem[];
+  currentDay: number;
+  currentSeason: Season;
+  marketProfiles?: Record<string, MarketProfile>;
+  onDirectSell: (itemId: string, quantity: number, unitPrice: number, e: React.MouseEvent) => void;
+  onFulfillOrder: (orderId: string, e: React.MouseEvent) => void;
+}
+
+export const MarketTab: React.FC<Props> = ({
+  inventory,
+  demandMultipliers,
+  orders,
+  currentDay,
+  marketProfiles = {},
+  onDirectSell,
+  onFulfillOrder,
+}) => {
+  return (
+    <div className="flex flex-col gap-4 font-sans select-none pb-8">
+      
+      {/* Header */}
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+            🏪
+          </div>
+          <div>
+            <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
+              Chợ Giao Thương & Bảng Đơn Hàng
+            </h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Mỗi khu chợ có tính cách và sở thích riêng theo Seed thế giới. Theo dõi thị trường để chốt lời cao nhất!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Lớp 2: Bảng Tin Tính Cách & Thị Hiếu Chợ (Market Traits) */}
+      {Object.keys(marketProfiles).length > 0 && (
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🗺️</span>
+              <h3 className="font-black text-sm sm:text-base text-slate-900 font-display">
+                Thị Hiếu & Tính Cách Các Khu Chợ
+              </h3>
+            </div>
+            <span className="text-xs text-slate-500 hidden sm:inline">Dịch chuyển theo mùa vụ & năm</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {Object.values(marketProfiles).map((prof) => {
+              const traitMeta = MARKET_TRAITS_CONFIG[prof.trait] || MARKET_TRAITS_CONFIG.stable;
+
+              return (
+                <div
+                  key={prof.routeId}
+                  className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between text-xs"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h4 className="font-black text-sm text-slate-900 font-display">{prof.routeName}</h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                        {traitMeta.icon} {traitMeta.name}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      {traitMeta.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-2.5 pt-2 border-t border-slate-200/80 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      <span className="font-bold text-emerald-700">Ưa chuộng (+25%):</span>
+                      <span className="flex items-center gap-1">
+                        {prof.preferredItems.map((id) => (
+                          <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
+                            {ALL_ITEMS_CATALOG[id]?.icon || id}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      <span className="font-bold text-rose-600">Dìm giá (-15%):</span>
+                      <span className="flex items-center gap-1">
+                        {prof.discountedItems.map((id) => (
+                          <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
+                            {ALL_ITEMS_CATALOG[id]?.icon || id}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Bảng Đơn Hàng Thị Trấn (Order Board) */}
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📋</span>
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
+              Bảng Đơn Hàng Khách Hàng (Thưởng Thêm +30% Tiền & XP)
+            </h3>
+          </div>
+          <span className="text-xs text-slate-500 hidden sm:inline">Giao tận tay, không tốn phí vận chuyển</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          {orders.map((order) => {
+            const daysLeft = Math.max(0, order.deadlineDay - currentDay);
+            const isExpired = daysLeft === 0;
+            const canFulfill =
+              !isExpired &&
+              order.requirements.every((req) => {
+                const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
+                return inStock >= req.amount;
+              });
+
+            return (
+              <div
+                key={order.id}
+                className={`p-4 rounded-3xl border flex flex-col justify-between transition-all shadow-xs ${
+                  canFulfill
+                    ? 'bg-white border-amber-400 ring-4 ring-amber-400/20'
+                    : 'bg-[#FAF8F2] border-[#E8E2D2]'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F2EFE9] mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">{order.customerAvatar}</span>
+                      <div>
+                        <h4 className="font-bold text-xs sm:text-sm text-slate-900">{order.customerName}</h4>
+                        <span className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
+                          <Clock size={10} /> Hạn giao: còn {daysLeft} ngày
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                      +{order.rewardMoney} 💰 · +{order.rewardXP} XP
+                    </span>
+                  </div>
+
+                  {/* Requirements List */}
+                  <div className="flex flex-wrap gap-1.5 my-2">
+                    {order.requirements.map((req) => {
+                      const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
+                      const hasEnough = inStock >= req.amount;
+
+                      return (
+                        <div
+                          key={req.itemId}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono border ${
+                            hasEnough
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
+                          }`}
+                        >
+                          <span>{req.icon}</span>
+                          <span>{req.name}:</span>
+                          <span>
+                            {inStock}/{req.amount}
+                          </span>
+                          {hasEnough && <Check size={12} className="stroke-[3] text-emerald-600" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-[#F2EFE9] mt-2 flex items-center justify-between">
+                  <span className="text-xs text-slate-500">
+                    {canFulfill ? (
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <Sparkles size={13} /> Đủ điều kiện nhận thưởng!
+                      </span>
+                    ) : (
+                      'Chưa đủ nông sản trong kho'
+                    )}
+                  </span>
+
+                  <button
+                    onClick={(e) => onFulfillOrder(order.id, e)}
+                    disabled={!canFulfill}
+                    className={`py-2 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs ${
+                      canFulfill
+                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 cursor-pointer animate-pulse-gentle'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Check size={14} />
+                    <span>Giao Đơn Nhận Thưởng</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Bảng Giá Cung - Cầu Thị Trường & Bán Trực Tiếp */}
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+        <div className="flex items-center justify-between mb-3.5">
+          <div>
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
+              Bảng Giá Thị Trường & Bán Nhanh Tại Chợ Làng
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Giá bán phụ thuộc vào quy luật cung cầu. Bán quá nhiều cùng một mặt hàng sẽ làm giảm giá!
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {Object.entries(ALL_ITEMS_CATALOG).map(([itemId, meta]) => {
+            const demand = demandMultipliers[itemId] ?? 1.0;
+            const currentPrice = Math.max(1, Math.round(meta.basePrice * demand));
+            const inStock = inventory.find((i) => i.itemId === itemId)?.quantity || 0;
+            const isHighDemand = demand >= 0.95;
+            const isLowDemand = demand < 0.75;
+
+            return (
+              <div
+                key={itemId}
+                className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-between gap-3 shadow-xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl filter drop-shadow-xs">{meta.icon}</span>
+                  <div>
+                    <h4 className="font-bold text-xs text-slate-900 font-display">{meta.name}</h4>
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono mt-0.5">
+                      <span className="font-extrabold text-emerald-800">{currentPrice} 💰</span>
+                      {isHighDemand ? (
+                        <span className="text-emerald-700 font-bold flex items-center text-[10px]">
+                          <TrendingUp size={11} /> Cầu cao
+                        </span>
+                      ) : isLowDemand ? (
+                        <span className="text-rose-600 font-bold flex items-center text-[10px]">
+                          <TrendingDown size={11} /> Bão hòa
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 text-[10px]">Ổn định</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sell buttons */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={(e) => onDirectSell(itemId, 1, currentPrice, e)}
+                    disabled={inStock < 1}
+                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:active:scale-100"
+                    title={`Bán 1 cái lấy ${currentPrice} vàng (Có: ${inStock})`}
+                  >
+                    Bán 1 ({inStock})
+                  </button>
+
+                  {inStock > 1 && (
+                    <button
+                      onClick={(e) => onDirectSell(itemId, inStock, currentPrice, e)}
+                      className="px-2 py-1.5 rounded-xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                      title={`Bán tất cả ${inStock} cái lấy ${inStock * currentPrice} vàng`}
+                    >
+                      Bán hết
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+    </div>
+  );
+};
