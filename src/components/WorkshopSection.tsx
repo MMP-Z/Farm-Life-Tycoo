@@ -187,7 +187,7 @@ export const WorkshopSection: React.FC<Props> = ({
                               <span>{recipe.nameVi}</span>
                             </span>
                             <span className="text-[11px] text-amber-700 font-mono font-bold">
-                              ⏱️ {recipe.craftTime}s
+                              <GameIcon e="⏱️" /> {recipe.craftTime}s
                             </span>
                           </div>
 

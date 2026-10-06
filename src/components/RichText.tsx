@@ -21,8 +21,9 @@ export const RichText: React.FC<{ text: string; className?: string }> = ({ text,
   while ((m = TOKEN_RE.exec(text)) !== null) {
     if (m.index > last) parts.push(text.slice(last, m.index));
     const token = m[0];
+    const norm = token.replace(/\uFE0F/g, '');
     parts.push(
-      token === '💰' ? (
+      norm === '💰' ? (
         <CoinIcon key={key++} />
       ) : (
         <GameIcon key={key++} e={token} />

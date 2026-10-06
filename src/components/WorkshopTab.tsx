@@ -204,7 +204,7 @@ export const WorkshopTab: React.FC<Props> = ({
                               <span>{recipe.name}</span>
                             </span>
                             <span className="text-[11px] text-amber-800 font-mono font-bold">
-                              ⏱️ {recipe.craftDays} ngày
+                              <GameIcon e="⏱️" /> {recipe.craftDays} ngày
                             </span>
                           </div>
 

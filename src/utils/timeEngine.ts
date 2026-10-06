@@ -1,5 +1,5 @@
 import { FarmGameState, Season, WeatherType } from '../types/farmSystem';
-import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG } from '../config/farmData';
+import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG, SEASON_NAMES } from '../config/farmData';
 import { SOIL_CONFIG } from '../config/variabilityData';
 import {
   generateSeededMarketProfiles,
@@ -104,7 +104,7 @@ export function advanceGameTime(
           paid: false,
           discountPercent: 0
         });
-        notifications.push(`📜 Làng thông báo thu thuế! Cần nộp ${taxAmount} 💰 thuế mùa ${oldSeason} trong 5 ngày tới.`);
+        notifications.push(`📜 Làng thông báo thu thuế! Cần nộp ${taxAmount} 💰 thuế ${SEASON_NAMES[oldSeason]?.name || oldSeason} trong 5 ngày tới.`);
       }
     }
   }

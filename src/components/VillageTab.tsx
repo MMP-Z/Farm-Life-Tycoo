@@ -61,7 +61,7 @@ export const VillageTab: React.FC<Props> = ({
                   <h4 className="font-bold text-xs sm:text-sm text-slate-900">{alert.title}</h4>
                   <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{alert.desc}</p>
                   <span className="text-[11px] font-mono font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full inline-block mt-1.5">
-                    ⏱️ Còn {alert.daysRemaining} ngày để chuẩn bị
+                    <GameIcon e="⏱️" /> Còn {alert.daysRemaining} ngày để chuẩn bị
                   </span>
                 </div>
               </div>
