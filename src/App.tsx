@@ -42,6 +42,8 @@ import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
+import { SeasonalGoalsCard } from './components/SeasonalGoalsCard';
+import { TutorialOverlay } from './components/TutorialOverlay';
 import { HubTab } from './components/HubTab';
 import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
@@ -64,6 +66,25 @@ export default function App() {
 
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  const [showTutorial, setShowTutorial] = useState<boolean>(() => {
+    // FIX (P1-2): hiện tutorial 1 lần duy nhất cho người chơi mới
+    try {
+      return !localStorage.getItem('farm_tutorial_done');
+    } catch {
+      return false;
+    }
+  });
+
+  const handleTutorialDone = useCallback(() => {
+    try {
+      localStorage.setItem('farm_tutorial_done', '1');
+    } catch {
+      // ignore
+    }
+    setShowTutorial(false);
+    setActiveTab('hub');
+  }, []);
 
   // FIX (bug tua nhanh nhảy 2 ngày): chặn double-click / spam nút tua nhanh.
   // Mỗi lần bấm chỉ được tính sau khi lần trước đã qua ít nhất 2 giây.
@@ -106,6 +127,28 @@ export default function App() {
     // Note: To avoid too many writes, we only save to local storage immediately,
     // and rely on the 15-second interval for cloud saves.
   }, [state]);
+
+  // FIX (quan sát từ re-test): flush save khi rời/ẩn trang. iOS không đảm bảo
+  // beforeunload chạy, nên dùng pagehide + visibilitychange để chắc chắn
+  // tiến trình không bị lùi khi người chơi chuyển sang app/tab khác.
+  useEffect(() => {
+    const flush = () => {
+      try {
+        saveFarmState(stateRef.current);
+      } catch {
+        // ignore
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -1728,13 +1771,23 @@ export default function App() {
       {/* Main Tab Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 pb-28 sm:pb-12">
         {activeTab === 'hub' && (
-          <HubTab
-            onSelectTab={setActiveTab}
-            unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
-            money={state.money}
-            onUnlockRegion={handleUnlockRegion}
-            onNotify={showToast}
-          />
+          <>
+            <HubTab
+              onSelectTab={setActiveTab}
+              unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
+              money={state.money}
+              onUnlockRegion={handleUnlockRegion}
+              onNotify={showToast}
+            />
+            {/* FIX (P1-1): Thẻ Mục tiêu mùa từng là tính năng "ma" — logic đầy đủ
+                (sinh mục tiêu, badge, handleClaimSeasonGoal) nhưng không render ở đâu */}
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-2 pb-4">
+              <SeasonalGoalsCard
+                goals={state.seasonalGoals || []}
+                onClaimReward={handleClaimSeasonGoal}
+              />
+            </div>
+          </>
         )}
         
         {activeTab === 'field' && (
@@ -1840,6 +1893,17 @@ export default function App() {
           />
         )}
 
+        {/* FIX (P1-1): Tab Siêu Thị từng là tính năng "ma" — component, badge và
+            handler đầy đủ nhưng không có render block */}
+        {activeTab === 'supermarket' && (
+          <SupermarketTab
+            inventory={state.inventory}
+            orders={state.orders}
+            currentDay={state.currentDay}
+            onFulfillOrder={handleFulfillOrder}
+          />
+        )}
+
 
         {activeTab === 'admin' && (
           <AdminCenterTab
@@ -1862,6 +1926,11 @@ export default function App() {
           <span className="text-base">📢</span>
           <span>{toastMessage}</span>
         </div>
+      )}
+
+      {/* FIX (P1-2): Tutorial FTUE cho người chơi mới */}
+      {showTutorial && (
+        <TutorialOverlay onSelectTab={setActiveTab} onDone={handleTutorialDone} />
       )}
 
       {/* Level Up Celebration Popup */}

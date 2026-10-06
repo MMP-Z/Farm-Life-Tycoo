@@ -57,7 +57,7 @@ export const CROPS_CONFIG: Record<string, CropDefinition> = {
   },
   corn: {
     id: 'corn',
-    name: 'Ngô (Bắp)',
+    name: 'Ngô',
     icon: '🌽',
     seedPrice: 14,
     growDays: 2,
@@ -251,7 +251,7 @@ export const ROUTES_CONFIG: Record<string, MarketRoute> = {
 export const RECIPES_CONFIG: RecipeDefinition[] = [
   {
     id: 'flour',
-    name: 'Bột mì mịn',
+    name: 'Bột mì',
     icon: '🌾',
     factoryType: 'windmill',
     ingredients: [{ itemId: 'wheat', name: 'Lúa mì', amount: 2 }],
@@ -263,7 +263,7 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'corn_flour',
-    name: 'Bột ngô vàng',
+    name: 'Bột ngô',
     icon: '🌽',
     factoryType: 'windmill',
     ingredients: [{ itemId: 'corn', name: 'Ngô', amount: 2 }],
@@ -275,7 +275,7 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'bread',
-    name: 'Bánh mì nóng giòn',
+    name: 'Bánh mì',
     icon: '🍞',
     factoryType: 'bakery',
     ingredients: [
@@ -290,7 +290,7 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'strawberry_cake',
-    name: 'Bánh kem dâu tây',
+    name: 'Bánh kem dâu',
     icon: '🍰',
     factoryType: 'bakery',
     ingredients: [
@@ -306,10 +306,10 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'butter',
-    name: 'Bơ tươi thượng hạng',
+    name: 'Bơ tươi',
     icon: '🧈',
     factoryType: 'dairy',
-    ingredients: [{ itemId: 'milk', name: 'Sữa tươi', amount: 1 }],
+    ingredients: [{ itemId: 'milk', name: 'Sữa bò tươi', amount: 1 }],
     outputItemId: 'butter',
     outputAmount: 1,
     craftDays: 1,
@@ -318,10 +318,10 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'cheese',
-    name: 'Phô mai vàng béo',
+    name: 'Phô mai',
     icon: '🧀',
     factoryType: 'dairy',
-    ingredients: [{ itemId: 'milk', name: 'Sữa tươi', amount: 2 }],
+    ingredients: [{ itemId: 'milk', name: 'Sữa bò tươi', amount: 2 }],
     outputItemId: 'cheese',
     outputAmount: 1,
     craftDays: 2,
@@ -330,7 +330,7 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'strawberry_jam',
-    name: 'Mứt dâu tây ngọt',
+    name: 'Mứt dâu',
     icon: '🍓',
     factoryType: 'jam_press',
     ingredients: [{ itemId: 'strawberry', name: 'Dâu tây', amount: 2 }],
@@ -342,7 +342,7 @@ export const RECIPES_CONFIG: RecipeDefinition[] = [
   },
   {
     id: 'tomato_sauce',
-    name: 'Sốt cà chua nguyên chất',
+    name: 'Sốt cà chua',
     icon: '🥫',
     factoryType: 'jam_press',
     ingredients: [{ itemId: 'tomato', name: 'Cà chua', amount: 2 }],
