@@ -51,6 +51,7 @@ import { FloatingParticles } from './components/FloatingParticles';
 import { EventModal } from './components/EventModal';
 import { NewGameModal } from './components/NewGameModal';
 import { FloatingReward } from './types/game';
+import { formatMoney } from './utils/format';
 
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
@@ -174,7 +175,7 @@ export default function App() {
         let newMoney = prev.money + moneyGain;
 
         if (x && y) {
-          if (moneyGain > 0) addParticle(x, y - 24, `+${moneyGain} 🪙`, 'coin');
+          if (moneyGain > 0) addParticle(x, y - 24, `+${formatMoney(moneyGain)} 💰`, 'coin');
         }
 
         const newTransaction = {
@@ -362,7 +363,7 @@ export default function App() {
       };
     });
     sound.playPop();
-    showToast(`Đã nhận khoản vay ${amount} 💰 từ Hợp Tác Xã!`);
+    showToast(`Đã nhận khoản vay ${formatMoney(amount)} 💰 từ Hợp Tác Xã!`);
   }, [showToast]);
 
   const handlePayLoan = useCallback((loanId: string, amount: number) => {
@@ -399,7 +400,7 @@ export default function App() {
       } else {
         newLoans[loanIndex] = { ...loan, remainingAmount: newRemaining };
         creditBonus = 2;
-        showToast(`Đã thanh toán ${paidAmount} 💰 dư nợ. Uy tín +${creditBonus}`);
+        showToast(`Đã thanh toán ${formatMoney(paidAmount)} 💰 dư nợ. Uy tín +${creditBonus}`);
         sound.playPop();
       }
 
@@ -742,7 +743,7 @@ export default function App() {
     const cost = 100 + currentCount * 50;
 
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để khai khẩn ô đất mới.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để khai khẩn ô đất mới.`);
       return;
     }
 
@@ -921,7 +922,7 @@ export default function App() {
       }
 
       if (state.money < def.buyPrice) {
-        showToast(`Không đủ tiền vàng! Cần ${def.buyPrice} vàng để mua ${def.name}.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(def.buyPrice)} 💰 để mua ${def.name}.`);
         return;
       }
 
@@ -959,7 +960,7 @@ export default function App() {
       const cost = 150 + pen.capacity * 40;
 
       if (state.money < cost) {
-        showToast(`Không đủ tiền vàng! Cần ${cost} vàng để mở rộng.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để mở rộng.`);
         return;
       }
 
@@ -1000,7 +1001,7 @@ export default function App() {
         const sellPrice = Math.floor((def?.buyPrice || 0) / 2);
         
         sound.playPop();
-        showToast(`Đã bán ${animal.name} lấy ${sellPrice} vàng!`);
+        showToast(`Đã bán ${animal.name} lấy ${formatMoney(sellPrice)} 💰!`);
         return {
           ...prev,
           money: prev.money + sellPrice,
@@ -1119,7 +1120,7 @@ export default function App() {
       if (!factory) return;
 
       if (state.money < factory.cost) {
-        showToast(`Không đủ tiền vàng! Cần ${factory.cost} vàng để xây xưởng.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(factory.cost)} 💰 để xây xưởng.`);
         return;
       }
 
@@ -1144,7 +1145,7 @@ export default function App() {
 
       const cost = 120 + factory.queueSlots * 60;
       if (state.money < cost) {
-        showToast(`Không đủ tiền vàng! Cần ${cost} vàng để thêm ô hàng đợi.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để thêm ô hàng đợi.`);
         return;
       }
 
@@ -1174,7 +1175,7 @@ export default function App() {
       estimatedEarnings: number
     ) => {
       if (state.money < fee) {
-        showToast(`Không đủ tiền trả phí lộ trình (${fee} vàng)!`);
+        showToast(`Không đủ tiền trả phí lộ trình (${formatMoney(fee)} 💰)!`);
         return;
       }
 
@@ -1217,7 +1218,7 @@ export default function App() {
       if (!def) return;
 
       if (state.money < def.buyPrice) {
-        showToast(`Không đủ tiền vàng! Cần ${def.buyPrice} vàng để mua xe.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(def.buyPrice)} 💰 để mua xe.`);
         return;
       }
 
@@ -1246,7 +1247,7 @@ export default function App() {
       const totalEarn = quantity * unitPrice;
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+${totalEarn} 🪙`, 'coin');
+      addParticle(rect.left + rect.width / 2, rect.top, `+${formatMoney(totalEarn)} 💰`, 'coin');
       awardXPAndMoney(Math.round(totalEarn * 0.3), totalEarn);
       
       // Giảm giá bán (Cung cầu): bán 1 sản phẩm giảm 0.5% giá trị, tối đa giảm xuống còn 40% giá trị gốc.
@@ -1263,7 +1264,7 @@ export default function App() {
         };
       });
 
-      showToast(`Đã bán ${quantity} sản phẩm với giá ${totalEarn.toLocaleString()} vàng!`);
+      showToast(`Đã bán ${quantity} sản phẩm với giá ${totalEarn.toLocaleString()} 💰!`);
     },
     [consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
@@ -1287,7 +1288,7 @@ export default function App() {
 
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+${order.rewardMoney} 🪙`, 'coin');
+      addParticle(rect.left + rect.width / 2, rect.top, `+${formatMoney(order.rewardMoney)} 💰`, 'coin');
       awardXPAndMoney(order.rewardXP, order.rewardMoney);
 
       const newOrders = state.orders
@@ -1317,7 +1318,7 @@ export default function App() {
         };
       });
 
-      showToast(`Giao hàng thành công cho ${order.customerName}! Nhận +${order.rewardMoney} vàng và +${order.rewardXP} XP!`);
+      showToast(`Giao hàng thành công cho ${order.customerName}! Nhận +${formatMoney(order.rewardMoney)} 💰 và +${order.rewardXP} XP!`);
     },
     [state.orders, state.inventory, state.currentDay, consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
@@ -1328,7 +1329,7 @@ export default function App() {
   const handleUpgradeBarnCapacity = useCallback(() => {
     const cost = 100 + Math.floor(state.barnCapacity * 1.5);
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để nâng sức chứa kho.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để nâng sức chứa kho.`);
       return;
     }
 
@@ -1344,7 +1345,7 @@ export default function App() {
   const handleBuildColdStorage = useCallback(() => {
     const cost = 400;
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để lắp đặt kho lạnh.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để lắp đặt kho lạnh.`);
       return;
     }
 
@@ -1364,7 +1365,7 @@ export default function App() {
     (itemId: string, quantity: number, unitCost: number) => {
       const totalCost = quantity * unitCost;
       if (state.money < totalCost) {
-        showToast(`Không đủ tiền vàng! Cần ${totalCost.toLocaleString()} vàng.`);
+        showToast(`Không đủ tiền vàng! Cần ${totalCost.toLocaleString()} 💰.`);
         return;
       }
 
@@ -1382,7 +1383,7 @@ export default function App() {
     (cropId: string, count: number, unitCost: number) => {
       const totalCost = count * unitCost;
       if (state.money < totalCost) {
-        showToast(`Không đủ tiền vàng! Cần ${totalCost.toLocaleString()} vàng.`);
+        showToast(`Không đủ tiền vàng! Cần ${totalCost.toLocaleString()} 💰.`);
         return;
       }
 
@@ -1420,7 +1421,7 @@ export default function App() {
   const handleBuyAutoIrrigation = useCallback(() => {
     const cost = 500;
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để lắp hệ thống tưới.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để lắp hệ thống tưới.`);
       return;
     }
 
@@ -1437,7 +1438,7 @@ export default function App() {
   const handleHireAutoWorker = useCallback(() => {
     const cost = 300;
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để thuê nhân công.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để thuê nhân công.`);
       return;
     }
 
@@ -1479,7 +1480,7 @@ export default function App() {
   const handleBuyDefense = useCallback(
     (type: 'dog' | 'reinforced_lock' | 'crop_netting' | 'vaccine', cost: number) => {
       if (state.money < cost) {
-        showToast(`Không đủ tiền vàng! Cần ${cost} vàng.`);
+        showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰.`);
         return;
       }
 
@@ -1516,7 +1517,7 @@ export default function App() {
   const handleBuyInsurance = useCallback(() => {
     const cost = 60;
     if (state.money < cost) {
-      showToast(`Không đủ tiền vàng! Cần ${cost} vàng để tham gia bảo hiểm.`);
+      showToast(`Không đủ tiền vàng! Cần ${formatMoney(cost)} 💰 để tham gia bảo hiểm.`);
       return;
     }
 
@@ -1660,7 +1661,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F5EE] text-slate-800 flex flex-col font-sans selection:bg-amber-200">
+    <div className="min-h-screen bg-[#F7F5EE] text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
       
       {/* Top Header HUD with Seed & Controls */}
       <TopHeaderHUD
