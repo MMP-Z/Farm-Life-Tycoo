@@ -42,6 +42,17 @@ export const TopHeaderHUD: React.FC<Props> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  // FIX (nút Tua Nhanh thỉnh thoảng rớt click): header re-render mỗi giây khiến
+  // nút có thể bị thay thế/di chuyển ngay giữa lúc bấm. Dùng pointerdown (tín hiệu
+  // sớm nhất) làm trigger chính, kèm timestamp để nuốt click tổng hợp đi sau,
+  // tránh double-fire. Click từ bàn phím (Enter/Space) không có pointerdown trước
+  // đó nên vẫn hoạt động bình thường.
+  const ffLastPointerRef = useRef(0);
+  const fireFastForward = (kind: 'pointer' | 'click') => {
+    if (kind === 'click' && Date.now() - ffLastPointerRef.current < 800) return;
+    if (kind === 'pointer') ffLastPointerRef.current = Date.now();
+    onFastForward();
+  };
 
   const unlockedFactoriesCount = Object.values(state.factories || {}).filter(f => f.unlocked).length;
   const totalDebt = (state.loans || []).reduce((sum, l) => sum + l.remainingAmount, 0);
@@ -123,8 +134,8 @@ export const TopHeaderHUD: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Box 2: Ngày & Mùa */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] border border-[#DFD9C3] px-2.5 sm:px-3 rounded-2xl shrink-0 whitespace-nowrap">
+          {/* Box 2: Ngày & Mùa — min-w cố định để nút Tua Nhanh không bị nhảy vị trí khi số ngày tăng chữ số */}
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] border border-[#DFD9C3] px-2.5 sm:px-3 rounded-2xl shrink-0 whitespace-nowrap min-w-[104px]">
             <span className="text-lg sm:text-xl shrink-0">{seasonInfo.icon}</span>
             <div className="flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 leading-none whitespace-nowrap">
@@ -136,8 +147,8 @@ export const TopHeaderHUD: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Box 3: Tiền vàng */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 bg-[#FFF9E6] border border-[#F5E6B3] px-2.5 sm:px-3 rounded-2xl shadow-inner shrink-0 whitespace-nowrap">
+          {/* Box 3: Tiền vàng — min-w cố định vì toLocaleString đổi độ rộng khi tiền tăng */}
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 bg-[#FFF9E6] border border-[#F5E6B3] px-2.5 sm:px-3 rounded-2xl shadow-inner shrink-0 whitespace-nowrap min-w-[112px]">
             <span className="text-base sm:text-xl shrink-0">💰</span>
             <span className="font-mono font-black text-xs sm:text-sm text-amber-950 tabular-nums whitespace-nowrap">
               {state.money.toLocaleString()}
@@ -153,10 +164,13 @@ export const TopHeaderHUD: React.FC<Props> = ({
             <span className="font-bold text-xs text-slate-800 hidden lg:inline whitespace-nowrap">{weatherInfo.name}</span>
           </div>
           
-          {/* Box 5: Nút Tua Nhanh */}
+          {/* Box 5: Nút Tua Nhanh — bắn ở pointerdown (không rớt khi re-render),
+              touch-manipulation chống double-tap-zoom nuốt tap trên iOS */}
           <button
-            onClick={onFastForward}
-            className="h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center gap-1.5 bg-[#2E4A35] hover:bg-[#233a29] text-white border border-[#1e3022] rounded-2xl shrink-0 cursor-pointer active:scale-95 transition-all whitespace-nowrap shadow-md"
+            type="button"
+            onPointerDown={() => fireFastForward('pointer')}
+            onClick={() => fireFastForward('click')}
+            className="h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center gap-1.5 bg-[#2E4A35] hover:bg-[#233a29] text-white border border-[#1e3022] rounded-2xl shrink-0 cursor-pointer active:scale-95 transition-all whitespace-nowrap shadow-md touch-manipulation select-none"
             title="Tua nhanh tới sáng hôm sau để hồi phục Giờ công"
           >
             <FastForward size={16} className="shrink-0" />
