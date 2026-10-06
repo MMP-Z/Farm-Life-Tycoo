@@ -2,6 +2,7 @@ import React from 'react';
 import { FACTORIES, RECIPES } from '../constants/gameData';
 import { FactoryId, FactoryState } from '../types/game';
 import { Play, Sparkles, Lock } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   factories: Record<FactoryId, FactoryState>;
@@ -77,7 +78,7 @@ export const WorkshopSection: React.FC<Props> = ({
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
                       <span>{factory.nameVi}</span>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="text-[11px] bg-slate-100 text-slate-600 font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                         <Lock size={10} /> Cấp {levelReq}
                       </span>
                     </h3>
@@ -94,7 +95,7 @@ export const WorkshopSection: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>Xây Dựng ({factory.cost} 🪙)</span>
+                  <span>Xây Dựng (💰 {formatMoney(factory.cost)})</span>
                 </button>
               </div>
             );
@@ -212,11 +213,11 @@ export const WorkshopSection: React.FC<Props> = ({
                         {/* Bottom action */}
                         <div className="mt-3 pt-2 border-t border-slate-200/80 flex items-center justify-between">
                           <span className="text-[11px] text-emerald-800 font-mono font-bold">
-                            Giá bán: {recipe.sellPrice}🪙
+                            Giá bán: 💰 {formatMoney(recipe.sellPrice)}
                           </span>
 
                           {isRecipeLocked ? (
-                            <span className="text-[10px] text-slate-400 font-bold">Mở ở Cấp {recipe.minLevel}</span>
+                            <span className="text-[11px] text-slate-400 font-bold">Mở ở Cấp {recipe.minLevel}</span>
                           ) : (
                             <button
                               onClick={() => onStartCrafting(factory.id, recipe.id)}
