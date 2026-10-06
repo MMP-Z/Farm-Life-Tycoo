@@ -168,6 +168,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
               touch-manipulation chống double-tap-zoom nuốt tap trên iOS */}
           <button
             type="button"
+            data-tutorial="ff-button"
             onPointerDown={() => fireFastForward('pointer')}
             onClick={() => fireFastForward('click')}
             className="h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center gap-1.5 bg-[#2E4A35] hover:bg-[#233a29] text-white border border-[#1e3022] rounded-2xl shrink-0 cursor-pointer active:scale-95 transition-all whitespace-nowrap shadow-md touch-manipulation select-none"
