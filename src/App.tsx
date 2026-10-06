@@ -42,7 +42,6 @@ import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
-import { SeasonalGoalsCard } from './components/SeasonalGoalsCard';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { HubTab } from './components/HubTab';
 import { AdminCenterTab } from './components/AdminCenterTab';
@@ -188,20 +187,11 @@ export default function App() {
           timestamp: Date.now(),
         } as const;
 
-        // Cập nhật mục tiêu mùa nếu là loại kiếm tiền (Lớp 4)
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'earn_money' && moneyGain > 0 && !g.completed) {
-            const next = g.currentAmount + moneyGain;
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
 
         return {
           ...prev,
           money: newMoney,
           transactions: moneyGain !== 0 ? [...prev.transactions, newTransaction] : prev.transactions,
-          seasonalGoals: updatedGoals,
           stats: {
             ...prev.stats,
             totalEarnings: prev.stats.totalEarnings + Math.max(0, moneyGain),
@@ -661,17 +651,9 @@ export default function App() {
       );
       awardXPAndMoney(Math.round(cropDef.basePrice * 1.5), 0, rect.left + rect.width / 2, rect.top - 20);
 
-      // Cập nhật mục tiêu mùa (Lớp 4)
       const currentCropId = plot.cropId;
       setState((prev) => {
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'harvest_item' && g.targetItemId === currentCropId && !g.completed) {
-            const next = g.currentAmount + yieldAmount;
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
-
+        
         const updatedPlots = prev.plots.map((p) => {
           if (p.id === plotId) {
             return {
@@ -690,7 +672,6 @@ export default function App() {
         return {
           ...prev,
           plots: updatedPlots,
-          seasonalGoals: updatedGoals,
           stats: {
             ...prev.stats,
             totalHarvests: prev.stats.totalHarvests + 1,
@@ -727,14 +708,6 @@ export default function App() {
     if (harvestedCount > 0) {
       sound.playHarvest();
       setState((prev) => {
-        // Cập nhật mục tiêu mùa vụ
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'harvest_item' && g.targetItemId && harvestedItemsMap[g.targetItemId] && !g.completed) {
-            const next = g.currentAmount + harvestedItemsMap[g.targetItemId];
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
 
         return {
           ...prev,
@@ -743,7 +716,6 @@ export default function App() {
               ? { ...p, state: 'empty' as const, cropId: null, plantedDay: null, fertilized: false, hasPest: false }
               : p
           ),
-          seasonalGoals: updatedGoals,
           stats: {
             ...prev.stats,
             totalHarvests: prev.stats.totalHarvests + harvestedCount,
@@ -1121,17 +1093,9 @@ export default function App() {
       );
       awardXPAndMoney(recipe.basePrice, 0);
 
-      // Cập nhật mục tiêu mùa nếu có nhiệm vụ chế biến bánh
       setState((prev) => {
         const curFactory = prev.factories[factoryId];
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'craft_item' && g.targetItemId === recipe.outputItemId && !g.completed) {
-            const next = g.currentAmount + recipe.outputAmount;
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
-
+        
         return {
           ...prev,
           factories: {
@@ -1141,7 +1105,6 @@ export default function App() {
               activeTasks: curFactory.activeTasks.filter((t) => t.id !== taskId),
             },
           },
-          seasonalGoals: updatedGoals,
         };
       });
 
@@ -1235,20 +1198,11 @@ export default function App() {
 
       sound.playTruck();
       setState((prev) => {
-        // Cập nhật mục tiêu mùa nếu là chuyến giao hàng
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'deliveries' && !g.completed) {
-            const next = g.currentAmount + 1;
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
 
         return {
           ...prev,
           money: prev.money - fee,
           activeTrips: [...prev.activeTrips, newTrip],
-          seasonalGoals: updatedGoals,
         };
       });
 
@@ -1352,18 +1306,10 @@ export default function App() {
         ]);
 
       setState((prev) => {
-        const updatedGoals = (prev.seasonalGoals || []).map((g) => {
-          if (g.goalType === 'deliveries' && !g.completed) {
-            const next = g.currentAmount + 1;
-            return { ...g, currentAmount: next, completed: next >= g.targetAmount };
-          }
-          return g;
-        });
-
+        
         return {
           ...prev,
           orders: newOrders,
-          seasonalGoals: updatedGoals,
           stats: {
             ...prev.stats,
             totalDeliveries: prev.stats.totalDeliveries + 1,
@@ -1521,27 +1467,6 @@ export default function App() {
     });
   }, [showToast]);
 
-  const handleClaimSeasonGoal = useCallback(
-    (goalId: string, e: React.MouseEvent) => {
-      const goal = state.seasonalGoals?.find((g) => g.id === goalId);
-      if (!goal || !goal.completed || goal.claimed) return;
-
-      sound.playCoin();
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+${goal.rewardMoney} 🪙`, 'coin');
-      awardXPAndMoney(0, goal.rewardMoney);
-
-      setState((prev) => ({
-        ...prev,
-        seasonalGoals: (prev.seasonalGoals || []).map((g) =>
-          g.id === goalId ? { ...g, claimed: true } : g
-        ),
-      }));
-
-      showToast(`Chúc mừng hoàn thành Mục tiêu mùa "${goal.title}": +${goal.rewardMoney} vàng, +${goal.rewardXP} XP!`);
-    },
-    [state.seasonalGoals, addParticle, awardXPAndMoney, showToast]
-  );
 
   const handleExportSave = useCallback(() => {
     exportSaveFile(state);
@@ -1704,8 +1629,6 @@ export default function App() {
       return inStock >= req.amount;
     });
   }).length;
-  const claimableQuestsCount =
-    (state.seasonalGoals || []).filter((g) => g.completed && !g.claimed).length;
 
   const adminAlertsCount =
     (state.riskAlerts?.length || 0) +
@@ -1779,14 +1702,6 @@ export default function App() {
               onUnlockRegion={handleUnlockRegion}
               onNotify={showToast}
             />
-            {/* FIX (P1-1): Thẻ Mục tiêu mùa từng là tính năng "ma" — logic đầy đủ
-                (sinh mục tiêu, badge, handleClaimSeasonGoal) nhưng không render ở đâu */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-2 pb-4">
-              <SeasonalGoalsCard
-                goals={state.seasonalGoals || []}
-                onClaimReward={handleClaimSeasonGoal}
-              />
-            </div>
           </>
         )}
         
