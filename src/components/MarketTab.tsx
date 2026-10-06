@@ -90,7 +90,7 @@ export const MarketTab: React.FC<Props> = ({
                     onClick={(e) => onDirectSell(itemId, 1, currentPrice, e)}
                     disabled={inStock < 1}
                     className="px-2.5 py-1.5 min-h-[40px] rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:active:scale-100"
-                    title={`Bán 1 cái lấy ${formatMoney(currentPrice)} 💰 (Có: ${inStock})`}
+                    title={`Bán 1 cái lấy 💰 ${formatMoney(currentPrice)} (Có: ${inStock})`}
                   >
                     Bán 1 ({inStock})
                   </button>
@@ -99,7 +99,7 @@ export const MarketTab: React.FC<Props> = ({
                     <button
                       onClick={(e) => onDirectSell(itemId, inStock, currentPrice, e)}
                       className="px-2 py-1.5 min-h-[40px] rounded-xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                      title={`Bán tất cả ${inStock} cái lấy ${formatMoney(inStock * currentPrice)} 💰`}
+                      title={`Bán tất cả ${inStock} cái lấy 💰 ${formatMoney(inStock * currentPrice)}`}
                     >
                       Bán hết
                     </button>

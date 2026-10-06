@@ -136,7 +136,7 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
                       <strong className="block font-bold">✨ {profile.perkName}:</strong>
                       <span>{profile.perkDescription}</span>
                       <div className="mt-1 flex items-center gap-2 font-mono text-[11px] opacity-80">
-                        <span>💰 💰 {formatMoney(profile.initialMoney)}</span>
+                        <span>💰 {formatMoney(profile.initialMoney)}</span>
                         <span>·</span>
                         <span>🌾 {profile.plotCount} ô đất</span>
                       </div>
