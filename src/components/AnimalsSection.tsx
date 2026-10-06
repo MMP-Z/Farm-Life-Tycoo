@@ -2,6 +2,7 @@ import React from 'react';
 import { ANIMALS, CROPS } from '../constants/gameData';
 import { AnimalId, AnimalPen } from '../types/game';
 import { Heart, Plus, ShoppingBag, Sparkles } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   pens: Record<AnimalId, AnimalPen>;
@@ -108,7 +109,7 @@ export const AnimalsSection: React.FC<Props> = ({
                   }`}
                 >
                   <ShoppingBag size={14} />
-                  <span>Mở chuồng ({cfg.buyCost} 🪙)</span>
+                  <span>Mở chuồng (💰 {formatMoney(cfg.buyCost)})</span>
                 </button>
               </div>
             );
@@ -142,10 +143,10 @@ export const AnimalsSection: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyAnimal(cfg.id)}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-[11px] font-semibold border border-emerald-600/50 cursor-pointer shadow-sm"
-                    title={`Mua thêm 1 con (${Math.floor(cfg.buyCost * 0.6)} vàng)`}
+                    title={`Mua thêm 1 con (${formatMoney(Math.floor(cfg.buyCost * 0.6))} 💰)`}
                   >
                     <Plus size={12} />
-                    <span>Mua thêm ({Math.floor(cfg.buyCost * 0.6)}🪙)</span>
+                    <span>Mua thêm (💰 {formatMoney(Math.floor(cfg.buyCost * 0.6))})</span>
                   </button>
                 )}
               </div>
@@ -161,12 +162,12 @@ export const AnimalsSection: React.FC<Props> = ({
                     style={{ animationDelay: `${i * 0.2}s` }}
                   >
                     <span className="text-3xl filter drop-shadow">{cfg.icon}</span>
-                    <span className="text-[9px] text-emerald-400/70 font-mono">#{i + 1}</span>
+                    <span className="text-[11px] text-emerald-400/70 font-mono">#{i + 1}</span>
                   </div>
                 ))}
 
                 {pen.isFed && !isReady && (
-                  <div className="absolute top-1 right-2 flex items-center gap-1 text-[10px] text-pink-300 animate-pulse">
+                  <div className="absolute top-1 right-2 flex items-center gap-1 text-[11px] text-pink-300 animate-pulse">
                     <Heart size={12} className="fill-pink-400" />
                     <span>Đang lớn...</span>
                   </div>
@@ -204,7 +205,7 @@ export const AnimalsSection: React.FC<Props> = ({
                       <span className="font-semibold text-amber-300">
                         {feedNeeded} {feedCrop.nameVi} {feedCrop.icon}
                       </span>
-                      <span className={`text-[10px] ${hasEnoughFeed ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      <span className={`text-[11px] ${hasEnoughFeed ? 'text-emerald-400' : 'text-rose-400'}`}>
                         (Có: {feedCropCount})
                       </span>
                     </div>
