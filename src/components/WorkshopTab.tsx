@@ -114,7 +114,7 @@ export const WorkshopTab: React.FC<Props> = ({
                   onClick={() => onUpgradeQueue(factory.id)}
                   disabled={money < upgradeSlotCost}
                   className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
-                  title={`Thêm 1 slot hàng đợi (${formatMoney(upgradeSlotCost)} 💰)`}
+                  title={`Thêm 1 slot hàng đợi (💰 ${formatMoney(upgradeSlotCost)})`}
                 >
                   <ArrowUpCircle size={13} />
                   <span>+1 Slot (💰 {formatMoney(upgradeSlotCost)})</span>
