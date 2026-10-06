@@ -3,6 +3,7 @@ import { AnimalPen } from '../types/farmSystem';
 import { ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck, DollarSign } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   pens: Record<string, AnimalPen>;
@@ -83,7 +84,7 @@ export const PastureTab: React.FC<Props> = ({
           }`}
         >
           <Plus size={12} />
-          <span>Mở rộng ({upgradeCost}💰)</span>
+          <span>Mở rộng (💰 {formatMoney(upgradeCost)})</span>
         </button>
       </div>
 
@@ -96,7 +97,7 @@ export const PastureTab: React.FC<Props> = ({
               Máng nước: <strong className="font-mono">{mainPen.waterTrough}%</strong>
             </span>
             {mainPen.waterTrough < 50 && (
-              <button onClick={onFillWaterTrough} className="px-2 py-0.5 rounded-lg bg-sky-600 text-white font-bold text-[10px] cursor-pointer">Bơm</button>
+              <button onClick={onFillWaterTrough} className="px-2 py-0.5 rounded-lg bg-sky-600 text-white font-bold text-[11px] cursor-pointer">Bơm</button>
             )}
           </div>
           <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2">
@@ -111,7 +112,7 @@ export const PastureTab: React.FC<Props> = ({
               Vệ sinh: <strong className="font-mono">{mainPen.cleanliness}%</strong>
             </span>
             {mainPen.cleanliness < 70 && (
-              <button onClick={onCleanPen} className="px-2 py-0.5 rounded-lg bg-emerald-700 text-white font-bold text-[10px] cursor-pointer">Dọn</button>
+              <button onClick={onCleanPen} className="px-2 py-0.5 rounded-lg bg-emerald-700 text-white font-bold text-[11px] cursor-pointer">Dọn</button>
             )}
           </div>
           <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2">
@@ -132,7 +133,7 @@ export const PastureTab: React.FC<Props> = ({
           }`}
         >
           <div className="flex items-center gap-1"><span>🌾</span> Cho ăn toàn bộ</div>
-          <div className="text-[10px] font-normal opacity-80 flex flex-wrap gap-1 justify-center">
+          <div className="text-[11px] font-normal opacity-80 flex flex-wrap gap-1 justify-center">
             {Object.keys(feedNeeded).length === 0 ? '(Chưa cần)' : Object.entries(feedNeeded).map(([id, amt]) => {
               const inStock = inventory.find(i => i.itemId === id)?.quantity || 0;
               return <span key={id} className={inStock < amt ? 'text-rose-300 font-bold' : ''}>{ALL_ITEMS_CATALOG[id]?.name}: {amt}</span>;
@@ -150,7 +151,7 @@ export const PastureTab: React.FC<Props> = ({
           }`}
         >
           <div className="flex items-center gap-1"><Sparkles size={14} /> Thu hoạch</div>
-          <span className="text-[10px] font-normal">{readyAnimals.length} con đã sẵn sàng</span>
+          <span className="text-[11px] font-normal">{readyAnimals.length} con đã sẵn sàng</span>
         </button>
       </div>
 
@@ -170,10 +171,10 @@ export const PastureTab: React.FC<Props> = ({
               return (
                 <div key={animal.id} className={`flex flex-col items-center p-3 rounded-2xl bg-white border shadow-xs relative ${isReady ? 'border-amber-300 bg-amber-50/30' : 'border-[#E8E2D2]'}`}>
                   <span className="text-3xl filter drop-shadow-xs">{def?.icon || '❓'}</span>
-                  <span className="text-[10px] font-bold text-slate-800 mt-1 text-center leading-tight">{animal.name}</span>
+                  <span className="text-[11px] font-bold text-slate-800 mt-1 text-center leading-tight">{animal.name}</span>
                   
                   {/* Status */}
-                  <span className="text-[10px] mt-0.5">
+                  <span className="text-[11px] mt-0.5">
                     {animal.isSick ? '🤒 Ốm' : animal.hunger < 20 ? '🥺 Đói' : animal.happiness > 70 ? '😊 Vui vẻ' : '😐 Bình thường'}
                   </span>
 
@@ -184,17 +185,17 @@ export const PastureTab: React.FC<Props> = ({
                     {animal.isSick && (
                       <button
                         onClick={() => onCureAnimal(animal.id)}
-                        className="flex-1 py-1 rounded-lg bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center gap-0.5 cursor-pointer animate-pulse"
+                        className="flex-1 py-1 rounded-lg bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center gap-0.5 cursor-pointer animate-pulse"
                       >
                         <Pill size={10} /> Chữa
                       </button>
                     )}
                     <button
                       onClick={() => onSellAnimal(animal.id)}
-                      className="flex-1 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[9px] font-bold flex items-center justify-center gap-0.5 cursor-pointer transition-colors"
+                      className="flex-1 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold flex items-center justify-center gap-0.5 cursor-pointer transition-colors"
                       title="Bán nhận nửa giá vàng"
                     >
-                      Bán ({sellPrice}💰)
+                      Bán (💰 {formatMoney(sellPrice)})
                     </button>
                   </div>
                 </div>
