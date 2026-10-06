@@ -60,6 +60,7 @@ export default function App() {
   const [showNewGameModal, setShowNewGameModal] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [isGuestMode, setIsGuestMode] = useState<boolean>(false);
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -1662,8 +1663,8 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return <LoginScreen onLogin={signInWithGoogle} />;
+  if (!user && !isGuestMode) {
+    return <LoginScreen onLogin={signInWithGoogle} onPlayGuest={() => setIsGuestMode(true)} />;
   }
 
   return (

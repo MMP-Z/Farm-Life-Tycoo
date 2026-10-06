@@ -3,9 +3,10 @@ import { Tractor, Sprout, Building2, Truck, Coins } from 'lucide-react';
 
 interface Props {
   onLogin: () => void;
+  onPlayGuest: () => void;
 }
 
-export const LoginScreen: React.FC<Props> = ({ onLogin }) => {
+export const LoginScreen: React.FC<Props> = ({ onLogin, onPlayGuest }) => {
   return (
     <div className="min-h-screen bg-[#F3EFE0] flex items-center justify-center p-4 sm:p-8 font-sans selection:bg-amber-200">
       <div className="max-w-5xl w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-[#DFD9C3]">
@@ -85,7 +86,7 @@ export const LoginScreen: React.FC<Props> = ({ onLogin }) => {
 
           <button
             onClick={onLogin}
-            className="w-full bg-white hover:bg-slate-50 text-slate-700 font-bold py-4 px-6 rounded-2xl border-2 border-[#E8E2D2] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm mb-6"
+            className="w-full bg-white hover:bg-slate-50 text-slate-700 font-bold py-4 px-6 rounded-2xl border-2 border-[#E8E2D2] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm mb-3"
           >
             <img 
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
@@ -93,6 +94,13 @@ export const LoginScreen: React.FC<Props> = ({ onLogin }) => {
               className="w-6 h-6"
             />
             Đăng nhập với Google
+          </button>
+
+          <button
+            onClick={onPlayGuest}
+            className="w-full bg-[#2E4A35] hover:bg-[#1A2E20] text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-sm mb-6"
+          >
+            Chơi ngay (Khách)
           </button>
 
           <p className="text-xs text-slate-400 font-medium text-center">
