@@ -139,7 +139,7 @@ export const FieldTab: React.FC<Props> = ({
                       : <span className="text-2xl sm:text-3xl">{crop.icon}</span>}
                   </div>
                   <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
-                    Giống {crop.name.split(' ')[0]}
+                    Giống {crop.name}
                   </span>
                   <span className={`text-[11px] sm:text-[11px] font-bold mt-0.5 px-1 py-0.2 rounded-md ${
                     isSeason
