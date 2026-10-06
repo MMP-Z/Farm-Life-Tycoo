@@ -136,7 +136,7 @@ export const CropsSection: React.FC<Props> = ({
                       <span className={`font-mono font-medium ${canAfford ? 'text-amber-300' : 'text-rose-400'}`}>
                         <CoinIcon /> {formatMoney(crop.buyCost)}
                       </span>
-                      <span className="text-emerald-300/80 font-mono text-[11px]">⏱️ {crop.growTime}s</span>
+                      <span className="text-emerald-300/80 font-mono text-[11px]"><GameIcon e="⏱️" /> {crop.growTime}s</span>
                     </>
                   )}
                 </div>

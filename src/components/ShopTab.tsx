@@ -72,7 +72,7 @@ export const ShopTab: React.FC<Props> = ({
           { id: 'seeds', label: '🌱 Hạt Giống' },
           { id: 'animals', label: '🐄 Con Giống' },
           { id: 'supplies', label: '🧪 Phân & Thuốc' },
-          { id: 'automation', label: '⚙️ Tự Động Hóa' },
+          { id: 'automation', label: '⚙ Tự Động Hóa' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -124,7 +124,7 @@ export const ShopTab: React.FC<Props> = ({
                       </div>
                     </div>
 
-                    <span className="text-[11px] text-slate-500 font-mono">⏱️ {crop.growDays} ngày</span>
+                    <span className="text-[11px] text-slate-500 font-mono"><GameIcon e="⏱️" /> {crop.growDays} ngày</span>
                   </div>
 
                   <p className="text-xs text-slate-500 leading-relaxed my-2">{crop.description}</p>
@@ -343,7 +343,7 @@ export const ShopTab: React.FC<Props> = ({
                       </div>
                     </div>
 
-                      <span className="text-[11px] text-slate-500 font-mono">⏱️ {def.produceDays} ngày thu</span>
+                      <span className="text-[11px] text-slate-500 font-mono"><GameIcon e="⏱️" /> {def.produceDays} ngày thu</span>
                   </div>
                 </div>
 

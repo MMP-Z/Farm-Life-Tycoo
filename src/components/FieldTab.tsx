@@ -154,7 +154,7 @@ export const FieldTab: React.FC<Props> = ({
 
                 <div className="mt-2 pt-1 border-t border-current/15 w-full flex items-center justify-between text-[11px] sm:text-[11px] font-mono">
                   <span className="opacity-80">x{inStock}</span>
-                  <span className="font-bold">⏱️{crop.growDays}d</span>
+                  <span className="font-bold"><GameIcon e="⏱️" />{crop.growDays}d</span>
                 </div>
               </button>
             );

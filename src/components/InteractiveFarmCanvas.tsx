@@ -107,7 +107,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                         <CoinIcon /> {formatMoney(crop.buyCost)}
                       </span>
                       <span className={`opacity-80 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`}>
-                        ⏱️ {crop.growTime}s
+                        <GameIcon e="⏱️" /> {crop.growTime}s
                       </span>
                     </>
                   )}

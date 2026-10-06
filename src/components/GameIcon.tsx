@@ -6,7 +6,7 @@ import {
   ShoppingCart, Zap, Syringe, CupSoda, CloudLightning, Cloud, Tornado, Waves,
   Umbrella, Mountain, Salad, PartyPopper, Dices, CircleHelp, Target, Map as MapIcon,
   MapPin, Microscope, Tent, Mail, Bug, Skull, ArrowRight, ShoppingBasket, Handshake,
-  Landmark, TrendingUp, Scale, Flame, Snowflake, Leaf, Factory, Megaphone, BrickWall,
+  Landmark, TrendingUp, Scale, Flame, Snowflake, Leaf, Factory, Megaphone, BrickWall, Timer,
   type LucideIcon,
 } from 'lucide-react';
 import { SpriteIcon } from './SpriteIcon';
@@ -127,6 +127,8 @@ const LUCIDE_MAP: Record<string, LucideIcon> = {
   '🍃': Leaf,
   '📢': Megaphone,
   '🏗': Factory,
+  '⏱️': Timer,
+  '⏱': Timer,
 };
 
 interface Props {
@@ -137,7 +139,9 @@ interface Props {
 
 export const GameIcon: React.FC<Props> = ({ e, className = '' }) => {
   if (!e) return null;
-  const src = SPRITE_MAP[e];
+  // Normalize: strip variation selectors (U+FE0F) so '🏖️' matches '🏖'
+  const key = e.replace(/\uFE0F/g, '');
+  const src = SPRITE_MAP[key];
   if (src) {
     return (
       <img
@@ -149,7 +153,7 @@ export const GameIcon: React.FC<Props> = ({ e, className = '' }) => {
       />
     );
   }
-  const L = LUCIDE_MAP[e];
+  const L = LUCIDE_MAP[key];
   if (L) {
     return <L className={`inline-block align-[-0.15em] ${className}`} style={{ width: '1.15em', height: '1.15em' }} />;
   }

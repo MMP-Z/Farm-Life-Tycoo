@@ -182,7 +182,7 @@ export const FactoriesSection: React.FC<Props> = ({
                               <span>{recipe.nameVi}</span>
                             </span>
                             <span className="text-[11px] text-amber-300 font-mono">
-                              +{recipe.expReward} EXP · ⏱️ {recipe.craftTime}s
+                              +{recipe.expReward} EXP · <GameIcon e="⏱️" /> {recipe.craftTime}s
                             </span>
                           </div>
 
