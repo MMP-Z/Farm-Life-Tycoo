@@ -2,6 +2,7 @@ import React from 'react';
 import { FACTORIES, RECIPES } from '../constants/gameData';
 import { FactoryId, FactoryState, RecipeConfig } from '../types/game';
 import { Sparkles, Play, CheckCircle2, Lock } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   factories: Record<FactoryId, FactoryState>;
@@ -73,7 +74,7 @@ export const FactoriesSection: React.FC<Props> = ({
                   <div>
                     <h3 className="font-bold text-slate-200 text-sm flex items-center gap-1.5">
                       <span>{factory.nameVi}</span>
-                      <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <span className="text-[11px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded flex items-center gap-1">
                         <Lock size={10} /> Yêu cầu Cấp {levelReq}
                       </span>
                     </h3>
@@ -90,7 +91,7 @@ export const FactoriesSection: React.FC<Props> = ({
                       : 'bg-slate-800 text-slate-500 border border-slate-700/60 cursor-not-allowed'
                   }`}
                 >
-                  <span>Xây dựng xưởng ({factory.cost} 🪙)</span>
+                  <span>Xây dựng xưởng (💰 {formatMoney(factory.cost)})</span>
                 </button>
               </div>
             );
@@ -178,7 +179,7 @@ export const FactoriesSection: React.FC<Props> = ({
                               <span className="text-base">{recipe.icon}</span>
                               <span>{recipe.nameVi}</span>
                             </span>
-                            <span className="text-[10px] text-amber-300 font-mono">
+                            <span className="text-[11px] text-amber-300 font-mono">
                               +{recipe.expReward} EXP · ⏱️ {recipe.craftTime}s
                             </span>
                           </div>
@@ -191,7 +192,7 @@ export const FactoriesSection: React.FC<Props> = ({
                               return (
                                 <span
                                   key={ing.itemId}
-                                  className={`px-1.5 py-0.5 rounded-md border text-[10px] font-mono ${
+                                  className={`px-1.5 py-0.5 rounded-md border text-[11px] font-mono ${
                                     hasEnough
                                       ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700/60'
                                       : 'bg-rose-950/60 text-rose-300 border-rose-800/60'
@@ -206,10 +207,10 @@ export const FactoriesSection: React.FC<Props> = ({
 
                         {/* Craft Button */}
                         <div className="mt-2 pt-1.5 border-t border-emerald-900/60 flex items-center justify-between">
-                          <span className="text-[10px] text-amber-300/80 font-mono">Bán: {recipe.sellPrice}🪙</span>
+                          <span className="text-[11px] text-amber-300/80 font-mono">Bán: 💰 {formatMoney(recipe.sellPrice)}</span>
 
                           {isRecipeLocked ? (
-                            <span className="text-[10px] text-slate-400 font-semibold">Khóa (Lv.{recipe.minLevel})</span>
+                            <span className="text-[11px] text-slate-400 font-semibold">Khóa (Lv.{recipe.minLevel})</span>
                           ) : (
                             <button
                               onClick={() => onStartCrafting(factory.id, recipe.id)}
