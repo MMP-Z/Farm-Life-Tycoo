@@ -137,7 +137,7 @@ export const LivestockSection: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyAnimal(cfg.id)}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all cursor-pointer"
-                    title={`Mua thêm 1 con (${formatMoney(Math.floor(cfg.buyCost * 0.6))} 💰)`}
+                    title={`Mua thêm 1 con (💰 ${formatMoney(Math.floor(cfg.buyCost * 0.6))})`}
                   >
                     <Plus size={13} />
                     <span>Mua thêm (💰 {formatMoney(Math.floor(cfg.buyCost * 0.6))})</span>
