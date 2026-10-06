@@ -1,5 +1,8 @@
 import React from 'react';
+import { Sparkles, Gem } from 'lucide-react';
 import { FloatingReward } from '../types/game';
+import { CoinIcon } from './CoinIcon';
+import { SpriteIcon } from './SpriteIcon';
 
 interface Props {
   particles: FloatingReward[];
@@ -16,25 +19,29 @@ export const FloatingParticles: React.FC<Props> = ({ particles }) => {
         >
           {p.type === 'coin' && (
             <span className="bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full shadow-lg border border-amber-300 flex items-center gap-1">
-              <span>💰</span>
+              <CoinIcon size={16} />
               <span>{p.text}</span>
             </span>
           )}
           {p.type === 'exp' && (
             <span className="bg-sky-500 text-white px-2 py-0.5 rounded-full shadow-lg border border-sky-300 flex items-center gap-1">
-              <span>✨</span>
+              <Sparkles size={14} />
               <span>{p.text}</span>
             </span>
           )}
           {p.type === 'gem' && (
             <span className="bg-fuchsia-600 text-white px-2 py-0.5 rounded-full shadow-lg border border-fuchsia-300 flex items-center gap-1">
-              <span>💎</span>
+              <Gem size={14} />
               <span>{p.text}</span>
             </span>
           )}
           {p.type === 'item' && (
             <span className="bg-emerald-600 text-white px-2 py-0.5 rounded-full shadow-lg border border-emerald-400 flex items-center gap-1">
-              <span>{p.icon || '🌾'}</span>
+              {p.spriteSrc ? (
+                <SpriteIcon src={p.spriteSrc} alt="" size={18} />
+              ) : (
+                <Sparkles size={14} />
+              )}
               <span>{p.text}</span>
             </span>
           )}

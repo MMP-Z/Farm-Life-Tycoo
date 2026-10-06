@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Achievement, DailyQuest } from '../types/game';
 import { Award, CheckCircle, Gift, Sparkles } from 'lucide-react';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   quests: DailyQuest[];
@@ -32,7 +34,7 @@ export const QuestsSection: React.FC<Props> = ({
               : 'text-emerald-300/70 hover:text-white'
           }`}
         >
-          <span>🎯 Nhiệm Vụ Hàng Ngày</span>
+          <span><GameIcon e="🎯" /> Nhiệm Vụ Hàng Ngày</span>
           {unclaimedQuestsCount > 0 && (
             <span className="bg-rose-500 text-white text-[11px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
               {unclaimedQuestsCount}
@@ -48,7 +50,7 @@ export const QuestsSection: React.FC<Props> = ({
               : 'text-emerald-300/70 hover:text-white'
           }`}
         >
-          <span>🏆 Thành Tựu Nông Gia</span>
+          <span><GameIcon e="🏆" /> Thành Tựu Nông Gia</span>
           {unclaimedAchCount > 0 && (
             <span className="bg-amber-400 text-slate-950 text-[11px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
               {unclaimedAchCount}
@@ -76,7 +78,7 @@ export const QuestsSection: React.FC<Props> = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-2xl bg-emerald-950/80 border border-emerald-700/50 flex items-center justify-center text-2xl shadow-inner shrink-0">
-                    {quest.icon}
+                    <GameIcon e={quest.icon} />
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm leading-tight flex items-center gap-1.5">
@@ -107,9 +109,9 @@ export const QuestsSection: React.FC<Props> = ({
                 {/* Rewards & Claim Button */}
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
                   <div className="flex items-center gap-2 text-xs font-mono font-bold">
-                    <span className="text-amber-300">💰 +{quest.rewardCoins}</span>
-                    <span className="text-sky-300">✨ +{quest.rewardExp}</span>
-                    {quest.rewardGems && <span className="text-fuchsia-300">💎 +{quest.rewardGems}</span>}
+                    <span className="text-amber-300"><CoinIcon /> +{quest.rewardCoins}</span>
+                    <span className="text-sky-300"><GameIcon e="✨" /> +{quest.rewardExp}</span>
+                    {quest.rewardGems && <span className="text-fuchsia-300"><GameIcon e="💎" /> +{quest.rewardGems}</span>}
                   </div>
 
                   {!quest.isClaimed && (
@@ -152,7 +154,7 @@ export const QuestsSection: React.FC<Props> = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl shadow-inner shrink-0">
-                    {ach.icon}
+                    <GameIcon e={ach.icon} />
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm leading-tight flex items-center gap-1.5">
@@ -182,7 +184,7 @@ export const QuestsSection: React.FC<Props> = ({
 
                 {/* Reward Gem & Claim */}
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
-                  <span className="text-fuchsia-300 font-mono font-bold text-xs">💎 +{ach.rewardGems} Kim Cương</span>
+                  <span className="text-fuchsia-300 font-mono font-bold text-xs"><GameIcon e="💎" /> +{ach.rewardGems} Kim Cương</span>
 
                   {!ach.isClaimed && (
                     <button

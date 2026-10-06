@@ -3,6 +3,8 @@ import { CROPS } from '../constants/gameData';
 import { CropId, FarmPlot } from '../types/game';
 import { Sparkles, Droplets, Zap, PlusCircle } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   plots: FarmPlot[];
@@ -59,7 +61,7 @@ export const CropsSection: React.FC<Props> = ({
       {/* Header & Quick Action Row */}
       <div className="flex flex-wrap items-center justify-between gap-2 bg-[#21432c]/90 p-3 rounded-2xl border border-emerald-700/50 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🌱</span>
+          <span className="text-2xl"><GameIcon e="🌱" /></span>
           <div>
             <h2 className="font-bold text-white text-sm sm:text-base leading-tight">Cánh Đồng Hoa Màu</h2>
             <p className="text-emerald-300/80 text-[11px]">
@@ -74,7 +76,7 @@ export const CropsSection: React.FC<Props> = ({
               onClick={onHarvestAll}
               className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-md transition-transform active:scale-95 cursor-pointer"
             >
-              <span>🧺</span>
+              <span><GameIcon e="🧺" /></span>
               <span>Thu hoạch tất cả ({readyPlotsCount})</span>
             </button>
           )}
@@ -118,7 +120,7 @@ export const CropsSection: React.FC<Props> = ({
                 }`}
               >
                 {/* Crop Icon */}
-                <span className="text-2xl sm:text-3xl mb-1 filter drop-shadow">{crop.icon}</span>
+                <span className="text-2xl sm:text-3xl mb-1 filter drop-shadow"><GameIcon e={crop.icon} /></span>
 
                 {/* Name */}
                 <span className="text-xs font-bold text-white text-center leading-tight truncate w-full">
@@ -128,11 +130,11 @@ export const CropsSection: React.FC<Props> = ({
                 {/* Details */}
                 <div className="mt-1 flex flex-col items-center text-[11px] w-full text-center">
                   {isLocked ? (
-                    <span className="text-amber-300 font-semibold">🔒 Lv.{crop.minLevel}</span>
+                    <span className="text-amber-300 font-semibold"><GameIcon e="🔒" /> Lv.{crop.minLevel}</span>
                   ) : (
                     <>
                       <span className={`font-mono font-medium ${canAfford ? 'text-amber-300' : 'text-rose-400'}`}>
-                        💰 {formatMoney(crop.buyCost)}
+                        <CoinIcon /> {formatMoney(crop.buyCost)}
                       </span>
                       <span className="text-emerald-300/80 font-mono text-[11px]">⏱️ {crop.growTime}s</span>
                     </>
@@ -204,14 +206,14 @@ export const CropsSection: React.FC<Props> = ({
                 {!plot.cropId ? (
                   <div className="flex flex-col items-center text-center group">
                     <span className="text-3xl sm:text-4xl opacity-50 group-hover:opacity-90 group-hover:scale-110 transition-transform">
-                      🌱
+                      <GameIcon e="🌱" />
                     </span>
                     <span className="text-xs font-bold text-amber-200/80 mt-1">Đất trống</span>
                     <span className="text-[11px] text-emerald-400/90">Chạm gieo hạt</span>
                   </div>
                 ) : isReady ? (
                   <div className="flex flex-col items-center text-center animate-bounce-slight">
-                    <span className="text-4xl sm:text-5xl filter drop-shadow-lg">{crop?.icon}</span>
+                    <span className="text-4xl sm:text-5xl filter drop-shadow-lg"><GameIcon e={crop?.icon} /></span>
                     <span className="text-xs font-extrabold text-amber-300 mt-1">{crop?.nameVi} chín!</span>
                     <span className="text-[11px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-500/40">
                       Chạm để thu hoạch
@@ -221,7 +223,7 @@ export const CropsSection: React.FC<Props> = ({
                   <div className="flex flex-col items-center text-center">
                     {/* Growth stage icon */}
                     <span className="text-3xl sm:text-4xl filter drop-shadow">
-                      {progress < 35 ? '🌱' : progress < 75 ? '🌿' : crop?.icon}
+                      {progress < 35 ? <GameIcon e="🌱" /> : progress < 75 ? <GameIcon e="🌿" /> : <GameIcon e={crop?.icon} />}
                     </span>
                     <span className="text-xs font-semibold text-slate-200 mt-1">{crop?.nameVi}</span>
 
@@ -260,7 +262,7 @@ export const CropsSection: React.FC<Props> = ({
                       className="flex-1 py-1 px-1 rounded-lg bg-purple-600/80 hover:bg-purple-600 text-white font-medium flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                       title="Bón phân nhận thêm +1 sản phẩm khi thu hoạch (20 vàng)"
                     >
-                      <Sparkles size={11} /> Phân (20💰)
+                      <Sparkles size={11} /> Phân (20<CoinIcon />)
                     </button>
                   )}
                   <button
@@ -268,7 +270,7 @@ export const CropsSection: React.FC<Props> = ({
                     className="flex-1 py-1 px-1 rounded-lg bg-amber-500/90 hover:bg-amber-500 text-slate-950 font-bold flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                     title="Chín ngay lập tức bằng 1 Kim Cương"
                   >
-                    <Zap size={11} /> 1💎
+                    <Zap size={11} /> 1<GameIcon e="💎" />
                   </button>
                 </div>
               )}
@@ -284,7 +286,7 @@ export const CropsSection: React.FC<Props> = ({
           >
             <PlusCircle className="text-emerald-400 group-hover:text-amber-400 group-hover:scale-110 transition-transform mb-1" size={32} />
             <span className="font-bold text-white text-xs sm:text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold">💰 {formatMoney(unlockCost)}</span>
+            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold"><CoinIcon /> {formatMoney(unlockCost)}</span>
             <span className="text-[11px] text-emerald-400/80 mt-0.5">Mở rộng diện tích nông trại</span>
           </div>
         )}

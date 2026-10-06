@@ -4,6 +4,10 @@ import { STARTING_PROFILES_CONFIG, generateRandomSeed } from '../config/variabil
 import { Dices, Sparkles, X, Check, ArrowRight } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { SpriteIcon } from './SpriteIcon';
+import { PROFILE_SPRITES } from '../utils/sprites';
 
 interface Props {
   currentSeed: string;
@@ -27,12 +31,12 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className="bg-[#FAF8F2] border-2 border-[#DFD9C3] rounded-3xl p-5 sm:p-7 max-w-xl w-full shadow-2xl relative max-h-[90vh] flex flex-col justify-between overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="px-panel p-5 sm:p-7 max-w-xl w-full relative max-h-[90vh] flex flex-col justify-between overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[#E8E2D2]">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl sm:text-3xl">🎲</span>
+            <span className="text-2xl sm:text-3xl"><GameIcon e="🎲" /></span>
             <div>
               <h3 className="font-black text-lg sm:text-xl text-slate-900 font-display leading-tight">
                 Khởi Tạo Nông Trại Khả Biến Mới
@@ -109,7 +113,7 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-2xl">{profile.icon}</span>
+                          {PROFILE_SPRITES[profile.id] ? <SpriteIcon src={PROFILE_SPRITES[profile.id]} alt={profile.name} size={36} /> : <span className="text-2xl"><GameIcon e={profile.icon} /></span>}
                           <div>
                             <h4 className="font-extrabold text-sm leading-tight font-display">{profile.name}</h4>
                             <span className={`text-[11px] font-bold ${isSelected ? 'text-amber-300' : 'text-emerald-800'}`}>
@@ -133,12 +137,12 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
                     <div className={`mt-2.5 pt-2 border-t text-[11px] font-medium ${
                       isSelected ? 'border-white/20 text-amber-200' : 'border-slate-100 text-amber-900'
                     }`}>
-                      <strong className="block font-bold">✨ {profile.perkName}:</strong>
+                      <strong className="block font-bold"><GameIcon e="✨" /> {profile.perkName}:</strong>
                       <span>{profile.perkDescription}</span>
                       <div className="mt-1 flex items-center gap-2 font-mono text-[11px] opacity-80">
-                        <span>💰 {formatMoney(profile.initialMoney)}</span>
+                        <span><CoinIcon /> {formatMoney(profile.initialMoney)}</span>
                         <span>·</span>
-                        <span>🌾 {profile.plotCount} ô đất</span>
+                        <span><GameIcon e="🌾" /> {profile.plotCount} ô đất</span>
                       </div>
                     </div>
                   </div>
@@ -160,7 +164,7 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
 
           <button
             onClick={handleStart}
-            className="flex-1 py-3 px-6 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 cursor-pointer"
+            className="flex-1 py-3 px-6 px-btn px-btn-amber font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-98"
           >
             <span>Khởi Tạo Trang Trại Mới</span>
             <ArrowRight size={16} />

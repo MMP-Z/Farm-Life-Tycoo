@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tractor, Sprout, Building2, Truck, Coins } from 'lucide-react';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   onLogin: () => void;
@@ -74,7 +75,7 @@ export const LoginScreen: React.FC<Props> = ({ onLogin, onPlayGuest }) => {
         {/* Right Section: Login */}
         <div className="w-full md:w-[400px] p-8 md:p-12 flex flex-col items-center justify-center bg-[#FCFBF7]">
           <div className="w-24 h-24 bg-emerald-100 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner border-2 border-white rotate-3">
-            <span className="text-5xl">👨‍🌾</span>
+            <span className="text-5xl"><GameIcon e="👨‍🌾" /></span>
           </div>
           
           <h2 className="text-2xl font-black text-slate-900 font-display mb-3 text-center">

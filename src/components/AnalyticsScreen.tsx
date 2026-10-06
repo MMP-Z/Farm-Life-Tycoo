@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, TrendingUp, Droplets, Sun, Award } from 'lucide-react';
+import { GameIcon } from './GameIcon';
 
 export const AnalyticsScreen: React.FC = () => {
   return (
@@ -57,7 +58,7 @@ export const AnalyticsScreen: React.FC = () => {
               <div key={item.name} className="flex flex-col gap-1.5">
                 <div className="flex justify-between text-xs sm:text-sm font-semibold">
                   <span className="flex items-center gap-2 text-slate-800">
-                    <span className="text-base">{item.icon}</span>
+                    <span className="text-base"><GameIcon e={item.icon} /></span>
                     <span>{item.name}</span>
                   </span>
                   <span className="font-mono font-bold text-slate-900">{item.yield}</span>

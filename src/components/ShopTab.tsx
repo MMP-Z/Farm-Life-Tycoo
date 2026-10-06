@@ -5,6 +5,9 @@ import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
 import { CROP_SPRITES, ANIMAL_SPRITES } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { RichText } from './RichText';
 
 interface Props {
   money: number;
@@ -44,7 +47,7 @@ export const ShopTab: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner shrink-0">
-            🏪
+            <GameIcon e="🏪" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -58,7 +61,7 @@ export const ShopTab: React.FC<Props> = ({
 
         {/* Ví tiền */}
         <div className="bg-[#FFF9E6] border border-[#F5E6B3] px-3.5 py-1.5 rounded-2xl flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-lg">💰</span>
+          <span className="text-lg"><CoinIcon /></span>
           <span className="font-mono font-extrabold text-amber-950">{formatMoney(money)}</span>
         </div>
       </div>
@@ -83,7 +86,7 @@ export const ShopTab: React.FC<Props> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {tab.label}
+            <RichText text={tab.label} />
           </button>
         ))}
       </div>
@@ -111,12 +114,12 @@ export const ShopTab: React.FC<Props> = ({
                       <div className="flex items-center gap-1 filter drop-shadow-xs">
                         {CROP_SPRITES[crop.id]
                           ? <SpriteIcon src={CROP_SPRITES[crop.id].seed} alt={`Giống ${crop.name}`} size={34} />
-                          : <><span className="text-2xl">🌱</span><span className="text-2xl">{crop.icon}</span></>}
+                          : <><span className="text-2xl"><GameIcon e="🌱" /></span><span className="text-2xl"><GameIcon e={crop.icon} /></span></>}
                       </div>
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">Giống {crop.name}</h4>
                         <span className="text-[11px] font-mono text-emerald-800 font-bold">
-                          💰 {formatMoney(crop.seedPrice)} / túi
+                          <CoinIcon /> {formatMoney(crop.seedPrice)} / túi
                         </span>
                       </div>
                     </div>
@@ -149,9 +152,9 @@ export const ShopTab: React.FC<Props> = ({
                             ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black'
                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
-                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (💰 ${formatMoney(bulkCost)})`}
+                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (${formatMoney(bulkCost)})`}
                       >
-                        Đủ {bulkCount} ô (💰 {formatMoney(bulkCost)})
+                        Đủ {bulkCount} ô (<CoinIcon /> {formatMoney(bulkCost)})
                       </button>
                     )}
                   </div>
@@ -196,10 +199,10 @@ export const ShopTab: React.FC<Props> = ({
               >
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl">{sup.icon}</span>
+                    <span className="text-3xl"><GameIcon e={sup.icon} /></span>
                     <div>
                       <h4 className="font-extrabold text-sm text-slate-900 font-display">{sup.name}</h4>
-                      <span className="text-xs font-mono text-emerald-800 font-bold">💰 {formatMoney(sup.price)} / lọ</span>
+                      <span className="text-xs font-mono text-emerald-800 font-bold"><CoinIcon /> {formatMoney(sup.price)} / lọ</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed my-2">{sup.desc}</p>
@@ -227,7 +230,7 @@ export const ShopTab: React.FC<Props> = ({
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
-                    Mua 5 lọ (💰 {formatMoney(sup.price * 5)})
+                    Mua 5 lọ (<CoinIcon /> {formatMoney(sup.price * 5)})
                   </button>
                 </div>
               </div>
@@ -244,11 +247,11 @@ export const ShopTab: React.FC<Props> = ({
             <div>
               <div className="flex items-center gap-3.5 mb-2">
                 <div className="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-3xl shadow-inner">
-                  💧
+                  <GameIcon e="💧" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 font-display">Hệ Thống Tưới Tự Động Toàn Cánh Đồng</h3>
-                  <span className="text-xs text-sky-800 font-bold font-mono">Chi phí: 💰 {formatMoney(autoIrrigationCost)}</span>
+                  <span className="text-xs text-sky-800 font-bold font-mono">Chi phí: <CoinIcon /> {formatMoney(autoIrrigationCost)}</span>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed my-2">
@@ -272,7 +275,7 @@ export const ShopTab: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>Đầu Tư Lắp Đặt (💰 {formatMoney(autoIrrigationCost)})</span>
+                  <span>Đầu Tư Lắp Đặt (<CoinIcon /> {formatMoney(autoIrrigationCost)})</span>
                 </button>
               )}
             </div>
@@ -283,11 +286,11 @@ export const ShopTab: React.FC<Props> = ({
             <div>
               <div className="flex items-center gap-3.5 mb-2">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
-                  👷
+                  <GameIcon e="👷" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 font-display">Thuê Nhân Công Chăm Sóc Nông Trại</h3>
-                  <span className="text-xs text-emerald-800 font-bold font-mono">Chi phí: 💰 {formatMoney(autoWorkerCost)}</span>
+                  <span className="text-xs text-emerald-800 font-bold font-mono">Chi phí: <CoinIcon /> {formatMoney(autoWorkerCost)}</span>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed my-2">
@@ -331,11 +334,11 @@ export const ShopTab: React.FC<Props> = ({
                     <div className="flex items-center gap-2.5">
                       {ANIMAL_SPRITES[def.id]
                         ? <SpriteIcon src={ANIMAL_SPRITES[def.id]} alt={def.name} size={44} className="filter drop-shadow-xs" />
-                        : <span className="text-3xl filter drop-shadow-xs">{def.icon}</span>}
+                        : <span className="text-3xl filter drop-shadow-xs"><GameIcon e={def.icon} /></span>}
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">{def.name}</h4>
                         <span className="text-[11px] font-mono text-amber-800 font-bold">
-                          💰 {formatMoney(def.buyPrice)} / con
+                          <CoinIcon /> {formatMoney(def.buyPrice)} / con
                         </span>
                       </div>
                     </div>

@@ -3,6 +3,8 @@ import { FinancialTransaction, BankLoan, PendingTax } from '../types/farmSystem'
 import { TrendingUp, TrendingDown, Landmark, Receipt, CreditCard } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   money: number;
@@ -43,7 +45,7 @@ export const FinancialsTab: React.FC<Props> = ({
     <div className="space-y-6 animate-in fade-in duration-300 pb-10">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-amber-200">
-          💼
+          <GameIcon e="💼" />
         </div>
         <div>
           <h2 className="text-2xl font-black text-slate-800 font-display">Tài Chính & Kế Toán</h2>
@@ -147,7 +149,7 @@ export const FinancialsTab: React.FC<Props> = ({
                       <div className="text-xs text-slate-500 font-medium mt-0.5">Ngày {t.day} • {t.category}</div>
                     </div>
                     <div className={`font-black tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {t.type === 'income' ? '+' : '-'}💰 {formatMoney(Math.round(t.amount))}
+                      {t.type === 'income' ? '+' : '-'}<CoinIcon /> {formatMoney(Math.round(t.amount))}
                     </div>
                   </div>
                 ))}
@@ -187,7 +189,7 @@ export const FinancialsTab: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-black">+500 💰</span>
+                  <span className="font-black">+500 <CoinIcon /></span>
                 </div>
               </button>
               <button
@@ -202,7 +204,7 @@ export const FinancialsTab: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-black">+2,000 💰</span>
+                  <span className="font-black">+2,000 <CoinIcon /></span>
                 </div>
               </button>
             </div>
@@ -215,8 +217,8 @@ export const FinancialsTab: React.FC<Props> = ({
                 {loans.map(loan => (
                   <div key={loan.id} className="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     <div>
-                      <div className="font-bold text-rose-900 text-sm">Vay 💰 {formatMoney(loan.principal)} (Lãi {loan.interestRate * 100}%/ngày)</div>
-                      <div className="text-xs text-rose-700/80 font-medium mt-1">Dư nợ hiện tại: 💰 {formatMoney(loan.remainingAmount)}</div>
+                      <div className="font-bold text-rose-900 text-sm">Vay <CoinIcon /> {formatMoney(loan.principal)} (Lãi {loan.interestRate * 100}%/ngày)</div>
+                      <div className="text-xs text-rose-700/80 font-medium mt-1">Dư nợ hiện tại: <CoinIcon /> {formatMoney(loan.remainingAmount)}</div>
                     </div>
                     <button
                       onClick={() => onPayLoan(loan.id, loan.remainingAmount)}
@@ -240,7 +242,7 @@ export const FinancialsTab: React.FC<Props> = ({
           </div>
           {pendingTaxes.length === 0 ? (
             <div className="text-center py-8 text-slate-500 font-medium text-sm flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl">🎉</div>
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl"><GameIcon e="🎉" /></div>
               Không có khoản thuế nào đang nợ!
             </div>
           ) : (
@@ -252,7 +254,7 @@ export const FinancialsTab: React.FC<Props> = ({
                     <div className="text-xs text-orange-700/80 font-medium mt-1">Hạn nộp: Cuối ngày {tax.dueDay}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="font-black text-orange-700 text-lg">💰 {formatMoney(tax.amount)}</div>
+                    <div className="font-black text-orange-700 text-lg"><CoinIcon /> {formatMoney(tax.amount)}</div>
                     <button
                       onClick={() => onPayTax(tax.id)}
                       disabled={money < tax.amount}

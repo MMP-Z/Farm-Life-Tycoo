@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { ITEM_CATALOG } from '../constants/gameData';
 import { ArrowUpCircle, ShoppingCart } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { RichText } from './RichText';
 
 interface Props {
   inventory: Record<string, number>;
@@ -44,7 +47,7 @@ export const BarnSection: React.FC<Props> = ({
       <div className="bg-[#21432c]/90 p-4 rounded-2xl border border-emerald-700/50 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🏡</span>
+            <span className="text-2xl"><GameIcon e="🏡" /></span>
             <div>
               <h2 className="font-bold text-white text-base leading-tight">Kho Thóc & Chợ Nông Sản</h2>
               <p className="text-emerald-300 text-xs">
@@ -75,7 +78,7 @@ export const BarnSection: React.FC<Props> = ({
           }`}
         >
           <ArrowUpCircle size={15} />
-          <span>Nâng cấp kho +20 ô (💰 {formatMoney(upgradeCost)})</span>
+          <span>Nâng cấp kho +20 ô (<CoinIcon /> {formatMoney(upgradeCost)})</span>
         </button>
       </div>
 
@@ -96,7 +99,7 @@ export const BarnSection: React.FC<Props> = ({
                 : 'text-emerald-300/70 hover:text-white'
             }`}
           >
-            {tab.label}
+            <RichText text={tab.label} />
           </button>
         ))}
       </div>
@@ -104,7 +107,7 @@ export const BarnSection: React.FC<Props> = ({
       {/* Inventory Item Grid */}
       {items.length === 0 ? (
         <div className="bg-[#1a3323]/80 rounded-2xl border border-dashed border-emerald-800/80 p-8 flex flex-col items-center justify-center text-center">
-          <span className="text-4xl mb-2 opacity-60">🌾</span>
+          <span className="text-4xl mb-2 opacity-60"><GameIcon e="🌾" /></span>
           <p className="font-bold text-slate-300 text-sm">Kho nông sản trống</p>
           <p className="text-xs text-slate-400 mt-0.5">
             Hãy thu hoạch rau củ trên đồng hoặc lấy sản phẩm từ chuồng trại!
@@ -119,14 +122,14 @@ export const BarnSection: React.FC<Props> = ({
             >
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-emerald-950/80 border border-emerald-700/50 flex items-center justify-center text-2xl shadow-inner">
-                  {item.icon}
+                  <GameIcon e={item.icon} />
                 </div>
                 <div>
                   <h4 className="font-bold text-white text-sm leading-tight">{item.nameVi}</h4>
                   <p className="text-[11px] text-emerald-300/90 font-mono">
                     Số lượng: <strong className="text-white text-xs">{item.count}</strong> cái
                   </p>
-                  <p className="text-[11px] text-amber-300 font-mono mt-0.5">Giá bán: 💰 {formatMoney(item.sellPrice)} / cái</p>
+                  <p className="text-[11px] text-amber-300 font-mono mt-0.5">Giá bán: <CoinIcon /> {formatMoney(item.sellPrice)} / cái</p>
                 </div>
               </div>
 
@@ -135,18 +138,18 @@ export const BarnSection: React.FC<Props> = ({
                 <button
                   onClick={(e) => onSellItem(item.itemId, 1, e)}
                   className="px-2.5 py-1 min-h-[40px] rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 font-semibold text-xs border border-emerald-600/40 cursor-pointer shadow-sm"
-                  title={`Bán 1 cái lấy 💰 ${formatMoney(item.sellPrice)}`}
+                  title={`Bán 1 cái lấy ${formatMoney(item.sellPrice)}`}
                 >
-                  Bán 1 (+💰 {formatMoney(item.sellPrice)})
+                  Bán 1 (+<CoinIcon /> {formatMoney(item.sellPrice)})
                 </button>
 
                 {item.count > 1 && (
                   <button
                     onClick={(e) => onSellItem(item.itemId, item.count, e)}
                     className="px-2 py-0.5 min-h-[40px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-[11px] border border-amber-400/30 cursor-pointer"
-                    title={`Bán tất cả ${item.count} cái lấy 💰 ${formatMoney(item.count * item.sellPrice)}`}
+                    title={`Bán tất cả ${item.count} cái lấy ${formatMoney(item.count * item.sellPrice)}`}
                   >
-                    Bán hết (💰 {formatMoney(item.count * item.sellPrice)})
+                    Bán hết (<CoinIcon /> {formatMoney(item.count * item.sellPrice)})
                   </button>
                 )}
               </div>

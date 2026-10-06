@@ -8,6 +8,8 @@ import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
 import { CROP_SPRITES, getCropStageSprite } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   plots: FieldPlot[];
@@ -64,7 +66,7 @@ export const FieldTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Banner & Quick Status */}
-      <div className="bg-white rounded-3xl p-3.5 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <div className="px-panel p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <SpriteIcon src={CROP_SPRITES.wheat.mature} alt="Cánh đồng" size={34} />
@@ -136,7 +138,7 @@ export const FieldTab: React.FC<Props> = ({
                   <div className="mb-0.5 filter drop-shadow-xs">
                     {CROP_SPRITES[crop.id]
                       ? <SpriteIcon src={CROP_SPRITES[crop.id].item} alt={crop.name} size={34} />
-                      : <span className="text-2xl sm:text-3xl">{crop.icon}</span>}
+                      : <span className="text-2xl sm:text-3xl"><GameIcon e={crop.icon} /></span>}
                   </div>
                   <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
                     Giống {crop.name}
@@ -218,16 +220,16 @@ export const FieldTab: React.FC<Props> = ({
                     className="px-1.5 py-0.5 rounded-md text-[11px] bg-black/25 text-amber-200 border border-white/10 whitespace-nowrap truncate"
                     title={soilDef.description}
                   >
-                    {soilDef.icon} {soilDef.name.replace('Đất ', '')}
+                    <GameIcon e={soilDef.icon} /> {soilDef.name.replace('Đất ', '')}
                   </span>
                   {plot.specialFeature === 'spring' && (
                     <span className="px-1 py-0.2 rounded text-[11px] bg-sky-500/30 text-sky-200 shrink-0" title="Suối nước ngầm tự dưỡng ẩm">
-                      💧
+                      <GameIcon e="💧" />
                     </span>
                   )}
                   {plot.specialFeature === 'mineral' && (
                     <span className="px-1 py-0.2 rounded text-[11px] bg-amber-500/30 text-amber-200 shrink-0" title="Đất giàu khoáng (+20% sản lượng)">
-                      ✨
+                      <GameIcon e="✨" />
                     </span>
                   )}
                 </div>
@@ -240,7 +242,7 @@ export const FieldTab: React.FC<Props> = ({
                       ? 'bg-amber-500/25 text-amber-200 border border-amber-400/30'
                       : 'bg-rose-500/30 text-rose-200 border border-rose-400/40 animate-pulse'
                   }`}>
-                    💧{plot.moisture}%
+                    <GameIcon e="💧" />{plot.moisture}%
                   </span>
                 </div>
               </div>
@@ -260,7 +262,7 @@ export const FieldTab: React.FC<Props> = ({
                     <span className="mb-0.5 group-hover:scale-110 transition-transform">
                       {CROP_SPRITES[selectedCropId]
                         ? <SpriteIcon src={CROP_SPRITES[selectedCropId].seed} alt="Hạt giống" size={32} />
-                        : <span className="text-3xl">🌱</span>}
+                        : <span className="text-3xl"><GameIcon e="🌱" /></span>}
                     </span>
                     <span className="text-xs font-bold text-amber-200">Đất đã cày xới</span>
                     <span className="text-[11px] text-amber-300/90 font-medium">
@@ -274,7 +276,7 @@ export const FieldTab: React.FC<Props> = ({
                     <span className="filter drop-shadow-sm mb-0.5 animate-bounce-slight">
                       {plot.cropId && CROP_SPRITES[plot.cropId]
                         ? <SpriteIcon src={getCropStageSprite(plot.cropId, progressPercent)} alt={crop?.name || ''} size={44} />
-                        : <span className="text-4xl">{progressPercent < 35 ? '🌱' : progressPercent < 75 ? '🌿' : crop?.icon}</span>}
+                        : <span className="text-4xl">{progressPercent < 35 ? <GameIcon e="🌱" /> : progressPercent < 75 ? <GameIcon e="🌿" /> : <GameIcon e={crop?.icon} />}</span>}
                     </span>
                     <span className="font-extrabold text-xs text-white leading-tight font-display">{crop?.name}</span>
 
@@ -303,7 +305,7 @@ export const FieldTab: React.FC<Props> = ({
                     <span className="filter drop-shadow-md mb-0.5">
                       {plot.cropId && CROP_SPRITES[plot.cropId]
                         ? <SpriteIcon src={CROP_SPRITES[plot.cropId].mature} alt={crop?.name || ''} size={52} />
-                        : <span className="text-4xl sm:text-5xl">{crop?.icon}</span>}
+                        : <span className="text-4xl sm:text-5xl"><GameIcon e={crop?.icon} /></span>}
                     </span>
                     <span className="font-black text-xs text-amber-300 font-display">{crop?.name} chín rộ!</span>
                     <span className="text-[11px] font-extrabold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
@@ -364,7 +366,7 @@ export const FieldTab: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm font-display">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-800 font-mono font-bold mt-1">💰 {formatMoney(plotCost)}</span>
+            <span className="text-xs text-amber-800 font-mono font-bold mt-1"><CoinIcon /> {formatMoney(plotCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Sinh loại đất ngẫu nhiên theo Seed</span>
           </div>
         )}

@@ -1,6 +1,9 @@
 import React from 'react';
 import { DynamicFarmEvent, DynamicFarmEventChoice } from '../types/farmSystem';
 import { Sparkles } from 'lucide-react';
+import { GameIcon } from './GameIcon';
+import { SpriteIcon } from './SpriteIcon';
+import { EVENT_ICON_SPRITES } from '../utils/sprites';
 
 interface Props {
   event: DynamicFarmEvent;
@@ -10,15 +13,15 @@ interface Props {
 export const EventModal: React.FC<Props> = ({ event, onChoose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className="bg-gradient-to-b from-[#FAF8F2] to-[#F2EFE9] border-2 border-amber-300 rounded-3xl p-5 sm:p-7 max-w-md w-full shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 text-center">
+      <div className="px-panel p-5 sm:p-7 max-w-md w-full relative overflow-hidden animate-in zoom-in-95 duration-200 text-center">
         
         {/* Glow ambient background */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Character Icon Avatar */}
         <div className="relative inline-flex items-center justify-center mb-3">
-          <div className="w-20 h-20 rounded-3xl bg-amber-100 border-2 border-amber-300 shadow-md flex items-center justify-center text-4xl animate-bounce-slight">
-            {event.icon}
+          <div className="w-20 h-20 px-panel-inset flex items-center justify-center animate-bounce-slight !p-2">
+            {EVENT_ICON_SPRITES[event.icon] ? <SpriteIcon src={EVENT_ICON_SPRITES[event.icon]} alt="" size={52} /> : <GameIcon e={event.icon} />}
           </div>
           <Sparkles className="absolute -top-1 -right-2 text-amber-500 animate-spin-slow" size={20} />
         </div>
@@ -49,7 +52,7 @@ export const EventModal: React.FC<Props> = ({ event, onChoose }) => {
             >
               <span className="font-extrabold text-xs sm:text-sm flex items-center justify-between">
                 <span>{choice.text}</span>
-                <span className="text-amber-300 group-hover:translate-x-1 transition-transform">➔</span>
+                <span className="text-amber-300 group-hover:translate-x-1 transition-transform"><GameIcon e="➔" /></span>
               </span>
               <span className="text-[11px] text-emerald-200 font-medium mt-1">
                 {choice.actionDesc}

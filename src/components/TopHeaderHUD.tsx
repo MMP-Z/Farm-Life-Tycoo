@@ -17,11 +17,14 @@ import {
   Dices,
   RotateCcw,
   Copy,
+  Zap,
 } from 'lucide-react';
 import { exportSaveFile, importSaveFile } from '../utils/storageEngine';
 import { sound } from '../utils/sound';
 import { SpriteIcon } from './SpriteIcon';
 import { FARMER_SPRITE } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   state: FarmGameState;
@@ -106,7 +109,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
   };
 
   return (
-    <header className="w-full bg-[#FCFBF7] border-b-2 border-[#E9E4D4] shadow-xs select-none sticky top-0 z-40 font-sans pt-safe">
+    <header className="w-full bg-[#FCFBF7] border-b-[3px] border-[#3a2b3f] select-none sticky top-0 z-40 font-sans pt-safe">
       <input
         type="file"
         ref={fileInputRef}
@@ -123,7 +126,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
           {/* Box 1: Avatar & Level */}
           <div 
             onClick={() => setShowProfileModal(true)}
-            className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] px-2.5 sm:px-3 rounded-2xl border border-[#DFD9C3] shadow-inner shrink-0 whitespace-nowrap cursor-pointer hover:bg-white transition-all active:scale-95"
+            className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 px-chip px-2.5 sm:px-3 shrink-0 whitespace-nowrap cursor-pointer hover:bg-white transition-all active:scale-95"
             title="Xem hồ sơ cá nhân"
           >
             <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={28} className="animate-bounce-slight shrink-0" />
@@ -139,8 +142,8 @@ export const TopHeaderHUD: React.FC<Props> = ({
           </div>
 
           {/* Box 2: Ngày & Mùa — gọn trên mobile (chỉ "Ngày N"), đủ trên sm+ */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] border border-[#DFD9C3] px-2.5 sm:px-3 rounded-2xl shrink-0 whitespace-nowrap min-w-0 sm:min-w-[104px]">
-            <span className="text-lg sm:text-xl shrink-0">{seasonInfo.icon}</span>
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 px-chip px-2.5 sm:px-3 shrink-0 whitespace-nowrap min-w-0 sm:min-w-[104px]">
+            <span className="text-lg sm:text-xl shrink-0"><GameIcon e={seasonInfo.icon} /></span>
             <div className="flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 leading-none whitespace-nowrap">
                 <span className="hidden md:inline">{seasonInfo.name} · </span>Ngày {state.currentDay}
@@ -152,8 +155,8 @@ export const TopHeaderHUD: React.FC<Props> = ({
           </div>
 
           {/* Box 3: Tiền vàng — min-w cố định vì formatMoney đổi độ rộng khi tiền tăng */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 bg-[#FFF9E6] border border-[#F5E6B3] px-2.5 sm:px-3 rounded-2xl shadow-inner shrink-0 whitespace-nowrap min-w-[96px] sm:min-w-[112px]">
-            <span className="text-base sm:text-xl shrink-0">💰</span>
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 px-chip px-2.5 sm:px-3 shrink-0 whitespace-nowrap min-w-[96px] sm:min-w-[112px] !bg-[#FFF3C4]">
+            <span className="text-base sm:text-xl shrink-0"><CoinIcon /></span>
             <span className="font-mono font-black text-xs sm:text-sm text-amber-950 tabular-nums whitespace-nowrap">
               {formatMoney(state.money)}
             </span>
@@ -161,10 +164,10 @@ export const TopHeaderHUD: React.FC<Props> = ({
 
           {/* Box 4: Thời tiết */}
           <div
-            className="h-10 sm:h-11 px-2.5 sm:px-3 flex items-center justify-center gap-1 bg-[#F3EFE0] border border-[#DFD9C3] rounded-2xl shrink-0 cursor-pointer hover:bg-white active:scale-95 transition-all whitespace-nowrap"
+            className="h-10 sm:h-11 px-2.5 sm:px-3 flex items-center justify-center gap-1 px-chip shrink-0 cursor-pointer hover:bg-white active:scale-95 transition-all whitespace-nowrap"
             title={weatherInfo.desc}
           >
-            <span className="text-lg sm:text-xl shrink-0">{weatherInfo.icon}</span>
+            <span className="text-lg sm:text-xl shrink-0"><GameIcon e={weatherInfo.icon} /></span>
             <span className="font-bold text-xs text-slate-800 hidden lg:inline whitespace-nowrap">{weatherInfo.name}</span>
           </div>
           
@@ -239,10 +242,10 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 <label className="text-xs font-bold text-slate-700 mb-1.5 block">Tốc độ thời gian game:</label>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[
-                    { speed: 0, label: '⏸ Dừng' },
-                    { speed: 1, label: '▶ 1x' },
-                    { speed: 2, label: '⏩ 2x' },
-                    { speed: 4, label: '⚡ 4x' },
+                    { speed: 0, label: 'Dừng', icon: 'pause' },
+                    { speed: 1, label: '1x', icon: 'play' },
+                    { speed: 2, label: '2x', icon: 'ff' },
+                    { speed: 4, label: '4x', icon: 'zap' },
                   ].map((s) => (
                     <button
                       key={s.speed}
@@ -253,6 +256,10 @@ export const TopHeaderHUD: React.FC<Props> = ({
                           : 'bg-white border border-[#DFD9C3] text-slate-700'
                       }`}
                     >
+                      {s.icon === 'pause' && <Pause size={12} />}
+                      {s.icon === 'play' && <Play size={12} />}
+                      {s.icon === 'ff' && <FastForward size={12} />}
+                      {s.icon === 'zap' && <Zap size={12} />}
                       {s.label}
                     </button>
                   ))}
@@ -350,7 +357,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                   <span className="text-sm font-bold text-slate-600">Tài Sản Ròng Ước Tính:</span>
-                  <span className="text-lg font-black text-amber-700">💰 {totalAssets.toLocaleString()}</span>
+                  <span className="text-lg font-black text-amber-700"><CoinIcon /> {totalAssets.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -363,7 +370,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                   </div>
                   <div className="flex justify-between">
                     <span>Tổng doanh thu:</span>
-                    <span className="font-bold text-emerald-600">+💰 {state.stats.totalEarnings.toLocaleString()}</span>
+                    <span className="font-bold text-emerald-600">+<CoinIcon /> {state.stats.totalEarnings.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Lần thu hoạch:</span>

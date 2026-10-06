@@ -3,7 +3,10 @@ import { InventoryItem, OrderItem } from '../types/farmSystem';
 import { Check, Clock, Sparkles } from 'lucide-react';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
+import { CUSTOMER_SPRITES } from '../utils/sprites';
 import { ITEM_SPRITES } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   inventory: InventoryItem[];
@@ -22,10 +25,10 @@ export const SupermarketTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-4 sm:p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
-            🛒
+            <GameIcon e="🛒" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -39,10 +42,10 @@ export const SupermarketTab: React.FC<Props> = ({
       </div>
 
       {/* Bảng Đơn Hàng (Order Board) */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3.5">
           <div className="flex items-center gap-2">
-            <span className="text-xl">📋</span>
+            <span className="text-xl"><GameIcon e="📋" /></span>
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
               Bảng Đơn Hàng Siêu Thị (Thưởng Thêm +30% Tiền & XP)
             </h3>
@@ -76,7 +79,7 @@ export const SupermarketTab: React.FC<Props> = ({
                   <div>
                     <div className="flex items-center justify-between pb-2.5 border-b border-[#F2EFE9] mb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-2xl">{order.customerAvatar}</span>
+                        {CUSTOMER_SPRITES[order.customerAvatar] ? <SpriteIcon src={CUSTOMER_SPRITES[order.customerAvatar]} alt="" size={32} /> : <span className="text-2xl">{order.customerAvatar}</span>}
                         <div>
                           <h4 className="font-bold text-xs sm:text-sm text-slate-900">{order.customerName}</h4>
                           <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
@@ -86,7 +89,7 @@ export const SupermarketTab: React.FC<Props> = ({
                       </div>
 
                       <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                        +💰 {formatMoney(order.rewardMoney)} · +{order.rewardXP} XP
+                        +<CoinIcon /> {formatMoney(order.rewardMoney)} · +{order.rewardXP} XP
                       </span>
                     </div>
 
@@ -107,7 +110,7 @@ export const SupermarketTab: React.FC<Props> = ({
                           >
                             {ITEM_SPRITES[req.itemId]
                               ? <SpriteIcon src={ITEM_SPRITES[req.itemId]} alt={req.name} size={18} />
-                              : <span>{req.icon}</span>}
+                              : <span><GameIcon e={req.icon} /></span>}
                             <span>{req.name}:</span>
                             <span>
                               {inStock}/{req.amount}

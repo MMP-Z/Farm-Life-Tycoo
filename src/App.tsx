@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Map } from 'lucide-react';
+import { Map, Megaphone } from 'lucide-react';
+import { RichText } from './components/RichText';
+import { ITEM_SPRITES } from './utils/sprites';
 import {
   FarmGameState,
   SoilType,
@@ -52,6 +54,7 @@ import { EventModal } from './components/EventModal';
 import { NewGameModal } from './components/NewGameModal';
 import { FloatingReward } from './types/game';
 import { formatMoney } from './utils/format';
+import { GameIcon } from './components/GameIcon';
 
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
@@ -158,9 +161,9 @@ export default function App() {
   }, []);
 
   const addParticle = useCallback(
-    (x: number, y: number, text: string, type: 'coin' | 'exp' | 'item' | 'gem', icon?: string) => {
+    (x: number, y: number, text: string, type: 'coin' | 'exp' | 'item' | 'gem', spriteSrc?: string) => {
       const id = Math.random().toString(36).substring(2, 9);
-      setFloatingParticles((prev) => [...prev, { id, x, y, text, type, icon }]);
+      setFloatingParticles((prev) => [...prev, { id, x, y, text, type, spriteSrc }]);
       setTimeout(() => {
         setFloatingParticles((prev) => prev.filter((p) => p.id !== id));
       }, 1200);
@@ -175,7 +178,7 @@ export default function App() {
         let newMoney = prev.money + moneyGain;
 
         if (x && y) {
-          if (moneyGain > 0) addParticle(x, y - 24, `+💰 ${formatMoney(moneyGain)}`, 'coin');
+          if (moneyGain > 0) addParticle(x, y - 24, `+${formatMoney(moneyGain)}`, 'coin');
         }
 
         const newTransaction = {
@@ -648,7 +651,7 @@ export default function App() {
         rect.top,
         `+${yieldAmount} ${cropDef.name} (${soilYield.note})`,
         'item',
-        cropDef.icon
+        ITEM_SPRITES[plot.cropId]
       );
       awardXPAndMoney(Math.round(cropDef.basePrice * 1.5), 0, rect.left + rect.width / 2, rect.top - 20);
 
@@ -891,7 +894,7 @@ export default function App() {
 
       sound.playAnimal('chicken');
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, 'Thu hoạch thành công!', 'item', '✨');
+      addParticle(rect.left + rect.width / 2, rect.top, 'Thu hoạch thành công!', 'item');
       awardXPAndMoney(totalXP, 0);
 
       setState((prev) => {
@@ -1090,7 +1093,7 @@ export default function App() {
         rect.top,
         `+${recipe.outputAmount} ${recipe.name}`,
         'item',
-        recipe.icon
+        ITEM_SPRITES[recipe.outputItemId]
       );
       awardXPAndMoney(recipe.basePrice, 0);
 
@@ -1247,7 +1250,7 @@ export default function App() {
       const totalEarn = quantity * unitPrice;
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+💰 ${formatMoney(totalEarn)}`, 'coin');
+      addParticle(rect.left + rect.width / 2, rect.top, `+${formatMoney(totalEarn)}`, 'coin');
       awardXPAndMoney(Math.round(totalEarn * 0.3), totalEarn);
       
       // Giảm giá bán (Cung cầu): bán 1 sản phẩm giảm 0.5% giá trị, tối đa giảm xuống còn 40% giá trị gốc.
@@ -1288,7 +1291,7 @@ export default function App() {
 
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+💰 ${formatMoney(order.rewardMoney)}`, 'coin');
+      addParticle(rect.left + rect.width / 2, rect.top, `+${formatMoney(order.rewardMoney)}`, 'coin');
       awardXPAndMoney(order.rewardXP, order.rewardMoney);
 
       const newOrders = state.orders
@@ -1651,7 +1654,7 @@ export default function App() {
   if (loadingAuth) {
     return (
       <div className="min-h-screen bg-[#F3EFE0] flex items-center justify-center">
-        <div className="animate-spin text-4xl">🚜</div>
+        <div className="animate-spin text-4xl"><GameIcon e="🚜" /></div>
       </div>
     );
   }
@@ -1661,7 +1664,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F5EE] text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
+    <div className="min-h-screen px-bg-grass text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
       
       {/* Top Header HUD with Seed & Controls */}
       <TopHeaderHUD
@@ -1841,8 +1844,8 @@ export default function App() {
       {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 right-4 sm:right-6 z-50 max-w-sm bg-slate-900/90 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 text-xs sm:text-sm font-semibold animate-in slide-in-from-top-4 duration-200 flex items-center gap-2 pointer-events-none">
-          <span className="text-base">📢</span>
-          <span>{toastMessage}</span>
+          <Megaphone size={16} className="shrink-0 text-amber-300" />
+          <span><RichText text={toastMessage} /></span>
         </div>
       )}
 

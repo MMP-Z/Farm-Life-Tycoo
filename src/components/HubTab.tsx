@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { GameTab } from './NavigationTabs';
 import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   onSelectTab: (tab: GameTab) => void;
@@ -43,7 +45,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
       setPendingUnlock({ id: regionId, label, cost });
     } else {
       // Phản hồi rõ ràng khi không đủ tiền
-      onNotify?.(`Không đủ vàng! Cần 💰 ${formatMoney(cost)} để mở khóa ${label} (đang có 💰 ${formatMoney(money)}).`);
+      onNotify?.(`Không đủ vàng! Cần <CoinIcon /> ${formatMoney(cost)} để mở khóa ${label} (đang có <CoinIcon /> ${formatMoney(money)}).`);
       setShakeId(regionId);
       window.setTimeout(() => setShakeId((cur) => (cur === regionId ? null : cur)), 500);
     }
@@ -95,7 +97,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
               <div className={`text-[11px] mt-1 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-600 font-bold' : 'text-rose-500') : 'text-slate-600'}`}>
                 {isLocked ? (
                   <>
-                    Mở khóa: 💰 {formatMoney(region.cost)}
+                    Mở khóa: <CoinIcon /> {formatMoney(region.cost)}
                   </>
                 ) : (
                   region.desc
@@ -121,7 +123,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
             </h3>
             <p className="text-sm text-slate-600 mb-5 leading-relaxed">
               Bạn có muốn mở khóa <strong className="text-slate-900">{pendingUnlock.label}</strong> với
-              giá <strong className="text-amber-700">💰 {formatMoney(pendingUnlock.cost)}</strong> không?
+              giá <strong className="text-amber-700"><CoinIcon /> {formatMoney(pendingUnlock.cost)}</strong> không?
             </p>
             <div className="flex gap-3">
               <button
@@ -135,7 +137,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
                 disabled={money < pendingUnlock.cost}
                 className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40"
               >
-                Xác nhận (💰 {formatMoney(pendingUnlock.cost)})
+                Xác nhận (<CoinIcon /> {formatMoney(pendingUnlock.cost)})
               </button>
             </div>
           </div>

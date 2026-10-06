@@ -4,6 +4,8 @@ import { CropId, FarmPlot } from '../types/game';
 import { Droplets, Sparkles, Zap, Plus, Check, RefreshCw } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   plots: FarmPlot[];
@@ -57,7 +59,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#EAE6DA] shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌱</span>
+            <span className="text-xl"><GameIcon e="🌱" /></span>
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900">
               Chọn Hạt Giống Gieo Trồng
             </h3>
@@ -90,7 +92,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                 }`}
               >
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl mb-1 filter drop-shadow-sm">{crop.icon}</span>
+                  <span className="text-3xl mb-1 filter drop-shadow-sm"><GameIcon e={crop.icon} /></span>
                   <span className="font-extrabold text-xs sm:text-sm text-center leading-tight truncate w-full">
                     {crop.nameVi}
                   </span>
@@ -102,7 +104,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   ) : (
                     <>
                       <span className={`font-bold ${isSelected ? 'text-amber-300' : canAfford ? 'text-amber-700' : 'text-rose-500'}`}>
-                        💰 {formatMoney(crop.buyCost)}
+                        <CoinIcon /> {formatMoney(crop.buyCost)}
                       </span>
                       <span className={`opacity-80 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`}>
                         ⏱️ {crop.growTime}s
@@ -141,7 +143,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
               onClick={onHarvestAll}
               className="px-4 py-2 rounded-2xl bg-[#234230] hover:bg-[#1a3325] text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer animate-pulse-gentle"
             >
-              <span>🧺</span>
+              <span><GameIcon e="🧺" /></span>
               <span>Thu hoạch tất cả ({readyPlots.length})</span>
             </button>
           )}
@@ -205,14 +207,14 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                 {!plot.cropId ? (
                   <div className="flex flex-col items-center group">
                     <span className="text-4xl opacity-50 group-hover:opacity-90 group-hover:scale-110 transition-transform">
-                      🌱
+                      <GameIcon e="🌱" />
                     </span>
                     <span className="text-xs font-bold text-amber-100 mt-1">Đất trống sẵn sàng</span>
                     <span className="text-[11px] text-amber-300/80">Chạm để gieo {CROPS[selectedCropId].nameVi}</span>
                   </div>
                 ) : isReady ? (
                   <div className="flex flex-col items-center animate-bounce-slight">
-                    <span className="text-5xl filter drop-shadow-lg">{crop?.icon}</span>
+                    <span className="text-5xl filter drop-shadow-lg"><GameIcon e={crop?.icon} /></span>
                     <span className="text-xs font-black text-amber-300 mt-1.5">{crop?.nameVi} đã chín rộ!</span>
                     <span className="text-[11px] font-bold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
                       Chạm để thu hoạch
@@ -221,7 +223,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                 ) : (
                   <div className="flex flex-col items-center w-full">
                     <span className="text-4xl filter drop-shadow">
-                      {progress < 40 ? '🌱' : progress < 75 ? '🌿' : crop?.icon}
+                      {progress < 40 ? <GameIcon e="🌱" /> : progress < 75 ? <GameIcon e="🌿" /> : <GameIcon e={crop?.icon} />}
                     </span>
                     <span className="text-xs font-bold text-slate-100 mt-1">{crop?.nameVi}</span>
 
@@ -261,7 +263,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                       className="flex-1 py-1.5 px-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer shadow-xs"
                       title="Bón phân nhận thêm +1 sản lượng khi thu hoạch (20 vàng)"
                     >
-                      <Sparkles size={12} /> Phân (20💰)
+                      <Sparkles size={12} /> Phân (20<CoinIcon />)
                     </button>
                   )}
 
@@ -270,7 +272,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                     className="py-1.5 px-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shadow-xs"
                     title="Chín tức thì bằng 1 Kim Cương"
                   >
-                    <Zap size={12} /> 1💎
+                    <Zap size={12} /> 1<GameIcon e="💎" />
                   </button>
                 </div>
               )}
@@ -288,7 +290,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-700 font-mono font-bold mt-1">💰 {formatMoney(unlockCost)}</span>
+            <span className="text-xs text-amber-700 font-mono font-bold mt-1"><CoinIcon /> {formatMoney(unlockCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Mở rộng thêm diện tích</span>
           </div>
         )}

@@ -12,6 +12,103 @@
   }
 }
 
+/* ============================================
+   PIXEL-ART UI SYSTEM (Sprout Lands style)
+   Chunky outlines, hard shadows, sharp corners.
+   ============================================ */
+
+:root {
+  --px-ink: #3a2b3f;          /* dark outline */
+  --px-panel: #fff9e8;        /* parchment panel */
+  --px-panel-dark: #f5eeda;   /* parchment shadow */
+  --px-shadow: rgba(58, 43, 63, 0.28);
+}
+
+/* Grass / dirt tiled backgrounds */
+.px-bg-grass {
+  background-color: #a4c263;
+  background-image: url('/assets/bg/grass_bg.png');
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+}
+.px-bg-dirt {
+  background-color: #a57d55;
+  background-image: url('/assets/bg/dirt_bg.png');
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+}
+
+/* Main panel: parchment with chunky outline + hard shadow */
+.px-panel {
+  background: var(--px-panel);
+  border: 3px solid var(--px-ink);
+  border-radius: 6px;
+  box-shadow: 0 4px 0 var(--px-shadow);
+}
+
+/* Inset panel (for content wells) */
+.px-panel-inset {
+  background: var(--px-panel-dark);
+  border: 3px solid var(--px-ink);
+  border-radius: 6px;
+  box-shadow: inset 0 3px 0 rgba(58, 43, 63, 0.12);
+}
+
+/* Chunky button */
+.px-btn {
+  border: 3px solid var(--px-ink);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--px-shadow);
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.px-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--px-shadow);
+}
+.px-btn-green { background: #7fbf5f; color: #1e3a1a; }
+.px-btn-amber { background: #f2c14e; color: #4a2f10; }
+.px-btn-red { background: #e0685c; color: #fff; }
+.px-btn-blue { background: #6aa8d8; color: #fff; }
+.px-btn-slate { background: #e8e2d2; color: #3a2b3f; }
+
+/* HUD chip */
+.px-chip {
+  background: var(--px-panel);
+  border: 3px solid var(--px-ink);
+  border-radius: 8px;
+  box-shadow: 0 3px 0 var(--px-shadow);
+}
+
+/* Nav tab */
+.px-tab {
+  border: 3px solid transparent;
+  border-radius: 8px;
+  transition: all 0.12s ease;
+}
+.px-tab-active {
+  background: var(--px-panel);
+  border-color: var(--px-ink);
+  box-shadow: 0 3px 0 var(--px-shadow);
+}
+
+/* Section title bar */
+.px-titlebar {
+  background: #2e4a35;
+  border: 3px solid var(--px-ink);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--px-shadow);
+  color: #fff9e8;
+}
+
+/* Pixel divider */
+.px-hr {
+  border: none;
+  border-top: 3px solid var(--px-ink);
+  opacity: 0.25;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
