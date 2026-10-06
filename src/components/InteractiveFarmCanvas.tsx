@@ -288,7 +288,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-700 font-mono font-bold mt-1">💰 💰 {formatMoney(unlockCost)}</span>
+            <span className="text-xs text-amber-700 font-mono font-bold mt-1">💰 {formatMoney(unlockCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Mở rộng thêm diện tích</span>
           </div>
         )}
