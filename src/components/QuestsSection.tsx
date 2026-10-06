@@ -34,7 +34,7 @@ export const QuestsSection: React.FC<Props> = ({
         >
           <span>🎯 Nhiệm Vụ Hàng Ngày</span>
           {unclaimedQuestsCount > 0 && (
-            <span className="bg-rose-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
+            <span className="bg-rose-500 text-white text-[11px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
               {unclaimedQuestsCount}
             </span>
           )}
@@ -50,7 +50,7 @@ export const QuestsSection: React.FC<Props> = ({
         >
           <span>🏆 Thành Tựu Nông Gia</span>
           {unclaimedAchCount > 0 && (
-            <span className="bg-amber-400 text-slate-950 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
+            <span className="bg-amber-400 text-slate-950 text-[11px] w-4 h-4 rounded-full flex items-center justify-center font-extrabold animate-bounce-slight">
               {unclaimedAchCount}
             </span>
           )}
@@ -82,7 +82,7 @@ export const QuestsSection: React.FC<Props> = ({
                     <h4 className="font-bold text-white text-sm leading-tight flex items-center gap-1.5">
                       <span>{quest.titleVi}</span>
                       {quest.isClaimed && (
-                        <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-0.5">
+                        <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-0.5">
                           <CheckCircle size={11} /> Đã nhận
                         </span>
                       )}
@@ -107,7 +107,7 @@ export const QuestsSection: React.FC<Props> = ({
                 {/* Rewards & Claim Button */}
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-800/60">
                   <div className="flex items-center gap-2 text-xs font-mono font-bold">
-                    <span className="text-amber-300">🪙 +{quest.rewardCoins}</span>
+                    <span className="text-amber-300">💰 +{quest.rewardCoins}</span>
                     <span className="text-sky-300">✨ +{quest.rewardExp}</span>
                     {quest.rewardGems && <span className="text-fuchsia-300">💎 +{quest.rewardGems}</span>}
                   </div>
@@ -158,7 +158,7 @@ export const QuestsSection: React.FC<Props> = ({
                     <h4 className="font-bold text-white text-sm leading-tight flex items-center gap-1.5">
                       <span>{ach.titleVi}</span>
                       {ach.isClaimed && (
-                        <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-0.5">
+                        <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-0.5">
                           <CheckCircle size={11} /> Đã nhận
                         </span>
                       )}
