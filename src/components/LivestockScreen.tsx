@@ -79,7 +79,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                 <span className="absolute text-xs font-extrabold text-slate-900 font-mono">96%</span>
               </div>
               <span className="text-xs font-bold text-slate-800">Sức khỏe đàn</span>
-              <span className="text-[10px] text-emerald-700 font-semibold">Tuyệt hảo</span>
+              <span className="text-[11px] text-emerald-700 font-semibold">Tuyệt hảo</span>
             </div>
 
             {/* Thức ăn dự trữ */}
@@ -92,7 +92,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                 <span className="absolute text-xs font-extrabold text-slate-900 font-mono">82%</span>
               </div>
               <span className="text-xs font-bold text-slate-800">Thức ăn dự trữ</span>
-              <span className="text-[10px] text-amber-800 font-semibold">Đủ cho 12 ngày</span>
+              <span className="text-[11px] text-amber-800 font-semibold">Đủ cho 12 ngày</span>
             </div>
 
             {/* Năng suất sữa */}
@@ -105,7 +105,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                 <span className="absolute text-xs font-extrabold text-slate-900 font-mono">91%</span>
               </div>
               <span className="text-xs font-bold text-slate-800">Sản lượng sữa</span>
-              <span className="text-[10px] text-sky-800 font-semibold">Vượt mục tiêu</span>
+              <span className="text-[11px] text-sky-800 font-semibold">Vượt mục tiêu</span>
             </div>
           </div>
         </div>
@@ -227,7 +227,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-slate-900">{cow.name}</span>
-                        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded-md">{cow.id}</span>
+                        <span className="text-[11px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded-md">{cow.id}</span>
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">{cow.breed}</p>
                     </div>
@@ -235,7 +235,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
 
                   <div className="flex flex-col items-end">
                     <span className="text-xs font-extrabold text-[#1B6634] font-mono">{cow.output}</span>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                       <Sparkles size={10} className="text-amber-500" />
                       {cow.status}
                     </span>
