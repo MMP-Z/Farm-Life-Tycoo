@@ -47,7 +47,7 @@ export const BarnTab: React.FC<Props> = ({
             </div>
             <div>
               <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
-                Kho Thóc & Hầm Chứa Nông Trại
+                Nhà Kho
               </h2>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Sức chứa hiện tại: <strong className="text-slate-900 font-mono font-bold">{totalItemsCount} / {barnCapacity} kg</strong>
