@@ -37,7 +37,7 @@ export const WeatherWidget: React.FC<Props> = ({ weather, remainingSeconds }) =>
             <span className="text-xl">{info.icon}</span>
             <div>
               <p className="font-bold text-amber-300 text-sm">{info.nameVi}</p>
-              <p className="text-[10px] text-slate-400">Đổi sau: {formatTime(remainingSeconds)}</p>
+              <p className="text-[11px] text-slate-400">Đổi sau: {formatTime(remainingSeconds)}</p>
             </div>
           </div>
           <p className="text-slate-300 text-[11px] leading-relaxed mb-2">{info.descriptionVi}</p>

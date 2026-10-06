@@ -3,6 +3,7 @@ import { ANIMALS, CROPS } from '../constants/gameData';
 import { AnimalId, AnimalPen } from '../types/game';
 import { Heart, Plus, Sparkles, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   pens: Record<AnimalId, AnimalPen>;
@@ -103,7 +104,7 @@ export const LivestockSection: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                   }`}
                 >
-                  <span>Mở Khóa Chuồng ({cfg.buyCost} 🪙)</span>
+                  <span>Mở Khóa Chuồng (💰 {formatMoney(cfg.buyCost)})</span>
                 </button>
               </div>
             );
@@ -136,10 +137,10 @@ export const LivestockSection: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyAnimal(cfg.id)}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all cursor-pointer"
-                    title={`Mua thêm 1 con (${Math.floor(cfg.buyCost * 0.6)} vàng)`}
+                    title={`Mua thêm 1 con (${formatMoney(Math.floor(cfg.buyCost * 0.6))} 💰)`}
                   >
                     <Plus size={13} />
-                    <span>Mua thêm ({Math.floor(cfg.buyCost * 0.6)}🪙)</span>
+                    <span>Mua thêm (💰 {formatMoney(Math.floor(cfg.buyCost * 0.6))})</span>
                   </button>
                 )}
               </div>
@@ -155,7 +156,7 @@ export const LivestockSection: React.FC<Props> = ({
                     style={{ animationDelay: `${i * 0.2}s` }}
                   >
                     <span className="text-3xl sm:text-4xl filter drop-shadow-sm">{cfg.icon}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">#{i + 1}</span>
+                    <span className="text-[11px] text-slate-400 font-mono">#{i + 1}</span>
                   </div>
                 ))}
 

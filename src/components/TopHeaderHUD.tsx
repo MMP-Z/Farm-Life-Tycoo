@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { FarmGameState } from '../types/farmSystem';
 import { SEASON_NAMES, WEATHER_NAMES } from '../config/farmData';
 import { STARTING_PROFILES_CONFIG } from '../config/variabilityData';
+import { formatMoney } from '../utils/format';
 import {
   Volume2,
   VolumeX,
@@ -124,34 +125,35 @@ export const TopHeaderHUD: React.FC<Props> = ({
             title="Xem hồ sơ cá nhân"
           >
             <span className="text-xl sm:text-2xl animate-bounce-slight shrink-0">{profileInfo.icon}</span>
-            <div className="flex flex-col justify-center leading-none">
+            {/* Ẩn tên hồ sơ trên mobile để HUD vừa 1 hàng ở 390px (vẫn mở được modal hồ sơ khi bấm icon) */}
+            <div className="hidden sm:flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-display whitespace-nowrap">
                 {profileInfo.name}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-slate-500 font-mono whitespace-nowrap mt-1">
+              <span className="text-[11px] sm:text-[11px] text-slate-500 font-mono whitespace-nowrap mt-1">
                 Nông dân
               </span>
             </div>
           </div>
 
-          {/* Box 2: Ngày & Mùa — min-w cố định để nút Tua Nhanh không bị nhảy vị trí khi số ngày tăng chữ số */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] border border-[#DFD9C3] px-2.5 sm:px-3 rounded-2xl shrink-0 whitespace-nowrap min-w-[104px]">
+          {/* Box 2: Ngày & Mùa — gọn trên mobile (chỉ "Ngày N"), đủ trên sm+ */}
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] border border-[#DFD9C3] px-2.5 sm:px-3 rounded-2xl shrink-0 whitespace-nowrap min-w-0 sm:min-w-[104px]">
             <span className="text-lg sm:text-xl shrink-0">{seasonInfo.icon}</span>
             <div className="flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 leading-none whitespace-nowrap">
                 <span className="hidden md:inline">{seasonInfo.name} · </span>Ngày {state.currentDay}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-slate-500 flex items-center gap-0.5 font-mono mt-1 leading-none whitespace-nowrap">
+              <span className="hidden sm:flex text-[11px] text-slate-500 items-center gap-0.5 font-mono mt-1 leading-none whitespace-nowrap">
                 <Clock size={9} className="shrink-0" /> {dayPartName} ({timeFormatted})
               </span>
             </div>
           </div>
 
-          {/* Box 3: Tiền vàng — min-w cố định vì toLocaleString đổi độ rộng khi tiền tăng */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 bg-[#FFF9E6] border border-[#F5E6B3] px-2.5 sm:px-3 rounded-2xl shadow-inner shrink-0 whitespace-nowrap min-w-[112px]">
+          {/* Box 3: Tiền vàng — min-w cố định vì formatMoney đổi độ rộng khi tiền tăng */}
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 bg-[#FFF9E6] border border-[#F5E6B3] px-2.5 sm:px-3 rounded-2xl shadow-inner shrink-0 whitespace-nowrap min-w-[96px] sm:min-w-[112px]">
             <span className="text-base sm:text-xl shrink-0">💰</span>
             <span className="font-mono font-black text-xs sm:text-sm text-amber-950 tabular-nums whitespace-nowrap">
-              {state.money.toLocaleString()}
+              {formatMoney(state.money)}
             </span>
           </div>
 
@@ -346,7 +348,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                   <span className="text-sm font-bold text-slate-600">Tài Sản Ròng Ước Tính:</span>
-                  <span className="text-lg font-black text-amber-700">{totalAssets.toLocaleString()} 💰</span>
+                  <span className="text-lg font-black text-amber-700">💰 {totalAssets.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -359,7 +361,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                   </div>
                   <div className="flex justify-between">
                     <span>Tổng doanh thu:</span>
-                    <span className="font-bold text-emerald-600">+{state.stats.totalEarnings.toLocaleString()} 💰</span>
+                    <span className="font-bold text-emerald-600">+💰 {state.stats.totalEarnings.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Lần thu hoạch:</span>

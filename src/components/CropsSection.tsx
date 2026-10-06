@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CROPS } from '../constants/gameData';
 import { CropId, FarmPlot } from '../types/game';
 import { Sparkles, Droplets, Zap, PlusCircle } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   plots: FarmPlot[];
@@ -125,15 +126,15 @@ export const CropsSection: React.FC<Props> = ({
                 </span>
 
                 {/* Details */}
-                <div className="mt-1 flex flex-col items-center text-[10px] w-full text-center">
+                <div className="mt-1 flex flex-col items-center text-[11px] w-full text-center">
                   {isLocked ? (
                     <span className="text-amber-300 font-semibold">🔒 Lv.{crop.minLevel}</span>
                   ) : (
                     <>
                       <span className={`font-mono font-medium ${canAfford ? 'text-amber-300' : 'text-rose-400'}`}>
-                        🪙 {crop.buyCost}
+                        💰 {formatMoney(crop.buyCost)}
                       </span>
-                      <span className="text-emerald-300/80 font-mono text-[9px]">⏱️ {crop.growTime}s</span>
+                      <span className="text-emerald-300/80 font-mono text-[11px]">⏱️ {crop.growTime}s</span>
                     </>
                   )}
                 </div>
@@ -186,12 +187,12 @@ export const CropsSection: React.FC<Props> = ({
                 <span className="font-mono font-semibold">Ô #{plot.id}</span>
                 <div className="flex items-center gap-1">
                   {isWatered && (
-                    <span className="bg-sky-500/30 text-sky-200 border border-sky-400/40 px-1 py-0.2 rounded-md text-[9px] flex items-center gap-0.5">
+                    <span className="bg-sky-500/30 text-sky-200 border border-sky-400/40 px-1 py-0.2 rounded-md text-[11px] flex items-center gap-0.5">
                       <Droplets size={10} /> Ướt
                     </span>
                   )}
                   {plot.fertilized && (
-                    <span className="bg-purple-500/30 text-purple-200 border border-purple-400/40 px-1 py-0.2 rounded-md text-[9px] flex items-center gap-0.5">
+                    <span className="bg-purple-500/30 text-purple-200 border border-purple-400/40 px-1 py-0.2 rounded-md text-[11px] flex items-center gap-0.5">
                       <Sparkles size={10} /> +1
                     </span>
                   )}
@@ -206,13 +207,13 @@ export const CropsSection: React.FC<Props> = ({
                       🌱
                     </span>
                     <span className="text-xs font-bold text-amber-200/80 mt-1">Đất trống</span>
-                    <span className="text-[10px] text-emerald-400/90">Chạm gieo hạt</span>
+                    <span className="text-[11px] text-emerald-400/90">Chạm gieo hạt</span>
                   </div>
                 ) : isReady ? (
                   <div className="flex flex-col items-center text-center animate-bounce-slight">
                     <span className="text-4xl sm:text-5xl filter drop-shadow-lg">{crop?.icon}</span>
                     <span className="text-xs font-extrabold text-amber-300 mt-1">{crop?.nameVi} chín!</span>
-                    <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-500/40">
+                    <span className="text-[11px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-500/40">
                       Chạm để thu hoạch
                     </span>
                   </div>
@@ -231,7 +232,7 @@ export const CropsSection: React.FC<Props> = ({
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-amber-300/90 mt-1 tabular-nums">
+                    <span className="text-[11px] font-mono text-amber-300/90 mt-1 tabular-nums">
                       Còn {remaining}s ({progress}%)
                     </span>
                   </div>
@@ -241,7 +242,7 @@ export const CropsSection: React.FC<Props> = ({
               {/* Action Buttons at Bottom of Plot */}
               {plot.cropId && !isReady && (
                 <div
-                  className="w-full flex items-center justify-between gap-1 pt-1.5 border-t border-amber-900/40 text-[10px]"
+                  className="w-full flex items-center justify-between gap-1 pt-1.5 border-t border-amber-900/40 text-[11px]"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {!isWatered && (
@@ -259,7 +260,7 @@ export const CropsSection: React.FC<Props> = ({
                       className="flex-1 py-1 px-1 rounded-lg bg-purple-600/80 hover:bg-purple-600 text-white font-medium flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                       title="Bón phân nhận thêm +1 sản phẩm khi thu hoạch (20 vàng)"
                     >
-                      <Sparkles size={11} /> Phân (20🪙)
+                      <Sparkles size={11} /> Phân (20💰)
                     </button>
                   )}
                   <button
@@ -283,8 +284,8 @@ export const CropsSection: React.FC<Props> = ({
           >
             <PlusCircle className="text-emerald-400 group-hover:text-amber-400 group-hover:scale-110 transition-transform mb-1" size={32} />
             <span className="font-bold text-white text-xs sm:text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold">🪙 {unlockCost} vàng</span>
-            <span className="text-[10px] text-emerald-400/80 mt-0.5">Mở rộng diện tích nông trại</span>
+            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold">💰 💰 {formatMoney(unlockCost)}</span>
+            <span className="text-[11px] text-emerald-400/80 mt-0.5">Mở rộng diện tích nông trại</span>
           </div>
         )}
       </div>

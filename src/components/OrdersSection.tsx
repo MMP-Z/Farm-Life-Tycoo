@@ -1,6 +1,7 @@
 import React from 'react';
 import { CustomerOrder, DeliveryTruckState } from '../types/game';
 import { Truck, Check, RefreshCw, Sparkles, Gift } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   orders: CustomerOrder[];
@@ -93,7 +94,7 @@ export const OrdersSection: React.FC<Props> = ({
               <div className="flex flex-col items-center animate-bounce-slight">
                 <span className="text-3xl filter drop-shadow">🚚</span>
                 {!isTruckFinished && (
-                  <span className="bg-slate-900/90 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-md font-mono border border-slate-700">
+                  <span className="bg-slate-900/90 text-amber-300 text-[11px] px-1.5 py-0.2 rounded-md font-mono border border-slate-700">
                     {truckRemaining}s
                   </span>
                 )}
@@ -112,7 +113,7 @@ export const OrdersSection: React.FC<Props> = ({
               >
                 <Gift size={18} />
                 <span>
-                  Mở Rương Phần Thưởng (+{truck.pendingReward?.coins} 🪙 · +{truck.pendingReward?.exp} EXP
+                  Mở Rương Phần Thưởng (+💰 {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
                   {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}💎` : ''})
                 </span>
                 <Sparkles size={16} />
@@ -182,7 +183,7 @@ export const OrdersSection: React.FC<Props> = ({
 
               {/* Requirements List */}
               <div className="my-3 flex flex-col gap-1.5">
-                <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wide">Cần cung cấp:</span>
+                <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wide">Cần cung cấp:</span>
                 <div className="flex flex-wrap gap-1.5">
                   {order.requirements.map((req) => {
                     const have = inventory[req.itemId] || 0;
@@ -213,7 +214,7 @@ export const OrdersSection: React.FC<Props> = ({
               <div className="pt-2.5 border-t border-emerald-800/60 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-mono font-bold">
                   <span className="text-amber-300 flex items-center gap-0.5">
-                    🪙 {isRainbow ? Math.floor(order.rewardCoins * 1.5) : order.rewardCoins}
+                    💰 {formatMoney(isRainbow ? Math.floor(order.rewardCoins * 1.5) : order.rewardCoins)}
                   </span>
                   <span className="text-sky-300 flex items-center gap-0.5">✨ +{order.rewardExp}</span>
                   {order.rewardGems && (

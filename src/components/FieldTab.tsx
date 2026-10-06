@@ -5,6 +5,7 @@ import { SOIL_CONFIG } from '../config/variabilityData';
 import { getSoilYieldFactor } from '../utils/seedEngine';
 import { Droplets, Sparkles, Scissors, Shovel, Bug, Plus } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   plots: FieldPlot[];
@@ -133,7 +134,7 @@ export const FieldTab: React.FC<Props> = ({
                   <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
                     Giống {crop.name.split(' ')[0]}
                   </span>
-                  <span className={`text-[9px] sm:text-[10px] font-bold mt-0.5 px-1 py-0.2 rounded-md ${
+                  <span className={`text-[11px] sm:text-[11px] font-bold mt-0.5 px-1 py-0.2 rounded-md ${
                     isSeason
                       ? isSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-emerald-100 text-emerald-800'
                       : isSelected ? 'bg-amber-800 text-amber-200' : 'bg-amber-100 text-amber-900'
@@ -142,7 +143,7 @@ export const FieldTab: React.FC<Props> = ({
                   </span>
                 </div>
 
-                <div className="mt-2 pt-1 border-t border-current/15 w-full flex items-center justify-between text-[10px] sm:text-[11px] font-mono">
+                <div className="mt-2 pt-1 border-t border-current/15 w-full flex items-center justify-between text-[11px] sm:text-[11px] font-mono">
                   <span className="opacity-80">x{inStock}</span>
                   <span className="font-bold">⏱️{crop.growDays}d</span>
                 </div>
@@ -201,25 +202,25 @@ export const FieldTab: React.FC<Props> = ({
                 <div className="flex items-center gap-1">
                   <span className="opacity-80">#{plot.id}</span>
                   <span
-                    className="px-1.5 py-0.5 rounded-md text-[9px] bg-black/25 text-amber-200 border border-white/10"
+                    className="px-1.5 py-0.5 rounded-md text-[11px] bg-black/25 text-amber-200 border border-white/10"
                     title={soilDef.description}
                   >
                     {soilDef.icon} {soilDef.name.replace('Đất ', '')}
                   </span>
                   {plot.specialFeature === 'spring' && (
-                    <span className="px-1 py-0.2 rounded text-[9px] bg-sky-500/30 text-sky-200" title="Suối nước ngầm tự dưỡng ẩm">
+                    <span className="px-1 py-0.2 rounded text-[11px] bg-sky-500/30 text-sky-200" title="Suối nước ngầm tự dưỡng ẩm">
                       💧
                     </span>
                   )}
                   {plot.specialFeature === 'mineral' && (
-                    <span className="px-1 py-0.2 rounded text-[9px] bg-amber-500/30 text-amber-200" title="Đất giàu khoáng (+20% sản lượng)">
+                    <span className="px-1 py-0.2 rounded text-[11px] bg-amber-500/30 text-amber-200" title="Đất giàu khoáng (+20% sản lượng)">
                       ✨
                     </span>
                   )}
                 </div>
 
                 <div className="flex items-center gap-1">
-                  <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                  <span className={`px-1.5 py-0.5 rounded-md text-[11px] ${
                     plot.moisture > 60
                       ? 'bg-sky-500/25 text-sky-200 border border-sky-400/30'
                       : plot.moisture > 20
@@ -237,7 +238,7 @@ export const FieldTab: React.FC<Props> = ({
                   <div className="flex flex-col items-center group">
                     <Shovel size={26} className="text-slate-400 group-hover:text-amber-700 transition-colors" />
                     <span className="text-xs font-bold text-slate-700 mt-1">Đất hoang ({soilDef.name})</span>
-                    <span className="text-[10px] text-slate-500">Chạm để cày đất</span>
+                    <span className="text-[11px] text-slate-500">Chạm để cày đất</span>
                   </div>
                 )}
 
@@ -245,7 +246,7 @@ export const FieldTab: React.FC<Props> = ({
                   <div className="flex flex-col items-center group">
                     <span className="text-3xl mb-0.5 group-hover:scale-110 transition-transform">🌱</span>
                     <span className="text-xs font-bold text-amber-200">Đất đã cày xới</span>
-                    <span className="text-[10px] text-amber-300/90 font-medium">
+                    <span className="text-[11px] text-amber-300/90 font-medium">
                       Gieo {CROPS_CONFIG[selectedCropId]?.name} ({soilFactor.note})
                     </span>
                   </div>
@@ -265,13 +266,13 @@ export const FieldTab: React.FC<Props> = ({
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-amber-200/90 mt-0.5">
+                    <span className="text-[11px] font-mono text-amber-200/90 mt-0.5">
                       Còn ~{daysLeft}d ({soilFactor.bonusPercent > 0 ? `+${soilFactor.bonusPercent}% SL` : '1.0x'})
                     </span>
 
                     {/* Pest alert */}
                     {plot.hasPest && (
-                      <div className="mt-1 flex items-center gap-1 bg-rose-950/80 text-rose-300 border border-rose-500/50 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">
+                      <div className="mt-1 flex items-center gap-1 bg-rose-950/80 text-rose-300 border border-rose-500/50 px-2 py-0.5 rounded-full text-[11px] font-bold animate-pulse">
                         <Bug size={11} /> Sâu cắn lá (-40% SL)!
                       </div>
                     )}
@@ -282,7 +283,7 @@ export const FieldTab: React.FC<Props> = ({
                   <div className="flex flex-col items-center animate-bounce-slight">
                     <span className="text-4xl sm:text-5xl filter drop-shadow-md mb-0.5">{crop?.icon}</span>
                     <span className="font-black text-xs text-amber-300 font-display">{crop?.name} chín rộ!</span>
-                    <span className="text-[10px] font-extrabold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
+                    <span className="text-[11px] font-extrabold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
                       Thu hoạch ({soilFactor.note})
                     </span>
                   </div>
@@ -291,7 +292,7 @@ export const FieldTab: React.FC<Props> = ({
 
               {/* Bottom Action Mini Bar */}
               <div
-                className="w-full flex items-center justify-between gap-1 pt-1.5 border-t border-white/10 text-[10px]"
+                className="w-full flex items-center justify-between gap-1 pt-1.5 border-t border-white/10 text-[11px]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {plot.state === 'growing' && (
@@ -340,7 +341,7 @@ export const FieldTab: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm font-display">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-800 font-mono font-bold mt-1">🪙 {plotCost} vàng</span>
+            <span className="text-xs text-amber-800 font-mono font-bold mt-1">💰 💰 {formatMoney(plotCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Sinh loại đất ngẫu nhiên theo Seed</span>
           </div>
         )}

@@ -36,7 +36,7 @@ export const LevelUpModal: React.FC<Props> = ({ level, rewardCoins, rewardGems, 
         {/* Level Up Rewards */}
         <div className="my-4 p-3 bg-black/30 rounded-2xl border border-emerald-700/60 flex items-center justify-around">
           <div className="flex flex-col items-center">
-            <span className="text-2xl">🪙</span>
+            <span className="text-2xl">💰</span>
             <span className="text-xs text-emerald-300">Thưởng Vàng</span>
             <span className="font-bold text-amber-300 text-sm font-mono">+{rewardCoins}</span>
           </div>

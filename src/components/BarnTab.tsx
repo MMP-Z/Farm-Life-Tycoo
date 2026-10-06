@@ -3,6 +3,7 @@ import { InventoryItem } from '../types/farmSystem';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
 import { ArrowUpCircle, Snowflake, AlertCircle, Sparkles, Clock, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   inventory: InventoryItem[];
@@ -86,7 +87,7 @@ export const BarnTab: React.FC<Props> = ({
             }`}
           >
             <ArrowUpCircle size={15} />
-            <span>Mở rộng kho +25 ô ({upgradeCost}💰)</span>
+            <span>Mở rộng kho +25 ô (💰 {formatMoney(upgradeCost)})</span>
           </button>
 
           {!hasColdStorage && (
@@ -100,14 +101,14 @@ export const BarnTab: React.FC<Props> = ({
               }`}
             >
               <Snowflake size={15} />
-              <span>Xây Kho Lạnh ({coldStorageCost}💰)</span>
+              <span>Xây Kho Lạnh (💰 {formatMoney(coldStorageCost)})</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2] overflow-x-auto no-scrollbar">
+      {/* Filter Tabs — lưới 3 cột trên mobile (không phải vuốt ngang), hàng ngang trên sm+ */}
+      <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2]">
         {[
           { id: 'all', label: 'Tất cả đồ' },
           { id: 'seed', label: '🌱 Hạt giống' },
@@ -122,7 +123,7 @@ export const BarnTab: React.FC<Props> = ({
               setFilter(tab.id as typeof filter);
               sound.playClick();
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`min-h-[40px] py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all sm:whitespace-nowrap cursor-pointer flex items-center justify-center text-center leading-tight ${
               filter === tab.id
                 ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900'
@@ -165,13 +166,13 @@ export const BarnTab: React.FC<Props> = ({
 
                     {/* Expiration shelf life */}
                     {isFresh ? (
-                      <span className={`text-[10px] font-mono font-bold flex items-center gap-1 mt-0.5 ${
+                      <span className={`text-[11px] font-mono font-bold flex items-center gap-1 mt-0.5 ${
                         item.daysRemaining <= 2 ? 'text-rose-600 animate-pulse' : 'text-amber-800'
                       }`}>
                         <Clock size={11} /> Hạn dùng: còn {item.daysRemaining} ngày
                       </span>
                     ) : (
-                      <span className="text-[10px] text-emerald-800 font-medium flex items-center gap-1 mt-0.5">
+                      <span className="text-[11px] text-emerald-800 font-medium flex items-center gap-1 mt-0.5">
                         <Check size={11} /> Bảo quản lâu dài
                       </span>
                     )}
@@ -180,9 +181,9 @@ export const BarnTab: React.FC<Props> = ({
 
                 <div className="flex flex-col items-end shrink-0">
                   <span className="text-xs font-extrabold text-emerald-800 font-mono">
-                    ~{meta?.basePrice || 10} 💰
+                    ~💰 {formatMoney(meta?.basePrice || 10)}
                   </span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">Giá gốc/cái</span>
+                  <span className="text-[11px] text-slate-400 mt-0.5">Giá gốc/cái</span>
                 </div>
               </div>
             );

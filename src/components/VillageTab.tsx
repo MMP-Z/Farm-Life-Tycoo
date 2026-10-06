@@ -16,6 +16,7 @@ import {
   Syringe,
 } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   state: FarmGameState;
@@ -57,7 +58,7 @@ export const VillageTab: React.FC<Props> = ({
                 <div className="flex-1">
                   <h4 className="font-bold text-xs sm:text-sm text-slate-900">{alert.title}</h4>
                   <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{alert.desc}</p>
-                  <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full inline-block mt-1.5">
+                  <span className="text-[11px] font-mono font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full inline-block mt-1.5">
                     ⏱️ Còn {alert.daysRemaining} ngày để chuẩn bị
                   </span>
                 </div>
@@ -104,7 +105,7 @@ export const VillageTab: React.FC<Props> = ({
               </div>
               <div className="text-right">
                 <span className="text-slate-500 block text-[11px]">Đã đền bù tích lũy:</span>
-                <strong className="text-amber-900 font-bold text-sm">+{insurance.totalCompensated} 💰</strong>
+                <strong className="text-amber-900 font-bold text-sm">+💰 {formatMoney(insurance.totalCompensated)}</strong>
               </div>
             </div>
           </div>
@@ -121,7 +122,7 @@ export const VillageTab: React.FC<Props> = ({
                 className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer disabled:opacity-50"
               >
                 <ShieldCheck size={16} />
-                <span>Tham Gia Bảo Hiểm Mùa Vụ ({INSURANCE_CONFIG.costPerSeason} vàng)</span>
+                <span>Tham Gia Bảo Hiểm Mùa Vụ (💰 {formatMoney(INSURANCE_CONFIG.costPerSeason)})</span>
               </button>
             )}
           </div>
@@ -153,7 +154,7 @@ export const VillageTab: React.FC<Props> = ({
               </div>
               <div className="text-right">
                 <span className="text-slate-500 block text-[11px]">Định mức thuế mùa này:</span>
-                <strong className="text-amber-950 font-bold">{state.plots.length * 10} vàng</strong>
+                <strong className="text-amber-950 font-bold">💰 {formatMoney(state.plots.length * 10)}</strong>
               </div>
             </div>
           </div>
@@ -162,7 +163,7 @@ export const VillageTab: React.FC<Props> = ({
             {pendingTaxes && pendingTaxes.length > 0 && !pendingTaxes[0].paid ? (
               <div className="w-full flex items-center justify-between">
                 <span className="text-xs font-bold text-rose-700">
-                  Cần nộp: {pendingTaxes[0].amount} vàng
+                  Cần nộp: 💰 {formatMoney(pendingTaxes[0].amount)}
                 </span>
                 <button
                   onClick={() => onPayTax(pendingTaxes[0].id)}
@@ -207,7 +208,7 @@ export const VillageTab: React.FC<Props> = ({
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-3xl">🐕</span>
                 {defenses.hasDog ? (
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đang tuần tra
                   </span>
                 ) : (
@@ -242,7 +243,7 @@ export const VillageTab: React.FC<Props> = ({
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-3xl">🔒</span>
                 {defenses.hasReinforcedLock ? (
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đã gia cố
                   </span>
                 ) : (
@@ -277,7 +278,7 @@ export const VillageTab: React.FC<Props> = ({
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-3xl">🏗️</span>
                 {defenses.hasCropNetting ? (
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đã giăng lưới
                   </span>
                 ) : (
@@ -354,7 +355,7 @@ export const VillageTab: React.FC<Props> = ({
                   <div>
                     <h4 className="font-bold text-slate-900 flex items-center gap-1.5">
                       <span>{inc.title}</span>
-                      <span className="text-[10px] font-mono text-slate-400">· Ngày {inc.day}</span>
+                      <span className="text-[11px] font-mono text-slate-400">· Ngày {inc.day}</span>
                     </h4>
                     <p className="text-[11px] text-slate-600 mt-0.5">{inc.description}</p>
                   </div>
@@ -366,11 +367,11 @@ export const VillageTab: React.FC<Props> = ({
                   </span>
                 ) : inc.insuranceCompensated > 0 ? (
                   <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full shrink-0">
-                    +{inc.insuranceCompensated} 💰 bảo hiểm
+                    +💰 {formatMoney(inc.insuranceCompensated)} bảo hiểm
                   </span>
                 ) : (
                   <span className="text-[11px] font-bold text-rose-600 shrink-0">
-                    -{inc.lossAmount} 💰
+                    -💰 {formatMoney(inc.lossAmount)}
                   </span>
                 )}
               </div>

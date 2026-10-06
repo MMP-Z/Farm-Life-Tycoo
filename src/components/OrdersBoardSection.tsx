@@ -1,6 +1,7 @@
 import React from 'react';
 import { CustomerOrder, DeliveryTruckState } from '../types/game';
 import { Truck, Check, RefreshCw, Sparkles, Gift } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   orders: CustomerOrder[];
@@ -84,7 +85,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               <div className="flex flex-col items-center animate-bounce-slight">
                 <span className="text-3xl filter drop-shadow">🚚</span>
                 {!isTruckFinished && (
-                  <span className="bg-slate-900/90 text-amber-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-slate-700 shadow-md">
+                  <span className="bg-slate-900/90 text-amber-300 text-[11px] px-2 py-0.5 rounded-md font-mono border border-slate-700 shadow-md">
                     {truckRemaining}s
                   </span>
                 )}
@@ -103,7 +104,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               >
                 <Gift size={18} />
                 <span>
-                  Mở Rương Phần Thưởng (+{truck.pendingReward?.coins} 🪙 · +{truck.pendingReward?.exp} EXP
+                  Mở Rương Phần Thưởng (+💰 {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
                   {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}💎` : ''})
                 </span>
                 <Sparkles size={16} />
@@ -207,7 +208,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               <div className="pt-3 border-t border-[#F2EFE9] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 text-xs font-mono font-extrabold">
                   <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
-                    🪙 +{order.rewardCoins}
+                    💰 +{order.rewardCoins}
                   </span>
                   <span className="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-1 rounded-lg">
                     ✨ +{order.rewardExp}
