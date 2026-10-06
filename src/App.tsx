@@ -1264,7 +1264,7 @@ export default function App() {
         };
       });
 
-      showToast(`Đã bán ${quantity} sản phẩm với giá $💰 {totalEarn.toLocaleString()}!`);
+      showToast(`Đã bán ${quantity} sản phẩm với giá 💰 ${formatMoney(totalEarn)}!`);
     },
     [consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
@@ -1365,7 +1365,7 @@ export default function App() {
     (itemId: string, quantity: number, unitCost: number) => {
       const totalCost = quantity * unitCost;
       if (state.money < totalCost) {
-        showToast(`Không đủ tiền vàng! Cần $💰 {totalCost.toLocaleString()}.`);
+        showToast(`Không đủ tiền vàng! Cần 💰 ${formatMoney(totalCost)}.`);
         return;
       }
 
@@ -1383,7 +1383,7 @@ export default function App() {
     (cropId: string, count: number, unitCost: number) => {
       const totalCost = count * unitCost;
       if (state.money < totalCost) {
-        showToast(`Không đủ tiền vàng! Cần $💰 {totalCost.toLocaleString()}.`);
+        showToast(`Không đủ tiền vàng! Cần 💰 ${formatMoney(totalCost)}.`);
         return;
       }
 
@@ -1397,7 +1397,7 @@ export default function App() {
               ...p,
               state: 'growing' as const,
               cropId,
-              plantedDay: prev.currentDay,
+              plantedDay: prev.currentDay + prev.timeOfDay,
               plantedSeason: prev.currentSeason,
               fertilized: false,
               hasPest: false,
@@ -1711,6 +1711,8 @@ export default function App() {
             plots={state.plots}
             currentSeason={state.currentSeason}
             currentDay={state.currentDay}
+            timeOfDay={state.timeOfDay}
+            isHardworking={state.startingProfileId === 'hardworking_farmer'}
             money={state.money}
             inventory={state.inventory}
             onPlowPlot={handlePlowPlot}
