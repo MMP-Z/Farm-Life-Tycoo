@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, ShieldCheck, MapPin, Settings, Volume2, VolumeX, Smartphone, Check } from 'lucide-react';
+import { Award, ShieldCheck, MapPin, Settings, Volume2, VolumeX, Smartphone, Check, Palette } from 'lucide-react';
 
 interface Props {
   soundEnabled: boolean;
@@ -100,12 +100,22 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-3 text-xs sm:text-sm">
+          <div className="flex items-center justify-between py-3 border-b border-slate-100 text-xs sm:text-sm">
             <span className="flex items-center gap-2 text-slate-800 font-medium">
               <Smartphone size={18} className="text-emerald-700" />
               Phiên bản ứng dụng web
             </span>
             <span className="font-mono text-slate-500 font-semibold">Bản chuẩn Web 2026</span>
+          </div>
+
+          <div className="flex items-center justify-between py-3 text-xs sm:text-sm">
+            <span className="flex items-center gap-2 text-slate-800 font-medium">
+              <Palette size={18} className="text-emerald-700" />
+              Họa tiết pixel-art
+            </span>
+            <span className="text-slate-500 font-semibold text-right">
+              Sprout Lands — <a href="https://cupnooble.itch.io/sprout-lands-asset-pack" target="_blank" rel="noreferrer" className="text-emerald-700 underline">Cup Nooble</a>
+            </span>
           </div>
         </div>
 

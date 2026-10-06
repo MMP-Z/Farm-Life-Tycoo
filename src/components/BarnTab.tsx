@@ -4,6 +4,8 @@ import { ALL_ITEMS_CATALOG } from '../config/farmData';
 import { ArrowUpCircle, Snowflake, AlertCircle, Sparkles, Clock, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { ITEM_SPRITES } from '../utils/sprites';
 
 interface Props {
   inventory: InventoryItem[];
@@ -156,7 +158,9 @@ export const BarnTab: React.FC<Props> = ({
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-12 h-12 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-center text-3xl shadow-inner shrink-0">
-                    {item.icon}
+                    {ITEM_SPRITES[item.itemId]
+                      ? <SpriteIcon src={ITEM_SPRITES[item.itemId]} alt={item.name} size={36} />
+                      : item.icon}
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm text-slate-900 leading-tight font-display">{item.name}</h4>

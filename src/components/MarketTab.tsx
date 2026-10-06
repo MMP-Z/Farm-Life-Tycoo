@@ -3,6 +3,8 @@ import { InventoryItem, OrderItem, Season } from '../types/farmSystem';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
 import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { ITEM_SPRITES } from '../utils/sprites';
 
 interface Props {
   inventory: InventoryItem[];
@@ -64,7 +66,9 @@ export const MarketTab: React.FC<Props> = ({
                 className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-between gap-3 shadow-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-2xl filter drop-shadow-xs">{meta.icon}</span>
+                  {ITEM_SPRITES[itemId]
+                    ? <SpriteIcon src={ITEM_SPRITES[itemId]} alt={meta.name} size={32} className="filter drop-shadow-xs" />
+                    : <span className="text-2xl filter drop-shadow-xs">{meta.icon}</span>}
                   <div>
                     <h4 className="font-bold text-xs text-slate-900 font-display">{meta.name}</h4>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono mt-0.5">

@@ -2,6 +2,8 @@ import React from 'react';
 import { InventoryItem, OrderItem } from '../types/farmSystem';
 import { Check, Clock, Sparkles } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { ITEM_SPRITES } from '../utils/sprites';
 
 interface Props {
   inventory: InventoryItem[];
@@ -103,7 +105,9 @@ export const SupermarketTab: React.FC<Props> = ({
                                 : 'bg-rose-50 text-rose-700 border-rose-200'
                             }`}
                           >
-                            <span>{req.icon}</span>
+                            {ITEM_SPRITES[req.itemId]
+                              ? <SpriteIcon src={ITEM_SPRITES[req.itemId]} alt={req.name} size={18} />
+                              : <span>{req.icon}</span>}
                             <span>{req.name}:</span>
                             <span>
                               {inStock}/{req.amount}
