@@ -146,7 +146,7 @@ export const ShopTab: React.FC<Props> = ({
                             ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black'
                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
-                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (${formatMoney(bulkCost)} 💰)`}
+                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (💰 ${formatMoney(bulkCost)})`}
                       >
                         Đủ {bulkCount} ô (💰 {formatMoney(bulkCost)})
                       </button>
