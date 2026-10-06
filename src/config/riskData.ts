@@ -73,7 +73,7 @@ export const DIFFICULTY_PRESETS: Record<
   challenging: {
     name: 'Thử Thách (Challenging)',
     icon: '⚡',
-    description: 'Thời tiết khắc nghiệt hơn, Băng Mèo Chợ Đen hoạt động mạnh, yêu cầu chiến lược phòng thủ vững vàng.',
+    description: 'Thời tiết khắc nghiệt hơn, sâu bệnh và trộm cắp gia tăng, yêu cầu chiến lược phòng thủ vững vàng.',
     riskMultiplier: 1.6,
   },
 };
