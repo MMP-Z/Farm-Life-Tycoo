@@ -73,6 +73,7 @@ export const FieldTab: React.FC<Props> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {dryCount > 0 && (
             <button
+              data-tutorial="water-all"
               onClick={onWaterAll}
               className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
@@ -152,7 +153,7 @@ export const FieldTab: React.FC<Props> = ({
       </div>
 
       {/* Grid of Plots with Soil System */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div data-tutorial="plots-grid" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
         {plots.map((plot) => {
           const crop = plot.cropId ? CROPS_CONFIG[plot.cropId] : null;
           const soilDef = SOIL_CONFIG[plot.soilType] || SOIL_CONFIG.alluvial;
