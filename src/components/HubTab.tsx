@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GameTab } from './NavigationTabs';
 import { Trees, Beef, CookingPot, Store, ShoppingBag, Truck, Package, ShieldCheck, Lock, Coins } from 'lucide-react';
 
@@ -7,9 +7,16 @@ interface Props {
   unlockedRegions: string[];
   money: number;
   onUnlockRegion: (regionId: string, cost: number) => void;
+  onNotify?: (msg: string) => void;
 }
 
-export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, onUnlockRegion }) => {
+export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, onUnlockRegion, onNotify }) => {
+  // FIX (bug mở khóa Chợ Làng): thay window.confirm (native dialog) bằng modal
+  // trong game — native dialog bị automation/test chặn (auto-dismiss) và khi bị
+  // chặn trình duyệt thì nút bấm trông như "không phản hồi".
+  const [pendingUnlock, setPendingUnlock] = useState<{ id: string; label: string; cost: number } | null>(null);
+  // Hiệu ứng rung + toast khi bấm mở khóa mà không đủ tiền (trước đây im lặng tuyệt đối)
+  const [shakeId, setShakeId] = useState<string | null>(null);
   const regions = [
     { id: 'field', label: 'Khu Trồng Trọt', icon: <Trees size={32} className="text-emerald-600" />, desc: 'Gieo hạt và thu hoạch', color: 'bg-emerald-100 border-emerald-300', cost: 0 },
     { id: 'shop', label: 'Cửa Hàng', icon: <Store size={32} className="text-teal-600" />, desc: 'Mua giống, vật tư', color: 'bg-teal-100 border-teal-300', cost: 0 },
@@ -24,13 +31,24 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
   const handleRegionClick = (regionId: string, cost: number, isLocked: boolean) => {
     if (!isLocked) {
       onSelectTab(regionId as GameTab);
-    } else {
-      if (money >= cost) {
-        if (window.confirm(`Bạn có muốn mở khóa ${regions.find(r => r.id === regionId)?.label} với giá ${cost} vàng không?`)) {
-          onUnlockRegion(regionId, cost);
-        }
-      }
+      return;
     }
+    const label = regions.find((r) => r.id === regionId)?.label ?? regionId;
+    if (money >= cost) {
+      // Mở modal xác nhận trong game thay vì window.confirm
+      setPendingUnlock({ id: regionId, label, cost });
+    } else {
+      // Phản hồi rõ ràng khi không đủ tiền
+      onNotify?.(`Không đủ vàng! Cần ${cost} vàng để mở khóa ${label} (đang có ${money} vàng).`);
+      setShakeId(regionId);
+      window.setTimeout(() => setShakeId((cur) => (cur === regionId ? null : cur)), 500);
+    }
+  };
+
+  const confirmUnlock = () => {
+    if (!pendingUnlock) return;
+    onUnlockRegion(pendingUnlock.id, pendingUnlock.cost);
+    setPendingUnlock(null);
   };
 
   return (
@@ -50,6 +68,8 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
               key={region.id}
               onClick={() => handleRegionClick(region.id, region.cost, isLocked)}
               className={`relative flex flex-col items-center justify-center p-4 rounded-3xl border-b-4 transition-transform ${
+                shakeId === region.id ? 'animate-shake-x' : ''
+              } ${
                 isLocked
                   ? 'bg-slate-100 border-slate-300 opacity-90'
                   : `active:scale-95 ${region.color} shadow-sm cursor-pointer`
@@ -80,6 +100,42 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
           );
         })}
       </div>
+
+      {/* Modal xác nhận mở khóa trong game (thay window.confirm) */}
+      {pendingUnlock && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setPendingUnlock(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-display font-bold text-lg text-slate-900 mb-2">
+              Mở khóa khu vực?
+            </h3>
+            <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+              Bạn có muốn mở khóa <strong className="text-slate-900">{pendingUnlock.label}</strong> với
+              giá <strong className="text-amber-700">{pendingUnlock.cost} vàng</strong> không?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPendingUnlock(null)}
+                className="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all active:scale-95"
+              >
+                Để sau
+              </button>
+              <button
+                onClick={confirmUnlock}
+                disabled={money < pendingUnlock.cost}
+                className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40"
+              >
+                Xác nhận ({pendingUnlock.cost} vàng)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
