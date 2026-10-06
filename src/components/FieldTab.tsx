@@ -127,9 +127,8 @@ export const FieldTab: React.FC<Props> = ({
                 }`}
               >
                 <div className="flex flex-col items-center text-center w-full">
-                  <div className="flex items-center gap-1 mb-0.5 filter drop-shadow-xs">
-                    <span className="text-xl sm:text-2xl">🌱</span>
-                    <span className="text-xl sm:text-2xl">{crop.icon}</span>
+                  <div className="mb-0.5 filter drop-shadow-xs">
+                    <span className="text-2xl sm:text-3xl">{crop.icon}</span>
                   </div>
                   <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
                     Giống {crop.name.split(' ')[0]}
@@ -187,7 +186,7 @@ export const FieldTab: React.FC<Props> = ({
                   onCurePestPlot(plot.id);
                 }
               }}
-              className={`rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between min-h-[210px] border-2 transition-all relative select-none shadow-xs cursor-pointer ${
+              className={`rounded-3xl p-3 sm:p-4 flex flex-col justify-between min-h-[180px] sm:min-h-[210px] border-2 transition-all relative select-none shadow-xs cursor-pointer ${
                 plot.state === 'empty'
                   ? 'bg-[#EFE9D7] border-[#DFD7C2] hover:border-amber-400'
                   : plot.state === 'plowed'
@@ -197,29 +196,29 @@ export const FieldTab: React.FC<Props> = ({
                   : 'bg-gradient-to-b from-[#4C3725] to-[#3A2719] border-[#664931] text-amber-100'
               }`}
             >
-              {/* Plot Header: ID & Soil Type & Special Feature */}
-              <div className="flex items-center justify-between text-[11px] font-mono font-bold">
-                <div className="flex items-center gap-1">
-                  <span className="opacity-80">#{plot.id}</span>
+              {/* Plot Header: ID & Soil Type & Special Feature — gọn trên mobile, không xuống dòng lộn xộn */}
+              <div className="flex items-center justify-between gap-1 text-[11px] font-mono font-bold">
+                <div className="flex items-center gap-1 min-w-0">
+                  <span className="opacity-80 shrink-0">#{plot.id}</span>
                   <span
-                    className="px-1.5 py-0.5 rounded-md text-[11px] bg-black/25 text-amber-200 border border-white/10"
+                    className="px-1.5 py-0.5 rounded-md text-[11px] bg-black/25 text-amber-200 border border-white/10 whitespace-nowrap truncate"
                     title={soilDef.description}
                   >
                     {soilDef.icon} {soilDef.name.replace('Đất ', '')}
                   </span>
                   {plot.specialFeature === 'spring' && (
-                    <span className="px-1 py-0.2 rounded text-[11px] bg-sky-500/30 text-sky-200" title="Suối nước ngầm tự dưỡng ẩm">
+                    <span className="px-1 py-0.2 rounded text-[11px] bg-sky-500/30 text-sky-200 shrink-0" title="Suối nước ngầm tự dưỡng ẩm">
                       💧
                     </span>
                   )}
                   {plot.specialFeature === 'mineral' && (
-                    <span className="px-1 py-0.2 rounded text-[11px] bg-amber-500/30 text-amber-200" title="Đất giàu khoáng (+20% sản lượng)">
+                    <span className="px-1 py-0.2 rounded text-[11px] bg-amber-500/30 text-amber-200 shrink-0" title="Đất giàu khoáng (+20% sản lượng)">
                       ✨
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   <span className={`px-1.5 py-0.5 rounded-md text-[11px] ${
                     plot.moisture > 60
                       ? 'bg-sky-500/25 text-sky-200 border border-sky-400/30'
@@ -247,7 +246,7 @@ export const FieldTab: React.FC<Props> = ({
                     <span className="text-3xl mb-0.5 group-hover:scale-110 transition-transform">🌱</span>
                     <span className="text-xs font-bold text-amber-200">Đất đã cày xới</span>
                     <span className="text-[11px] text-amber-300/90 font-medium">
-                      Gieo {CROPS_CONFIG[selectedCropId]?.name} ({soilFactor.note})
+                      Gieo {CROPS_CONFIG[selectedCropId]?.name} · {soilFactor.note}
                     </span>
                   </div>
                 )}
