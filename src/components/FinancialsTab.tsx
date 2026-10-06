@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FinancialTransaction, BankLoan, PendingTax } from '../types/farmSystem';
 import { TrendingUp, TrendingDown, Landmark, Receipt, CreditCard } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   money: number;
@@ -146,7 +147,7 @@ export const FinancialsTab: React.FC<Props> = ({
                       <div className="text-xs text-slate-500 font-medium mt-0.5">Ngày {t.day} • {t.category}</div>
                     </div>
                     <div className={`font-black tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {t.type === 'income' ? '+' : '-'}{Math.round(t.amount)} 💰
+                      {t.type === 'income' ? '+' : '-'}💰 {formatMoney(Math.round(t.amount))}
                     </div>
                   </div>
                 ))}
@@ -214,8 +215,8 @@ export const FinancialsTab: React.FC<Props> = ({
                 {loans.map(loan => (
                   <div key={loan.id} className="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     <div>
-                      <div className="font-bold text-rose-900 text-sm">Vay {loan.principal} 💰 (Lãi {loan.interestRate * 100}%/ngày)</div>
-                      <div className="text-xs text-rose-700/80 font-medium mt-1">Dư nợ hiện tại: {loan.remainingAmount.toFixed(0)} 💰</div>
+                      <div className="font-bold text-rose-900 text-sm">Vay 💰 {formatMoney(loan.principal)} (Lãi {loan.interestRate * 100}%/ngày)</div>
+                      <div className="text-xs text-rose-700/80 font-medium mt-1">Dư nợ hiện tại: 💰 {formatMoney(loan.remainingAmount)}</div>
                     </div>
                     <button
                       onClick={() => onPayLoan(loan.id, loan.remainingAmount)}
@@ -251,7 +252,7 @@ export const FinancialsTab: React.FC<Props> = ({
                     <div className="text-xs text-orange-700/80 font-medium mt-1">Hạn nộp: Cuối ngày {tax.dueDay}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="font-black text-orange-700 text-lg">{tax.amount} 💰</div>
+                    <div className="font-black text-orange-700 text-lg">💰 {formatMoney(tax.amount)}</div>
                     <button
                       onClick={() => onPayTax(tax.id)}
                       disabled={money < tax.amount}
