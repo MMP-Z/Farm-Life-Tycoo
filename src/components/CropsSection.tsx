@@ -284,7 +284,7 @@ export const CropsSection: React.FC<Props> = ({
           >
             <PlusCircle className="text-emerald-400 group-hover:text-amber-400 group-hover:scale-110 transition-transform mb-1" size={32} />
             <span className="font-bold text-white text-xs sm:text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold">💰 💰 {formatMoney(unlockCost)}</span>
+            <span className="text-[11px] text-amber-300 font-mono mt-1 font-semibold">💰 {formatMoney(unlockCost)}</span>
             <span className="text-[11px] text-emerald-400/80 mt-0.5">Mở rộng diện tích nông trại</span>
           </div>
         )}
