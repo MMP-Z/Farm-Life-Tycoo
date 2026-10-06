@@ -341,7 +341,7 @@ export const FieldTab: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm font-display">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-800 font-mono font-bold mt-1">💰 💰 {formatMoney(plotCost)}</span>
+            <span className="text-xs text-amber-800 font-mono font-bold mt-1">💰 {formatMoney(plotCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Sinh loại đất ngẫu nhiên theo Seed</span>
           </div>
         )}
