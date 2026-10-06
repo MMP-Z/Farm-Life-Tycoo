@@ -194,7 +194,10 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     initialMoney: 550,
     plotCount: 3,
     defaultSoil: 'sandy',
-    bonusVehicles: ['wheelbarrow', 'ox_cart'],
+    // FIX (P0): 'wheelbarrow' không tồn tại trong VEHICLES_CONFIG (chỉ có
+    // handcart/ox_cart/small_truck/refrigerated_truck) khiến perk xe khởi đầu
+    // của profile Thương Gia bị mất trắng.
+    bonusVehicles: ['handcart', 'ox_cart'],
     bonusItems: [
       { itemId: 'wheat_seed', quantity: 4 },
       { itemId: 'corn_seed', quantity: 4 },

@@ -421,14 +421,17 @@ export default function App() {
   // - Bản mới neo theo wall-clock tại lúc bấm: luôn hạ cánh đúng "sáng hôm sau"
   //   gần nhất SAU thời điểm thực, kèm debounce 2s chống double-click.
   const handleFastForward = useCallback(() => {
-    const clickNow = Date.now();
-    if (clickNow - lastFastForwardAt.current < 2000) {
-      showToast('Đang tua nhanh, chờ xíu nhé!');
-      return;
-    }
-    lastFastForwardAt.current = clickNow;
-    sound.playLevelUp();
-    setState((prev) => {
+    // FIX (nút Tua Nhanh thỉnh thoảng rớt click): bọc toàn bộ trong try/catch để
+    // không một lỗi nào (âm thanh, tính toán) có thể nuốt mất action trong im lặng.
+    try {
+      const clickNow = Date.now();
+      if (clickNow - lastFastForwardAt.current < 2000) {
+        showToast('Đang tua nhanh, chờ xíu nhé!');
+        return;
+      }
+      lastFastForwardAt.current = clickNow;
+      sound.playLevelUp();
+      setState((prev) => {
       // Vị trí thời gian THỰC tại lúc bấm (gồm cả phần đã trôi từ tick cuối)
       const elapsedDays = (clickNow - prev.lastTimestamp) / (DAY_REAL_SECONDS * 1000);
       const trueAbsDay = prev.currentDay + prev.timeOfDay + elapsedDays;
@@ -448,8 +451,11 @@ export default function App() {
         ...result.nextState,
         lastTimestamp: clickNow,
       };
-    });
-    showToast('Đã qua ngày mới! Giờ công đã được hồi phục toàn bộ.');
+      });
+      showToast('Đã qua ngày mới! Giờ công đã được hồi phục toàn bộ.');
+    } catch {
+      showToast('Tua nhanh gặp sự cố, bấm lại giúp mình nhé!');
+    }
   }, [showToast]);
 
   // ==========================================

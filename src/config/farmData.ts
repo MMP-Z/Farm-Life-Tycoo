@@ -14,8 +14,12 @@ export const CROPS_CONFIG: Record<string, CropDefinition> = {
     name: 'Lúa mì',
     icon: '🌾',
     seedPrice: 12,
-    growDays: 0.5,
-    yield: 14,
+    // FIX (P0 rebalance): trước đây yield 14 + growDays 0.5 cho lợi nhuận
+    // ~144 vàng/ngày/ô, gấp 3-6 lần mọi cây khác, phá vỡ toàn bộ kinh tế game.
+    // Sau fix: 4 quả x 6 vàng = 24 vàng/ngày, lời 12 vàng/ngày/ô — đúng vai trò
+    // cây khởi đầu "an toàn, nhanh, lời ít" (thấp hơn hẳn cà rốt: 48 vàng/ngày/ô).
+    growDays: 1,
+    yield: 4,
     basePrice: 6,
     seasons: ['spring', 'summer'],
     unlockLevel: 1,
