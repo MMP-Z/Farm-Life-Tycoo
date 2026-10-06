@@ -26,7 +26,7 @@ export const NPCGuide: React.FC<Props> = ({
   let advice = 'Chào cháu! Chúc cháu một ngày canh tác vui vẻ và bội thu mùa màng!';
 
   if (hasPest) {
-    advice = '⚠️ Có ô đất xuất hiện sâu cắn lá rồi cháu ơi! Vào tab Đồng ruộng mua thuốc xịt ngay nhé!';
+    advice = '⚠️ Có ô đất xuất hiện sâu cắn lá rồi cháu ơi! Vào Khu Trồng Trọt xịt thuốc ngay nhé!';
   } else if (readyHarvestCount > 0) {
     advice = `🌾 Có ${readyHarvestCount} ô hoa màu đã chín vàng trĩu hạt rồi! Mau vào thu hoạch kẻo phí nhé!`;
   } else if (hasDryPlots && weather !== 'rainy') {
