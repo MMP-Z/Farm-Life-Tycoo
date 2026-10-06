@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, ChevronRight } from 'lucide-react';
+import { GameIcon } from './GameIcon';
+import { RichText } from './RichText';
 
 interface Props {
   currentDay: number;
@@ -46,7 +48,7 @@ export const NPCGuide: React.FC<Props> = ({
         className="bg-[#FFF9E6] border-2 border-amber-300 text-amber-950 p-2.5 sm:p-3 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none"
         title="Bác Ba Nông Dân khuyên nhủ"
       >
-        <span className="text-xl sm:text-2xl animate-bounce-slight">👨‍🌾</span>
+        <span className="text-xl sm:text-2xl animate-bounce-slight"><GameIcon e="👨‍🌾" /></span>
         <span className="text-xs font-bold font-display hidden sm:inline">Lời khuyên Bác Ba</span>
       </button>
     );
@@ -56,7 +58,7 @@ export const NPCGuide: React.FC<Props> = ({
     <div className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-80 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-3.5 border-2 border-amber-300 shadow-xl select-none animate-in fade-in slide-in-from-bottom-3 duration-200">
       <div className="flex items-start gap-3">
         <div className="w-11 h-11 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shrink-0 shadow-inner">
-          👨‍🌾
+          <GameIcon e="👨‍🌾" />
         </div>
         <div className="flex-1 pr-2">
           <div className="flex items-center justify-between">
@@ -68,7 +70,7 @@ export const NPCGuide: React.FC<Props> = ({
               <X size={14} />
             </button>
           </div>
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{advice}</p>
+          <p className="text-xs text-slate-600 mt-1 leading-relaxed"><RichText text={advice} /></p>
         </div>
       </div>
     </div>

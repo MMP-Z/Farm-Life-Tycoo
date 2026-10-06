@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Check, Heart, Sparkles } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   onBack: () => void;
@@ -48,7 +49,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
         </div>
 
         <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 text-xl shadow-xs">
-          🐮
+          <GameIcon e="🐮" />
         </div>
       </div>
 
@@ -187,7 +188,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                     : 'bg-[#FAF9F5] border-[#EAE7DD] hover:bg-white'
                 }`}
               >
-                <span className="text-3xl mb-1.5">{cat.icon}</span>
+                <span className="text-3xl mb-1.5"><GameIcon e={cat.icon} /></span>
                 <span className="text-xs sm:text-sm font-bold text-slate-800">{cat.label}</span>
                 <span className="text-xs text-slate-500 font-mono font-semibold mt-0.5">{cat.count}</span>
               </button>
@@ -219,7 +220,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-2xl relative shadow-xs">
-                      🐮
+                      <GameIcon e="🐮" />
                       {isPetted && (
                         <Heart size={14} className="text-pink-500 fill-pink-500 absolute -top-1 -right-1 animate-ping" />
                       )}

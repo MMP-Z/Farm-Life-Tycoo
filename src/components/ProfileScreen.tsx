@@ -1,5 +1,6 @@
 import React from 'react';
 import { Award, ShieldCheck, MapPin, Settings, Volume2, VolumeX, Smartphone, Check, Palette } from 'lucide-react';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   soundEnabled: boolean;
@@ -17,7 +18,7 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
           <p className="text-xs text-[#76767A] font-medium">Thông tin sở hữu trang trại & thiết lập hệ thống</p>
         </div>
         <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-800 text-xl shadow-xs">
-          👨‍🌾
+          <GameIcon e="👨‍🌾" />
         </div>
       </div>
 
@@ -26,7 +27,7 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
         {/* Thẻ chủ trang trại */}
         <div className="bg-white rounded-3xl p-6 border border-[#EAE7DD] shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="w-18 h-18 rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-amber-300 flex items-center justify-center text-4xl shadow-md shrink-0">
-            👨‍🌾
+            <GameIcon e="👨‍🌾" />
           </div>
           <div className="flex-1">
             <h2 className="font-extrabold text-xl text-slate-900 leading-tight">Edward Miller</h2>

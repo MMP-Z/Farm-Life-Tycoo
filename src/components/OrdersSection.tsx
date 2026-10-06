@@ -2,6 +2,10 @@ import React from 'react';
 import { CustomerOrder, DeliveryTruckState } from '../types/game';
 import { Truck, Check, RefreshCw, Sparkles, Gift } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { SpriteIcon } from './SpriteIcon';
+import { CUSTOMER_SPRITES } from '../utils/sprites';
 
 interface Props {
   orders: CustomerOrder[];
@@ -42,7 +46,7 @@ export const OrdersSection: React.FC<Props> = ({
       <div className="bg-gradient-to-r from-[#2a4d35] via-[#1f3f2a] to-[#183121] rounded-2xl border-2 border-emerald-600/70 p-4 shadow-xl">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-3xl">🚚</span>
+            <span className="text-3xl"><GameIcon e="🚚" /></span>
             <div>
               <h2 className="font-bold text-white text-sm sm:text-base leading-tight">Xe Tải Nông Sản Tốc Hành</h2>
               <p className="text-emerald-300 text-xs">
@@ -57,7 +61,7 @@ export const OrdersSection: React.FC<Props> = ({
 
           {isRainbow && (
             <div className="bg-amber-400/20 border border-amber-300/40 text-amber-200 px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1">
-              <span>🌈</span>
+              <span><GameIcon e="🌈" /></span>
               <span>+50% Vàng</span>
             </div>
           )}
@@ -75,10 +79,10 @@ export const OrdersSection: React.FC<Props> = ({
           {/* Landmarks: Farm -> Town */}
           <div className="flex justify-between text-xs text-slate-300 font-semibold px-1">
             <span className="flex items-center gap-1 text-emerald-300">
-              <span>🏡</span> Nông Trại
+              <span><GameIcon e="🏡" /></span> Nông Trại
             </span>
             <span className="flex items-center gap-1 text-amber-300">
-              <span>🏙️</span> Thị Trấn Nắng Vàng
+              <span><GameIcon e="🏙" />️</span> Thị Trấn Nắng Vàng
             </span>
           </div>
 
@@ -92,7 +96,7 @@ export const OrdersSection: React.FC<Props> = ({
               }}
             >
               <div className="flex flex-col items-center animate-bounce-slight">
-                <span className="text-3xl filter drop-shadow">🚚</span>
+                <span className="text-3xl filter drop-shadow"><GameIcon e="🚚" /></span>
                 {!isTruckFinished && (
                   <span className="bg-slate-900/90 text-amber-300 text-[11px] px-1.5 py-0.2 rounded-md font-mono border border-slate-700">
                     {truckRemaining}s
@@ -113,8 +117,8 @@ export const OrdersSection: React.FC<Props> = ({
               >
                 <Gift size={18} />
                 <span>
-                  Mở Rương Phần Thưởng (+💰 {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
-                  {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}💎` : ''})
+                  Mở Rương Phần Thưởng (+<CoinIcon /> {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
+                  {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}<GameIcon e="💎" />` : ''})
                 </span>
                 <Sparkles size={16} />
               </button>
@@ -133,7 +137,7 @@ export const OrdersSection: React.FC<Props> = ({
       {/* Customer Orders Board */}
       <div className="bg-[#21432c]/90 p-3 rounded-2xl border border-emerald-700/50 shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">📋</span>
+          <span className="text-2xl"><GameIcon e="📋" /></span>
           <div>
             <h3 className="font-bold text-white text-sm sm:text-base leading-tight">Bảng Đơn Đặt Hàng Của Dân Làng</h3>
             <p className="text-emerald-300/80 text-[11px]">
@@ -163,7 +167,7 @@ export const OrdersSection: React.FC<Props> = ({
               <div className="flex items-center justify-between pb-2.5 border-b border-emerald-800/60">
                 <div className="flex items-center gap-2.5">
                   <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl shadow-inner">
-                    {order.avatarEmoji}
+                    {CUSTOMER_SPRITES[order.avatarEmoji] ? <SpriteIcon src={CUSTOMER_SPRITES[order.avatarEmoji]} alt={order.customerName} size={36} /> : order.avatarEmoji}
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm leading-tight">{order.customerName}</h4>
@@ -198,7 +202,7 @@ export const OrdersSection: React.FC<Props> = ({
                             : 'bg-rose-950/70 text-rose-200 border-rose-800/60'
                         }`}
                       >
-                        <span className="text-base">{req.icon}</span>
+                        <span className="text-base"><GameIcon e={req.icon} /></span>
                         <span>{req.nameVi}</span>
                         <span className="font-mono font-bold">
                           {have}/{req.count}
@@ -214,11 +218,11 @@ export const OrdersSection: React.FC<Props> = ({
               <div className="pt-2.5 border-t border-emerald-800/60 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-mono font-bold">
                   <span className="text-amber-300 flex items-center gap-0.5">
-                    💰 {formatMoney(isRainbow ? Math.floor(order.rewardCoins * 1.5) : order.rewardCoins)}
+                    <CoinIcon /> {formatMoney(isRainbow ? Math.floor(order.rewardCoins * 1.5) : order.rewardCoins)}
                   </span>
-                  <span className="text-sky-300 flex items-center gap-0.5">✨ +{order.rewardExp}</span>
+                  <span className="text-sky-300 flex items-center gap-0.5"><GameIcon e="✨" /> +{order.rewardExp}</span>
                   {order.rewardGems && (
-                    <span className="text-fuchsia-300 flex items-center gap-0.5">💎 +{order.rewardGems}</span>
+                    <span className="text-fuchsia-300 flex items-center gap-0.5"><GameIcon e="💎" /> +{order.rewardGems}</span>
                   )}
                 </div>
 

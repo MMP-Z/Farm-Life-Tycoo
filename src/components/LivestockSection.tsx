@@ -4,6 +4,8 @@ import { AnimalId, AnimalPen } from '../types/game';
 import { Heart, Plus, Sparkles, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   pens: Record<AnimalId, AnimalPen>;
@@ -32,7 +34,7 @@ export const LivestockSection: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-5 border border-[#EAE6DA] shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
-            🐮
+            <GameIcon e="🐮" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 leading-tight">
@@ -78,7 +80,7 @@ export const LivestockSection: React.FC<Props> = ({
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50">
-                    {cfg.icon}
+                    <GameIcon e={cfg.icon} />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900">{cfg.nameVi}</h3>
@@ -88,10 +90,10 @@ export const LivestockSection: React.FC<Props> = ({
 
                 <div className="my-3 p-3 rounded-2xl bg-[#FAF9F5] border border-[#F2EFE9] text-xs text-slate-600">
                   <p className="flex items-center gap-1.5 mb-1">
-                    <span>🌾</span> Thức ăn cần: <strong className="text-slate-900">{feedCrop.nameVi}</strong>
+                    <span><GameIcon e="🌾" /></span> Thức ăn cần: <strong className="text-slate-900">{feedCrop.nameVi}</strong>
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <span>✨</span> Thu được: <strong className="text-emerald-700">{cfg.produceNameVi}</strong> ({cfg.produceIcon})
+                    <span><GameIcon e="✨" /></span> Thu được: <strong className="text-emerald-700">{cfg.produceNameVi}</strong> (<GameIcon e={cfg.produceIcon} />)
                   </p>
                 </div>
 
@@ -104,7 +106,7 @@ export const LivestockSection: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                   }`}
                 >
-                  <span>Mở Khóa Chuồng (💰 {formatMoney(cfg.buyCost)})</span>
+                  <span>Mở Khóa Chuồng (<CoinIcon /> {formatMoney(cfg.buyCost)})</span>
                 </button>
               </div>
             );
@@ -123,7 +125,7 @@ export const LivestockSection: React.FC<Props> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
-                    {cfg.icon}
+                    <GameIcon e={cfg.icon} />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 leading-tight">{cfg.nameVi}</h3>
@@ -137,10 +139,10 @@ export const LivestockSection: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyAnimal(cfg.id)}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all cursor-pointer"
-                    title={`Mua thêm 1 con (💰 ${formatMoney(Math.floor(cfg.buyCost * 0.6))})`}
+                    title={`Mua thêm 1 con (${formatMoney(Math.floor(cfg.buyCost * 0.6))})`}
                   >
                     <Plus size={13} />
-                    <span>Mua thêm (💰 {formatMoney(Math.floor(cfg.buyCost * 0.6))})</span>
+                    <span>Mua thêm (<CoinIcon /> {formatMoney(Math.floor(cfg.buyCost * 0.6))})</span>
                   </button>
                 )}
               </div>
@@ -155,7 +157,7 @@ export const LivestockSection: React.FC<Props> = ({
                     }`}
                     style={{ animationDelay: `${i * 0.2}s` }}
                   >
-                    <span className="text-3xl sm:text-4xl filter drop-shadow-sm">{cfg.icon}</span>
+                    <span className="text-3xl sm:text-4xl filter drop-shadow-sm"><GameIcon e={cfg.icon} /></span>
                     <span className="text-[11px] text-slate-400 font-mono">#{i + 1}</span>
                   </div>
                 ))}
@@ -175,7 +177,7 @@ export const LivestockSection: React.FC<Props> = ({
                     onClick={(e) => onCollectProduce(cfg.id, e)}
                     className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer animate-pulse-gentle"
                   >
-                    <span className="text-xl">{cfg.produceIcon}</span>
+                    <span className="text-xl"><GameIcon e={cfg.produceIcon} /></span>
                     <span>Thu hoạch {cfg.produceNameVi} (+{pen.animalCount * cfg.expReward} EXP)</span>
                     <Sparkles size={16} />
                   </button>
@@ -199,7 +201,7 @@ export const LivestockSection: React.FC<Props> = ({
                     <div className="text-xs text-slate-600 flex items-center gap-1.5">
                       <span>Cần:</span>
                       <strong className="text-slate-900 font-bold">
-                        {feedNeeded} {feedCrop.nameVi} {feedCrop.icon}
+                        {feedNeeded} {feedCrop.nameVi} <GameIcon e={feedCrop.icon} />
                       </strong>
                       <span className={`text-[11px] font-mono ${hasEnoughFeed ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold'}`}>
                         (Có: {feedCropCount})
@@ -215,7 +217,7 @@ export const LivestockSection: React.FC<Props> = ({
                           : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
                     >
-                      <span>🌾</span>
+                      <span><GameIcon e="🌾" /></span>
                       <span>Cho ăn ngay</span>
                     </button>
                   </div>

@@ -5,7 +5,9 @@ import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck, Doll
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
-import { ANIMAL_SPRITES } from '../utils/sprites';
+import { ANIMAL_SPRITES, MOOD_SPRITES } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   pens: Record<string, AnimalPen>;
@@ -65,7 +67,7 @@ export const PastureTab: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
-            🏡
+            <GameIcon e="🏡" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -86,7 +88,7 @@ export const PastureTab: React.FC<Props> = ({
           }`}
         >
           <Plus size={12} />
-          <span>Mở rộng (💰 {formatMoney(upgradeCost)})</span>
+          <span>Mở rộng (<CoinIcon /> {formatMoney(upgradeCost)})</span>
         </button>
       </div>
 
@@ -134,7 +136,7 @@ export const PastureTab: React.FC<Props> = ({
               : 'bg-slate-200 text-slate-400 cursor-not-allowed'
           }`}
         >
-          <div className="flex items-center gap-1"><span>🌾</span> Cho ăn toàn bộ</div>
+          <div className="flex items-center gap-1"><span><GameIcon e="🌾" /></span> Cho ăn toàn bộ</div>
           <div className="text-[11px] font-normal opacity-80 flex flex-wrap gap-1 justify-center">
             {Object.keys(feedNeeded).length === 0 ? '(Chưa cần)' : Object.entries(feedNeeded).map(([id, amt]) => {
               const inStock = inventory.find(i => i.itemId === id)?.quantity || 0;
@@ -174,12 +176,20 @@ export const PastureTab: React.FC<Props> = ({
                 <div key={animal.id} className={`flex flex-col items-center p-3 rounded-2xl bg-white border shadow-xs relative ${isReady ? 'border-amber-300 bg-amber-50/30' : 'border-[#E8E2D2]'}`}>
                   {def && ANIMAL_SPRITES[animal.type]
                     ? <SpriteIcon src={ANIMAL_SPRITES[animal.type]} alt={def.name} size={40} className="filter drop-shadow-xs" />
-                    : <span className="text-3xl filter drop-shadow-xs">{def?.icon || '❓'}</span>}
+                    : <span className="text-3xl filter drop-shadow-xs">{def?.icon ? <GameIcon e={def.icon} /> : <GameIcon e="❓" />}</span>}
                   <span className="text-[11px] font-bold text-slate-800 mt-1 text-center leading-tight">{animal.name}</span>
                   
                   {/* Status */}
-                  <span className="text-[11px] mt-0.5">
-                    {animal.isSick ? '🤒 Ốm' : animal.hunger < 20 ? '🥺 Đói' : animal.happiness > 70 ? '😊 Vui vẻ' : '😐 Bình thường'}
+                  <span className="text-[11px] mt-0.5 flex items-center gap-1">
+                    {animal.isSick ? (
+                      <><SpriteIcon src={MOOD_SPRITES.sick} alt="Ốm" size={14} /> Ốm</>
+                    ) : animal.hunger < 20 ? (
+                      <><SpriteIcon src={MOOD_SPRITES.sad} alt="Đói" size={14} /> Đói</>
+                    ) : animal.happiness > 70 ? (
+                      <><SpriteIcon src={MOOD_SPRITES.happy} alt="Vui vẻ" size={14} /> Vui vẻ</>
+                    ) : (
+                      <><SpriteIcon src={MOOD_SPRITES.neutral} alt="Bình thường" size={14} /> Bình thường</>
+                    )}
                   </span>
 
                   {/* Ready Indicator */}
@@ -199,7 +209,7 @@ export const PastureTab: React.FC<Props> = ({
                       className="flex-1 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold flex items-center justify-center gap-0.5 cursor-pointer transition-colors"
                       title="Bán nhận nửa giá vàng"
                     >
-                      Bán (💰 {formatMoney(sellPrice)})
+                      Bán (<CoinIcon /> {formatMoney(sellPrice)})
                     </button>
                   </div>
                 </div>

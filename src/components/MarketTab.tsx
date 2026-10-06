@@ -5,6 +5,8 @@ import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
 import { ITEM_SPRITES } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   inventory: InventoryItem[];
@@ -21,10 +23,10 @@ export const MarketTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-4 sm:p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
-            🏪
+            <GameIcon e="🏪" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -40,7 +42,7 @@ export const MarketTab: React.FC<Props> = ({
 
 
       {/* Bảng Giá Cung - Cầu Thị Trường & Bán Trực Tiếp */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3.5">
           <div>
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
@@ -68,11 +70,11 @@ export const MarketTab: React.FC<Props> = ({
                 <div className="flex items-center gap-2.5">
                   {ITEM_SPRITES[itemId]
                     ? <SpriteIcon src={ITEM_SPRITES[itemId]} alt={meta.name} size={32} className="filter drop-shadow-xs" />
-                    : <span className="text-2xl filter drop-shadow-xs">{meta.icon}</span>}
+                    : <span className="text-2xl filter drop-shadow-xs"><GameIcon e={meta.icon} /></span>}
                   <div>
                     <h4 className="font-bold text-xs text-slate-900 font-display">{meta.name}</h4>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono mt-0.5">
-                      <span className="font-extrabold text-emerald-800">💰 {formatMoney(currentPrice)}</span>
+                      <span className="font-extrabold text-emerald-800"><CoinIcon /> {formatMoney(currentPrice)}</span>
                       {isHighDemand ? (
                         <span className="text-emerald-700 font-bold flex items-center text-[11px]">
                           <TrendingUp size={11} /> Cầu cao
@@ -94,7 +96,7 @@ export const MarketTab: React.FC<Props> = ({
                     onClick={(e) => onDirectSell(itemId, 1, currentPrice, e)}
                     disabled={inStock < 1}
                     className="px-2.5 py-1.5 min-h-[40px] rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:active:scale-100"
-                    title={`Bán 1 cái lấy 💰 ${formatMoney(currentPrice)} (Có: ${inStock})`}
+                    title={`Bán 1 cái lấy ${formatMoney(currentPrice)} (Có: ${inStock})`}
                   >
                     Bán 1 ({inStock})
                   </button>
@@ -103,7 +105,7 @@ export const MarketTab: React.FC<Props> = ({
                     <button
                       onClick={(e) => onDirectSell(itemId, inStock, currentPrice, e)}
                       className="px-2 py-1.5 min-h-[40px] rounded-xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                      title={`Bán tất cả ${inStock} cái lấy 💰 ${formatMoney(inStock * currentPrice)}`}
+                      title={`Bán tất cả ${inStock} cái lấy ${formatMoney(inStock * currentPrice)}`}
                     >
                       Bán hết
                     </button>

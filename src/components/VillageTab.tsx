@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   state: FarmGameState;
@@ -54,7 +56,7 @@ export const VillageTab: React.FC<Props> = ({
                 key={alert.id}
                 className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-start gap-2.5"
               >
-                <span className="text-2xl mt-0.5">{alert.icon}</span>
+                <span className="text-2xl mt-0.5"><GameIcon e={alert.icon} /></span>
                 <div className="flex-1">
                   <h4 className="font-bold text-xs sm:text-sm text-slate-900">{alert.title}</h4>
                   <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{alert.desc}</p>
@@ -73,11 +75,11 @@ export const VillageTab: React.FC<Props> = ({
         
         {/* Card 1: Bảo Hiểm HTX */}
         {(!section || section === 'coop') && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col justify-between">
+        <div className="px-panel p-4 sm:p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-start sm:items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🛡️</span>
+                <span className="text-2xl"><GameIcon e="🛡" />️</span>
                 <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
                   {INSURANCE_CONFIG.name}
                 </h3>
@@ -105,7 +107,7 @@ export const VillageTab: React.FC<Props> = ({
               </div>
               <div className="text-right">
                 <span className="text-slate-500 block text-[11px]">Đã đền bù tích lũy:</span>
-                <strong className="text-amber-900 font-bold text-sm">+💰 {formatMoney(insurance.totalCompensated)}</strong>
+                <strong className="text-amber-900 font-bold text-sm">+<CoinIcon /> {formatMoney(insurance.totalCompensated)}</strong>
               </div>
             </div>
           </div>
@@ -122,7 +124,7 @@ export const VillageTab: React.FC<Props> = ({
                 className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer disabled:opacity-50"
               >
                 <ShieldCheck size={16} />
-                <span>Tham Gia Bảo Hiểm Mùa Vụ (💰 {formatMoney(INSURANCE_CONFIG.costPerSeason)})</span>
+                <span>Tham Gia Bảo Hiểm Mùa Vụ (<CoinIcon /> {formatMoney(INSURANCE_CONFIG.costPerSeason)})</span>
               </button>
             )}
           </div>
@@ -131,11 +133,11 @@ export const VillageTab: React.FC<Props> = ({
 
         {/* Card 2: Chi Cục Thuế & Quỹ Làng */}
         {(!section || section === 'tax') && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col justify-between">
+        <div className="px-panel p-4 sm:p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-start sm:items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">📜</span>
+                <span className="text-2xl"><GameIcon e="📜" /></span>
                 <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
                   Sổ Thuế Nông Nghiệp & Quỹ Làng
                 </h3>
@@ -154,7 +156,7 @@ export const VillageTab: React.FC<Props> = ({
               </div>
               <div className="text-right">
                 <span className="text-slate-500 block text-[11px]">Định mức thuế mùa này:</span>
-                <strong className="text-amber-950 font-bold">💰 {formatMoney(state.plots.length * 10)}</strong>
+                <strong className="text-amber-950 font-bold"><CoinIcon /> {formatMoney(state.plots.length * 10)}</strong>
               </div>
             </div>
           </div>
@@ -163,7 +165,7 @@ export const VillageTab: React.FC<Props> = ({
             {pendingTaxes && pendingTaxes.length > 0 && !pendingTaxes[0].paid ? (
               <div className="w-full flex items-center justify-between">
                 <span className="text-xs font-bold text-rose-700">
-                  Cần nộp: 💰 {formatMoney(pendingTaxes[0].amount)}
+                  Cần nộp: <CoinIcon /> {formatMoney(pendingTaxes[0].amount)}
                 </span>
                 <button
                   onClick={() => onPayTax(pendingTaxes[0].id)}
@@ -185,10 +187,10 @@ export const VillageTab: React.FC<Props> = ({
 
       {/* Công Trình & Trang Bị Phòng Vệ Nông Trại */}
       {(!section || section === 'police') && (
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🛡️</span>
+            <span className="text-2xl"><GameIcon e="🛡" />️</span>
             <div>
               <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
                 Trang Bị & Công Trình Phòng Vệ
@@ -206,13 +208,13 @@ export const VillageTab: React.FC<Props> = ({
           <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-3xl">🐕</span>
+                <span className="text-3xl"><GameIcon e="🐕" /></span>
                 {defenses.hasDog ? (
                   <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đang tuần tra
                   </span>
                 ) : (
-                  <span className="text-xs font-mono font-bold text-amber-900">180 💰</span>
+                  <span className="text-xs font-mono font-bold text-amber-900">180 <CoinIcon /></span>
                 )}
               </div>
               <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">{DEFENSE_ITEMS_CONFIG.dog.name}</h4>
@@ -241,13 +243,13 @@ export const VillageTab: React.FC<Props> = ({
           <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-3xl">🔒</span>
+                <span className="text-3xl"><GameIcon e="🔒" /></span>
                 {defenses.hasReinforcedLock ? (
                   <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đã gia cố
                   </span>
                 ) : (
-                  <span className="text-xs font-mono font-bold text-amber-900">150 💰</span>
+                  <span className="text-xs font-mono font-bold text-amber-900">150 <CoinIcon /></span>
                 )}
               </div>
               <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">{DEFENSE_ITEMS_CONFIG.reinforced_lock.name}</h4>
@@ -276,13 +278,13 @@ export const VillageTab: React.FC<Props> = ({
           <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-3xl">🏗️</span>
+                <span className="text-3xl"><GameIcon e="🏗" />️</span>
                 {defenses.hasCropNetting ? (
                   <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                     Đã giăng lưới
                   </span>
                 ) : (
-                  <span className="text-xs font-mono font-bold text-amber-900">220 💰</span>
+                  <span className="text-xs font-mono font-bold text-amber-900">220 <CoinIcon /></span>
                 )}
               </div>
               <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">{DEFENSE_ITEMS_CONFIG.crop_netting.name}</h4>
@@ -311,8 +313,8 @@ export const VillageTab: React.FC<Props> = ({
           <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-3xl">💉</span>
-                <span className="text-xs font-mono font-bold text-amber-900">80 💰</span>
+                <span className="text-3xl"><GameIcon e="💉" /></span>
+                <span className="text-xs font-mono font-bold text-amber-900">80 <CoinIcon /></span>
               </div>
               <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">{DEFENSE_ITEMS_CONFIG.vaccine.name}</h4>
               <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">{DEFENSE_ITEMS_CONFIG.vaccine.benefit}</p>
@@ -336,7 +338,7 @@ export const VillageTab: React.FC<Props> = ({
 
       {/* Nhật Ký Sự Cố Gần Nhất */}
       {(!section || section === 'police') && recentIncidents && recentIncidents.length > 0 && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+        <div className="px-panel p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-2.5">
             <History size={18} className="text-slate-500" />
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
@@ -351,7 +353,7 @@ export const VillageTab: React.FC<Props> = ({
                 className="p-3 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-between text-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">{inc.icon}</span>
+                  <span className="text-2xl"><GameIcon e={inc.icon} /></span>
                   <div>
                     <h4 className="font-bold text-slate-900 flex items-center gap-1.5">
                       <span>{inc.title}</span>
@@ -367,11 +369,11 @@ export const VillageTab: React.FC<Props> = ({
                   </span>
                 ) : inc.insuranceCompensated > 0 ? (
                   <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full shrink-0">
-                    +💰 {formatMoney(inc.insuranceCompensated)} bảo hiểm
+                    +<CoinIcon /> {formatMoney(inc.insuranceCompensated)} bảo hiểm
                   </span>
                 ) : (
                   <span className="text-[11px] font-bold text-rose-600 shrink-0">
-                    -💰 {formatMoney(inc.lossAmount)}
+                    -<CoinIcon /> {formatMoney(inc.lossAmount)}
                   </span>
                 )}
               </div>

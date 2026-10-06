@@ -6,6 +6,9 @@ import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
 import { SpriteIcon } from './SpriteIcon';
 import { ITEM_SPRITES } from '../utils/sprites';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { RichText } from './RichText';
 
 interface Props {
   inventory: InventoryItem[];
@@ -46,7 +49,7 @@ export const BarnTab: React.FC<Props> = ({
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
-              🏡
+              <GameIcon e="🏡" />
             </div>
             <div>
               <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -89,7 +92,7 @@ export const BarnTab: React.FC<Props> = ({
             }`}
           >
             <ArrowUpCircle size={15} />
-            <span>Mở rộng kho +25 ô (💰 {formatMoney(upgradeCost)})</span>
+            <span>Mở rộng kho +25 ô (<CoinIcon /> {formatMoney(upgradeCost)})</span>
           </button>
 
           {!hasColdStorage && (
@@ -103,7 +106,7 @@ export const BarnTab: React.FC<Props> = ({
               }`}
             >
               <Snowflake size={15} />
-              <span>Xây Kho Lạnh (💰 {formatMoney(coldStorageCost)})</span>
+              <span>Xây Kho Lạnh (<CoinIcon /> {formatMoney(coldStorageCost)})</span>
             </button>
           )}
         </div>
@@ -131,7 +134,7 @@ export const BarnTab: React.FC<Props> = ({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {tab.label}
+            <RichText text={tab.label} />
           </button>
         ))}
       </div>
@@ -139,7 +142,7 @@ export const BarnTab: React.FC<Props> = ({
       {/* Inventory Items List */}
       {filteredItems.length === 0 ? (
         <div className="bg-white rounded-3xl border border-dashed border-[#E8E2D2] p-12 flex flex-col items-center justify-center text-center">
-          <span className="text-5xl mb-2 opacity-50">🌾</span>
+          <span className="text-5xl mb-2 opacity-50"><GameIcon e="🌾" /></span>
           <p className="font-extrabold text-slate-900 text-base font-display">Không có mặt hàng trong mục này</p>
           <p className="text-xs text-slate-500 mt-1 max-w-sm">
             Thu hoạch nông sản trên đồng ruộng hoặc thu gom sản vật từ chuồng trại để cất trữ trong kho!
@@ -160,7 +163,7 @@ export const BarnTab: React.FC<Props> = ({
                   <div className="w-12 h-12 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-center text-3xl shadow-inner shrink-0">
                     {ITEM_SPRITES[item.itemId]
                       ? <SpriteIcon src={ITEM_SPRITES[item.itemId]} alt={item.name} size={36} />
-                      : item.icon}
+                      : <GameIcon e={item.icon} />}
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm text-slate-900 leading-tight font-display">{item.name}</h4>
@@ -185,7 +188,7 @@ export const BarnTab: React.FC<Props> = ({
 
                 <div className="flex flex-col items-end shrink-0">
                   <span className="text-xs font-extrabold text-emerald-800 font-mono">
-                    ~💰 {formatMoney(meta?.basePrice || 10)}
+                    ~<CoinIcon /> {formatMoney(meta?.basePrice || 10)}
                   </span>
                   <span className="text-[11px] text-slate-400 mt-0.5">Giá gốc/cái</span>
                 </div>

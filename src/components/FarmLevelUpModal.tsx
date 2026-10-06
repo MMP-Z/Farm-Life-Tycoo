@@ -1,6 +1,8 @@
 import React from 'react';
 import { LEVEL_UNLOCKS } from '../config/farmData';
 import { Sparkles, Trophy, Award, CheckCircle } from 'lucide-react';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   level: number;
@@ -21,7 +23,7 @@ export const FarmLevelUpModal: React.FC<Props> = ({ level, rewardMoney, onClose 
         {/* Icon & Sparkle */}
         <div className="relative inline-flex items-center justify-center mb-3">
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-amber-300 shadow-xl flex items-center justify-center text-4xl animate-bounce-slight">
-            ⭐
+            <GameIcon e="⭐" />
           </div>
           <Sparkles className="absolute -top-1 -right-2 text-amber-300 animate-spin-slow" size={24} />
         </div>
@@ -35,7 +37,7 @@ export const FarmLevelUpModal: React.FC<Props> = ({ level, rewardMoney, onClose 
 
         {/* Bonus Money */}
         <div className="my-5 p-3.5 bg-black/30 rounded-2xl border border-emerald-700/60 flex items-center justify-center gap-3">
-          <span className="text-3xl">💰</span>
+          <span className="text-3xl"><CoinIcon /></span>
           <div className="flex flex-col text-left">
             <span className="text-xs text-emerald-300 font-semibold">Phần Thưởng Thăng Cấp:</span>
             <span className="font-mono font-black text-amber-300 text-lg sm:text-xl">
@@ -63,7 +65,7 @@ export const FarmLevelUpModal: React.FC<Props> = ({ level, rewardMoney, onClose 
           onClick={onClose}
           className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-black text-base shadow-lg transition-all transform active:scale-98 cursor-pointer"
         >
-          TIẾP TỤC CANH TÁC 🚜
+          TIẾP TỤC CANH TÁC <GameIcon e="🚜" />
         </button>
       </div>
     </div>

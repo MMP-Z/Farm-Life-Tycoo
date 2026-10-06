@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { GameTab } from './NavigationTabs';
+import { GameIcon } from './GameIcon';
+import { RichText } from './RichText';
 
 interface Step {
   tab: GameTab;
@@ -144,14 +146,14 @@ export const TutorialOverlay: React.FC<Props> = ({ onSelectTab, onDone }) => {
             </button>
           </div>
           <h3 className="font-display font-extrabold text-base text-slate-900 mb-1.5">
-            {step.title}
+            <RichText text={step.title} />
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed mb-4">{step.text}</p>
+          <p className="text-sm text-slate-600 leading-relaxed mb-4"><RichText text={step.text} /></p>
           <button
             onClick={() => (isLast ? onDone() : setStepIndex((i) => i + 1))}
             className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 text-white font-extrabold text-sm shadow-md transition-all active:scale-95"
           >
-            {isLast ? 'Bắt đầu chơi! 🚜' : 'Tiếp theo →'}
+            {isLast ? 'Bắt đầu chơi! <GameIcon e="🚜" />' : 'Tiếp theo →'}
           </button>
         </div>
       </div>

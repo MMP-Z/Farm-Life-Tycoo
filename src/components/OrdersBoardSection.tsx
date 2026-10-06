@@ -2,6 +2,10 @@ import React from 'react';
 import { CustomerOrder, DeliveryTruckState } from '../types/game';
 import { Truck, Check, RefreshCw, Sparkles, Gift } from 'lucide-react';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
+import { SpriteIcon } from './SpriteIcon';
+import { CUSTOMER_SPRITES } from '../utils/sprites';
 
 interface Props {
   orders: CustomerOrder[];
@@ -39,7 +43,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
       <div className="bg-gradient-to-r from-[#234230] via-[#1a3426] to-[#14281d] text-white rounded-3xl p-5 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl sm:text-4xl">🚚</span>
+            <span className="text-3xl sm:text-4xl"><GameIcon e="🚚" /></span>
             <div>
               <h2 className="font-extrabold text-base sm:text-lg leading-tight">
                 Chuyến Xe Tải Giao Hàng Tốc Hành
@@ -66,10 +70,10 @@ export const OrdersBoardSection: React.FC<Props> = ({
 
           <div className="flex justify-between text-xs text-slate-300 font-bold px-1">
             <span className="flex items-center gap-1.5 text-emerald-300">
-              <span>🏡</span> Nông Trại Của Bạn
+              <span><GameIcon e="🏡" /></span> Nông Trại Của Bạn
             </span>
             <span className="flex items-center gap-1.5 text-amber-300">
-              <span>🏙️</span> Thị Trấn Thung Lũng Xanh
+              <span><GameIcon e="🏙" />️</span> Thị Trấn Thung Lũng Xanh
             </span>
           </div>
 
@@ -83,7 +87,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               }}
             >
               <div className="flex flex-col items-center animate-bounce-slight">
-                <span className="text-3xl filter drop-shadow">🚚</span>
+                <span className="text-3xl filter drop-shadow"><GameIcon e="🚚" /></span>
                 {!isTruckFinished && (
                   <span className="bg-slate-900/90 text-amber-300 text-[11px] px-2 py-0.5 rounded-md font-mono border border-slate-700 shadow-md">
                     {truckRemaining}s
@@ -104,8 +108,8 @@ export const OrdersBoardSection: React.FC<Props> = ({
               >
                 <Gift size={18} />
                 <span>
-                  Mở Rương Phần Thưởng (+💰 {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
-                  {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}💎` : ''})
+                  Mở Rương Phần Thưởng (+<CoinIcon /> {formatMoney(truck.pendingReward?.coins || 0)} · +{truck.pendingReward?.exp} EXP
+                  {truck.pendingReward?.gems ? ` · +${truck.pendingReward.gems}<GameIcon e="💎" />` : ''})
                 </span>
                 <Sparkles size={16} />
               </button>
@@ -125,7 +129,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-5 border border-[#EAE6DA] shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
-            📋
+            <GameIcon e="📋" />
           </div>
           <div>
             <h3 className="font-extrabold text-base sm:text-lg text-slate-900 leading-tight">
@@ -158,7 +162,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               <div className="flex items-center justify-between pb-3 border-b border-[#F2EFE9]">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl shadow-inner">
-                    {order.avatarEmoji}
+                    {CUSTOMER_SPRITES[order.avatarEmoji] ? <SpriteIcon src={CUSTOMER_SPRITES[order.avatarEmoji]} alt={order.customerName} size={36} /> : order.avatarEmoji}
                   </div>
                   <div>
                     <h4 className="font-extrabold text-base text-slate-900 leading-tight">{order.customerName}</h4>
@@ -192,7 +196,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
                             : 'bg-rose-50 text-rose-800 border-rose-300'
                         }`}
                       >
-                        <span className="text-base">{req.icon}</span>
+                        <span className="text-base"><GameIcon e={req.icon} /></span>
                         <span>{req.nameVi}</span>
                         <span className="font-mono font-bold">
                           {have}/{req.count}
@@ -208,14 +212,14 @@ export const OrdersBoardSection: React.FC<Props> = ({
               <div className="pt-3 border-t border-[#F2EFE9] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 text-xs font-mono font-extrabold">
                   <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
-                    💰 +{order.rewardCoins}
+                    <CoinIcon /> +{order.rewardCoins}
                   </span>
                   <span className="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-1 rounded-lg">
-                    ✨ +{order.rewardExp}
+                    <GameIcon e="✨" /> +{order.rewardExp}
                   </span>
                   {order.rewardGems && (
                     <span className="text-fuchsia-700 bg-fuchsia-50 border border-fuchsia-200 px-2 py-1 rounded-lg">
-                      💎 +{order.rewardGems}
+                      <GameIcon e="💎" /> +{order.rewardGems}
                     </span>
                   )}
                 </div>

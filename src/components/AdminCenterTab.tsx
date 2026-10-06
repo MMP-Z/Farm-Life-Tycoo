@@ -3,6 +3,7 @@ import { FarmGameState } from '../types/farmSystem';
 import { VillageTab } from './VillageTab';
 import { FinancialsTab } from './FinancialsTab';
 import { ShieldCheck, Landmark } from 'lucide-react';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   state: FarmGameState;
@@ -31,10 +32,10 @@ export const AdminCenterTab: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-4 sm:p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-3xl shadow-inner">
-            🏛️
+            <GameIcon e="🏛" />️
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -73,7 +74,7 @@ export const AdminCenterTab: React.FC<Props> = ({
             activeTab === 'tax' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
           }`}
         >
-          <span className="text-base">📜</span>
+          <span className="text-base"><GameIcon e="📜" /></span>
           Thuế
         </button>
         <button
@@ -82,7 +83,7 @@ export const AdminCenterTab: React.FC<Props> = ({
             activeTab === 'coop' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
           }`}
         >
-          <span className="text-base">🤝</span>
+          <span className="text-base"><GameIcon e="🤝" /></span>
           Hợp Tác Xã
         </button>
       </div>

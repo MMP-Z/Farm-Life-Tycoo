@@ -149,7 +149,7 @@ export interface FloatingReward {
   x: number;
   y: number;
   text: string;
-  icon?: string;
+  spriteSrc?: string;
   type: 'coin' | 'exp' | 'item' | 'gem';
 }
 

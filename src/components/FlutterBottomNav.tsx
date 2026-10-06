@@ -17,7 +17,7 @@ export const FlutterBottomNav: React.FC<Props> = ({ activeTab, onSelectTab }) =>
   ];
 
   return (
-    <nav className="w-full bg-white/95 backdrop-blur-md border-t border-[#EAE6DA] px-4 py-2 flex items-center justify-around shrink-0 z-30 select-none shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+    <nav className="w-full bg-[#FCFBF7] border-t-[3px] border-[#3a2b3f] px-4 py-2 flex items-center justify-around shrink-0 z-30 select-none">
       <div className="max-w-2xl mx-auto w-full flex items-center justify-around">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -27,11 +27,11 @@ export const FlutterBottomNav: React.FC<Props> = ({ activeTab, onSelectTab }) =>
             <button
               key={tab.id}
               onClick={() => onSelectTab(tab.id)}
-              className={`flex flex-col items-center justify-center min-w-[64px] sm:min-w-[80px] py-1 px-1 transition-all cursor-pointer ${
-                isActive ? 'text-[#234230]' : 'text-[#8E8E93] hover:text-[#1C1C1E]'
+              className={`flex flex-col items-center justify-center min-w-[64px] sm:min-w-[80px] py-1 px-2 transition-all cursor-pointer px-tab ${
+                isActive ? 'px-tab-active text-[#234230]' : 'text-[#8E8E93] hover:text-[#1C1C1E]'
               }`}
             >
-              <div className={`p-1 rounded-xl transition-all ${isActive ? 'scale-110 bg-[#234230]/10' : ''}`}>
+              <div className={`p-1 transition-all ${isActive ? 'scale-110' : ''}`}>
                 <IconComponent
                   size={22}
                   className={isActive ? 'stroke-[2.6] text-[#234230]' : 'stroke-[2]'}

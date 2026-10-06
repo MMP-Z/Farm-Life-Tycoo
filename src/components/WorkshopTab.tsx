@@ -4,6 +4,8 @@ import { RECIPES_CONFIG } from '../config/farmData';
 import { Play, Sparkles, Lock, ArrowUpCircle, Clock } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { CoinIcon } from './CoinIcon';
+import { GameIcon } from './GameIcon';
 
 interface Props {
   factories: Record<string, FactoryBuilding>;
@@ -33,7 +35,7 @@ export const WorkshopTab: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
-            🥖
+            <GameIcon e="🥖" />
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
@@ -65,7 +67,7 @@ export const WorkshopTab: React.FC<Props> = ({
               >
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50 shrink-0">
-                    {factory.icon}
+                    <GameIcon e={factory.icon} />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
@@ -74,7 +76,7 @@ export const WorkshopTab: React.FC<Props> = ({
                     <p className="text-[11px] text-slate-500 font-medium mt-1">
                       Sản xuất: {factoryRecipes.map(r => r.name).join(', ')}
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">Chi phí đầu tư xây dựng: 💰 {formatMoney(factory.cost)}</p>
+                    <p className="text-xs text-slate-500 mt-1">Chi phí đầu tư xây dựng: <CoinIcon /> {formatMoney(factory.cost)}</p>
                   </div>
                 </div>
 
@@ -87,7 +89,7 @@ export const WorkshopTab: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>Xây Dựng (💰 {formatMoney(factory.cost)})</span>
+                  <span>Xây Dựng (<CoinIcon /> {formatMoney(factory.cost)})</span>
                 </button>
               </div>
             );
@@ -101,7 +103,7 @@ export const WorkshopTab: React.FC<Props> = ({
               {/* Factory Header */}
               <div className="flex items-center justify-between pb-3 border-b border-[#F2EFE9]">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl filter drop-shadow-xs">{factory.icon}</span>
+                  <span className="text-3xl filter drop-shadow-xs"><GameIcon e={factory.icon} /></span>
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 font-display leading-tight">{factory.name}</h3>
                     <p className="text-xs text-slate-500 font-medium">
@@ -114,10 +116,10 @@ export const WorkshopTab: React.FC<Props> = ({
                   onClick={() => onUpgradeQueue(factory.id)}
                   disabled={money < upgradeSlotCost}
                   className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
-                  title={`Thêm 1 slot hàng đợi (💰 ${formatMoney(upgradeSlotCost)})`}
+                  title={`Thêm 1 slot hàng đợi (${formatMoney(upgradeSlotCost)})`}
                 >
                   <ArrowUpCircle size={13} />
-                  <span>+1 Slot (💰 {formatMoney(upgradeSlotCost)})</span>
+                  <span>+1 Slot (<CoinIcon /> {formatMoney(upgradeSlotCost)})</span>
                 </button>
               </div>
 
@@ -138,7 +140,7 @@ export const WorkshopTab: React.FC<Props> = ({
                           className="p-3 bg-white rounded-xl border border-[#E8E2D2] shadow-xs flex items-center justify-between gap-3"
                         >
                           <div className="flex items-center gap-2.5">
-                            <span className="text-2xl">{recipe.icon}</span>
+                            <span className="text-2xl"><GameIcon e={recipe.icon} /></span>
                             <div>
                               <h4 className="font-bold text-xs text-slate-900">{recipe.name}</h4>
                               <p className="text-[11px] text-slate-500 font-mono">
@@ -198,7 +200,7 @@ export const WorkshopTab: React.FC<Props> = ({
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="font-extrabold text-slate-900 flex items-center gap-1.5 text-sm font-display">
-                              <span>{recipe.icon}</span>
+                              <span><GameIcon e={recipe.icon} /></span>
                               <span>{recipe.name}</span>
                             </span>
                             <span className="text-[11px] text-amber-800 font-mono font-bold">
@@ -229,7 +231,7 @@ export const WorkshopTab: React.FC<Props> = ({
 
                         <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center justify-between">
                           <span className="text-[11px] text-emerald-800 font-mono font-bold">
-                            Bán: ~💰 {formatMoney(recipe.basePrice)}
+                            Bán: ~<CoinIcon /> {formatMoney(recipe.basePrice)}
                           </span>
 
                           <button
