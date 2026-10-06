@@ -46,11 +46,23 @@ export function advanceGameTime(
   const daysAdvanced = Math.floor(newTimeOfDay);
   newTimeOfDay = newTimeOfDay % 1;
 
+  let newDayPart: 'morning' | 'noon' | 'afternoon' | 'evening' = 'morning';
+  if (newTimeOfDay < 0.25) newDayPart = 'morning';
+  else if (newTimeOfDay < 0.5) newDayPart = 'noon';
+  else if (newTimeOfDay < 0.75) newDayPart = 'afternoon';
+  else newDayPart = 'evening';
+
+  let newLaborHours = state.laborHours ?? 10;
+  if (daysAdvanced > 0) {
+    newLaborHours = 10; // Hồi phục 10 giờ công mỗi sáng
+  }
+
   let currentDay = state.currentDay + daysAdvanced;
   let currentSeason = state.currentSeason;
   let currentYear = state.currentYear;
   let seasonalGoals = state.seasonalGoals || [];
   let marketProfiles = state.marketProfiles;
+  let pendingTaxes = [...(state.pendingTaxes || [])];
 
   // Handle season and year progression
   if (daysAdvanced > 0) {
@@ -60,6 +72,7 @@ export function advanceGameTime(
     const newYear = 1 + Math.floor(totalSeasonIndex / 4);
 
     if (newSeason !== currentSeason || newYear !== currentYear) {
+      const oldSeason = currentSeason;
       currentSeason = newSeason;
       currentYear = newYear;
       notifications.push(
@@ -82,6 +95,21 @@ export function advanceGameTime(
       if (newYear !== state.currentYear) {
         marketProfiles = generateSeededMarketProfiles(state.worldSeed, currentYear);
         notifications.push('📈 Xu hướng tiêu dùng tại các chợ đã thay đổi theo năm mới!');
+      }
+
+      // Đánh thuế mùa trước (Phase 3)
+      if (currentDay > 1) { // Không đánh thuế ở ngày 1
+        const taxAmount = 150 + (currentYear * 50) + (state.plots.length * 10);
+        pendingTaxes.push({
+          id: `tax_${Date.now()}`,
+          season: oldSeason,
+          year: state.currentYear,
+          amount: taxAmount,
+          dueDay: currentDay + 5,
+          paid: false,
+          discountPercent: 0
+        });
+        notifications.push(`📜 Làng thông báo thu thuế! Cần nộp ${taxAmount} 💰 thuế mùa ${oldSeason} trong 5 ngày tới.`);
       }
     }
   }
@@ -270,6 +298,17 @@ export function advanceGameTime(
     }
   }
 
+  // 8. Process Financials (Loans)
+  const updatedLoans = (state.loans || []).map(loan => {
+    if (daysAdvanced > 0) {
+      return {
+        ...loan,
+        remainingAmount: loan.remainingAmount * Math.pow((1 + loan.interestRate), daysAdvanced)
+      };
+    }
+    return loan;
+  });
+
   const preRiskState: FarmGameState = {
     ...state,
     money: state.money + moneyGain,
@@ -277,6 +316,8 @@ export function advanceGameTime(
     currentSeason,
     currentYear,
     timeOfDay: newTimeOfDay,
+    dayPart: newDayPart,
+    laborHours: newLaborHours,
     lastTimestamp: currentTimestamp,
     weather,
     weatherDaysRemaining: Math.max(1, weatherDays),
@@ -288,6 +329,8 @@ export function advanceGameTime(
     demandMultipliers,
     marketProfiles: marketProfiles || state.marketProfiles,
     seasonalGoals,
+    pendingTaxes,
+    loans: updatedLoans,
     activeEvent,
     stats: {
       ...state.stats,

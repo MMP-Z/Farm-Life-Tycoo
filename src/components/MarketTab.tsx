@@ -7,22 +7,15 @@ import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
 interface Props {
   inventory: InventoryItem[];
   demandMultipliers: Record<string, number>;
-  orders: OrderItem[];
-  currentDay: number;
-  currentSeason: Season;
   marketProfiles?: Record<string, MarketProfile>;
   onDirectSell: (itemId: string, quantity: number, unitPrice: number, e: React.MouseEvent) => void;
-  onFulfillOrder: (orderId: string, e: React.MouseEvent) => void;
 }
 
 export const MarketTab: React.FC<Props> = ({
   inventory,
   demandMultipliers,
-  orders,
-  currentDay,
   marketProfiles = {},
   onDirectSell,
-  onFulfillOrder,
 }) => {
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
@@ -108,112 +101,6 @@ export const MarketTab: React.FC<Props> = ({
           </div>
         </div>
       )}
-
-      {/* Bảng Đơn Hàng Thị Trấn (Order Board) */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📋</span>
-            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
-              Bảng Đơn Hàng Khách Hàng (Thưởng Thêm +30% Tiền & XP)
-            </h3>
-          </div>
-          <span className="text-xs text-slate-500 hidden sm:inline">Giao tận tay, không tốn phí vận chuyển</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {orders.map((order) => {
-            const daysLeft = Math.max(0, order.deadlineDay - currentDay);
-            const isExpired = daysLeft === 0;
-            const canFulfill =
-              !isExpired &&
-              order.requirements.every((req) => {
-                const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
-                return inStock >= req.amount;
-              });
-
-            return (
-              <div
-                key={order.id}
-                className={`p-4 rounded-3xl border flex flex-col justify-between transition-all shadow-xs ${
-                  canFulfill
-                    ? 'bg-white border-amber-400 ring-4 ring-amber-400/20'
-                    : 'bg-[#FAF8F2] border-[#E8E2D2]'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F2EFE9] mb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-2xl">{order.customerAvatar}</span>
-                      <div>
-                        <h4 className="font-bold text-xs sm:text-sm text-slate-900">{order.customerName}</h4>
-                        <span className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
-                          <Clock size={10} /> Hạn giao: còn {daysLeft} ngày
-                        </span>
-                      </div>
-                    </div>
-
-                    <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                      +{order.rewardMoney} 💰 · +{order.rewardXP} XP
-                    </span>
-                  </div>
-
-                  {/* Requirements List */}
-                  <div className="flex flex-wrap gap-1.5 my-2">
-                    {order.requirements.map((req) => {
-                      const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
-                      const hasEnough = inStock >= req.amount;
-
-                      return (
-                        <div
-                          key={req.itemId}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono border ${
-                            hasEnough
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
-                        >
-                          <span>{req.icon}</span>
-                          <span>{req.name}:</span>
-                          <span>
-                            {inStock}/{req.amount}
-                          </span>
-                          {hasEnough && <Check size={12} className="stroke-[3] text-emerald-600" />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-[#F2EFE9] mt-2 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
-                    {canFulfill ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1">
-                        <Sparkles size={13} /> Đủ điều kiện nhận thưởng!
-                      </span>
-                    ) : (
-                      'Chưa đủ nông sản trong kho'
-                    )}
-                  </span>
-
-                  <button
-                    onClick={(e) => onFulfillOrder(order.id, e)}
-                    disabled={!canFulfill}
-                    className={`py-2 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs ${
-                      canFulfill
-                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 cursor-pointer animate-pulse-gentle'
-                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <Check size={14} />
-                    <span>Giao Đơn Nhận Thưởng</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Bảng Giá Cung - Cầu Thị Trường & Bán Trực Tiếp */}
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">

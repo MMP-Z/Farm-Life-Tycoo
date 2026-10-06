@@ -1,0 +1,38 @@
+{
+  "name": "Nông Trại Vui Vẻ - Farm Life Tycoon",
+  "short_name": "Nông Trại",
+  "description": "Trò chơi quản lý nông trại sống động với trồng trọt, chăn nuôi, chế biến và giao thương.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F5EE",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/app-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

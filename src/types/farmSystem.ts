@@ -298,14 +298,7 @@ export interface DefenseSystem {
   vaccinatedPens: Record<string, boolean>; // Chuồng tiêm vắc xin
 }
 
-export interface MafiaStatus {
-  unlocked: boolean;
-  demandedFeePercent: number; // 8%
-  paidProtection: boolean;
-  rejectedCount: number;
-  villageReputation: number; // 0 - 100
-  catGangTrust: number; // 0 - 100
-}
+
 
 export interface PendingTax {
   id: string;
@@ -328,17 +321,22 @@ export interface RiskIncidentRecord {
   icon: string;
 }
 
-export interface Quest {
+export interface FinancialTransaction {
   id: string;
-  title: string;
-  desc: string;
-  target: number;
-  current: number;
-  rewardMoney: number;
-  rewardXP: number;
-  completed: boolean;
-  claimed: boolean;
-  icon: string;
+  day: number;
+  type: 'income' | 'expense';
+  amount: number;
+  category: 'farming' | 'livestock' | 'shop' | 'loan' | 'tax' | 'other';
+  description: string;
+  timestamp: number;
+}
+
+export interface BankLoan {
+  id: string;
+  principal: number;
+  interestRate: number; // Daily interest rate (e.g. 0.05 for 5%)
+  remainingAmount: number;
+  dueDate: number;
 }
 
 export interface GameStats {
@@ -360,13 +358,13 @@ export interface GameSettings {
 export interface FarmGameState {
   version: number;
   money: number;
-  level: number;
-  xp: number;
+  laborHours: number; // Tối đa 10/ngày
   
   // Real-time clock & Calendar
   currentDay: number;
   currentSeason: Season;
   currentYear: number;
+  dayPart: 'morning' | 'noon' | 'afternoon' | 'evening';
   timeOfDay: number;
   lastTimestamp: number;
   
@@ -413,14 +411,16 @@ export interface FarmGameState {
   difficulty: RiskDifficulty;
   insurance: VillageInsurance;
   defenses: DefenseSystem;
-  mafia: MafiaStatus;
   pendingTaxes: PendingTax[];
   riskAlerts: RiskAlert[];
   recentIncidents: RiskIncidentRecord[];
   disasterCooldown: number; // Ngày đệm an toàn sau thảm họa
   
   // Progression
-  quests: Quest[];
   stats: GameStats;
   settings: GameSettings;
+  
+  // Tài chính & Sổ sách (Phase 3)
+  transactions: FinancialTransaction[];
+  loans: BankLoan[];
 }

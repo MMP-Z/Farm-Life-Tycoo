@@ -103,11 +103,11 @@ export function createNewFarmWithProfile(
   return {
     version: 3,
     money: profile.initialMoney,
-    level: 1,
-    xp: 0,
+    laborHours: 10,
     currentDay: 1,
     currentSeason: 'spring',
     currentYear: 1,
+    dayPart: 'morning',
     timeOfDay: 0.1,
     lastTimestamp: now,
     weather: 'sunny',
@@ -189,24 +189,10 @@ export function createNewFarmWithProfile(
       hasCropNetting: false,
       vaccinatedPens: {},
     },
-    mafia: {
-      unlocked: false,
-      demandedFeePercent: 8,
-      paidProtection: false,
-      rejectedCount: 0,
-      villageReputation: 80,
-      catGangTrust: 20,
-    },
     pendingTaxes: [],
     riskAlerts: [],
     recentIncidents: [],
     disasterCooldown: 3,
-
-    quests: [
-      { id: 'q1', title: 'Vụ mùa đầu tiên', desc: 'Thu hoạch 4 bó lúa mì tươi', target: 4, current: 0, rewardMoney: 40, rewardXP: 30, completed: false, claimed: false, icon: '🌾' },
-      { id: 'q2', title: 'Nhà buôn tập sự', desc: 'Bán chuyến hàng đầu tiên tại Chợ làng', target: 1, current: 0, rewardMoney: 50, rewardXP: 35, completed: false, claimed: false, icon: '🛒' },
-      { id: 'q3', title: 'Đất đai màu mỡ', desc: 'Tưới nước chăm sóc 5 lần cho các ô đất', target: 5, current: 0, rewardMoney: 30, rewardXP: 25, completed: false, claimed: false, icon: '💧' },
-    ],
 
     stats: {
       totalHarvests: 0,
@@ -215,6 +201,9 @@ export function createNewFarmWithProfile(
       cropsLostToWither: 0,
       daysPlayed: 1,
     },
+
+    transactions: [],
+    loans: [],
 
     settings: {
       soundEnabled: true,
@@ -271,7 +260,6 @@ export function parseFarmState(parsed: any): FarmGameState {
       difficulty: parsed.difficulty || 'standard',
       insurance: { ...createInitialFarmState().insurance, ...(parsed.insurance || {}) },
       defenses: { ...createInitialFarmState().defenses, ...(parsed.defenses || {}) },
-      mafia: { ...createInitialFarmState().mafia, ...(parsed.mafia || {}) },
       pendingTaxes: parsed.pendingTaxes || [],
       riskAlerts: parsed.riskAlerts || [],
       recentIncidents: parsed.recentIncidents || [],
@@ -281,6 +269,8 @@ export function parseFarmState(parsed: any): FarmGameState {
       inventory: parsed.inventory || [],
       pens: { ...createInitialFarmState().pens, ...(parsed.pens || {}) },
       factories: { ...createInitialFarmState().factories, ...(parsed.factories || {}) },
+      transactions: parsed.transactions || [],
+      loans: parsed.loans || [],
       settings: { ...createInitialFarmState().settings, ...(parsed.settings || {}) },
       stats: { ...createInitialFarmState().stats, ...(parsed.stats || {}) },
     };

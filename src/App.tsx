@@ -27,7 +27,7 @@ import {
 import { auth, signInWithGoogle, logout } from './config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { LoginScreen } from './components/LoginScreen';
-import { advanceGameTime } from './utils/timeEngine';
+import { advanceGameTime, DAY_REAL_SECONDS } from './utils/timeEngine';
 import { getSoilYieldFactor } from './utils/seedEngine';
 import { sound } from './utils/sound';
 
@@ -40,8 +40,8 @@ import { WorkshopTab } from './components/WorkshopTab';
 import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
-import { VillageTab } from './components/VillageTab';
-import { ProgressTab } from './components/ProgressTab';
+import { SupermarketTab } from './components/SupermarketTab';
+import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
 import { FarmLevelUpModal } from './components/FarmLevelUpModal';
 import { FloatingParticles } from './components/FloatingParticles';
@@ -118,36 +118,25 @@ export default function App() {
     []
   );
 
-  // Exp & Money Award Engine
+  // Money Award Engine
   const awardXPAndMoney = useCallback(
     (xpGain: number, moneyGain: number, x?: number, y?: number) => {
       setState((prev) => {
-        let newXP = prev.xp + xpGain;
-        let newLevel = prev.level;
         let newMoney = prev.money + moneyGain;
-        let reqXP = getXPForNextLevel(newLevel);
-        let leveledUp = false;
-        let bonusTotal = 0;
-
-        while (newXP >= reqXP) {
-          newXP -= reqXP;
-          newLevel += 1;
-          const bonus = newLevel * 60;
-          newMoney += bonus;
-          bonusTotal += bonus;
-          leveledUp = true;
-          reqXP = getXPForNextLevel(newLevel);
-        }
-
-        if (leveledUp) {
-          setLevelUpData({ level: newLevel, rewardMoney: bonusTotal });
-          sound.playLevelUp();
-        }
 
         if (x && y) {
-          if (xpGain > 0) addParticle(x, y, `+${xpGain} XP`, 'exp');
           if (moneyGain > 0) addParticle(x, y - 24, `+${moneyGain} 🪙`, 'coin');
         }
+
+        const newTransaction = {
+          id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          day: prev.currentDay,
+          type: moneyGain > 0 ? 'income' : 'expense',
+          amount: Math.abs(moneyGain),
+          category: 'other',
+          description: moneyGain > 0 ? 'Thu nhập khác' : 'Chi phí khác',
+          timestamp: Date.now(),
+        } as const;
 
         // Cập nhật mục tiêu mùa nếu là loại kiếm tiền (Lớp 4)
         const updatedGoals = (prev.seasonalGoals || []).map((g) => {
@@ -160,9 +149,8 @@ export default function App() {
 
         return {
           ...prev,
-          xp: newXP,
-          level: newLevel,
           money: newMoney,
+          transactions: moneyGain !== 0 ? [...prev.transactions, newTransaction] : prev.transactions,
           seasonalGoals: updatedGoals,
           stats: {
             ...prev.stats,
@@ -241,27 +229,15 @@ export default function App() {
     return true;
   }, []);
 
-  // Update Quest Progress helper
-  const updateQuestProgress = useCallback((questIdPrefix: string, amount: number) => {
-    setState((prev) => {
-      const updatedQuests = prev.quests.map((q) => {
-        if (q.id.startsWith(questIdPrefix) && !q.completed) {
-          const nextVal = q.current + amount;
-          const isDone = nextVal >= q.target;
-          if (isDone && !q.completed) {
-            sound.playCoin();
-          }
-          return {
-            ...q,
-            current: Math.min(q.target, nextVal),
-            completed: isDone,
-          };
-        }
-        return q;
-      });
-      return { ...prev, quests: updatedQuests };
-    });
-  }, []);
+  const consumeLabor = useCallback((cost = 1): boolean => {
+    if (stateRef.current.laborHours < cost) {
+      showToast('⚠️ Bạn đã kiệt sức hôm nay! Hãy dùng Tua Nhanh để qua ngày và hồi phục giờ công.');
+      sound.playError();
+      return false;
+    }
+    setState((prev) => ({ ...prev, laborHours: prev.laborHours - cost }));
+    return true;
+  }, [showToast]);
 
   // Main Game Clock Engine Loop (runs every 1 second)
   useEffect(() => {
@@ -293,7 +269,6 @@ export default function App() {
           return {
             ...result.nextState,
             money: result.nextState.money + awardedCoins,
-            xp: result.nextState.xp + awardedXP,
             activeTrips: remainingTrips,
             stats: {
               ...result.nextState.stats,
@@ -310,11 +285,158 @@ export default function App() {
     return () => clearInterval(interval);
   }, [showToast]);
 
+  const addTransaction = useCallback((type: 'income' | 'expense', amount: number, category: any, description: string) => {
+    setState((prev) => ({
+      ...prev,
+      transactions: [...prev.transactions, {
+        id: `tx_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+        day: prev.currentDay,
+        type,
+        amount,
+        category,
+        description,
+        timestamp: Date.now(),
+      }],
+    }));
+  }, []);
+
+  const handleTakeLoan = useCallback((amount: number, interestRate: number) => {
+    setState((prev) => {
+      const newLoan = {
+        id: `loan_${Date.now()}`,
+        principal: amount,
+        interestRate,
+        remainingAmount: amount,
+        dueDate: prev.currentDay + 14,
+      };
+      
+      const newTransaction = {
+        id: `tx_${Date.now()}`,
+        day: prev.currentDay,
+        type: 'income',
+        amount,
+        category: 'loan',
+        description: 'Vay vốn Hợp Tác Xã',
+        timestamp: Date.now(),
+      } as const;
+
+      return {
+        ...prev,
+        money: prev.money + amount,
+        loans: [...prev.loans, newLoan],
+        transactions: [...prev.transactions, newTransaction]
+      };
+    });
+    sound.playPop();
+    showToast(`Đã nhận khoản vay ${amount} 💰 từ Hợp Tác Xã!`);
+  }, [showToast]);
+
+  const handlePayLoan = useCallback((loanId: string, amount: number) => {
+    setState((prev) => {
+      if (prev.money < amount) {
+        showToast('Không đủ tiền để thanh toán!');
+        return prev;
+      }
+      
+      const loanIndex = prev.loans.findIndex((l) => l.id === loanId);
+      if (loanIndex === -1) return prev;
+      
+      const loan = prev.loans[loanIndex];
+      const newRemaining = Math.max(0, loan.remainingAmount - amount);
+      const paidAmount = loan.remainingAmount - newRemaining;
+      
+      const newTransaction = {
+        id: `tx_${Date.now()}`,
+        day: prev.currentDay,
+        type: 'expense',
+        amount: paidAmount,
+        category: 'loan',
+        description: 'Trả nợ vay Hợp Tác Xã',
+        timestamp: Date.now(),
+      } as const;
+      
+      const newLoans = [...prev.loans];
+      if (newRemaining <= 0) {
+        newLoans.splice(loanIndex, 1);
+        showToast('Chúc mừng! Bạn đã tất toán khoản vay thành công.');
+        sound.playLevelUp();
+      } else {
+        newLoans[loanIndex] = { ...loan, remainingAmount: newRemaining };
+        showToast(`Đã thanh toán ${paidAmount} 💰 dư nợ.`);
+        sound.playPop();
+      }
+
+      return {
+        ...prev,
+        money: prev.money - paidAmount,
+        loans: newLoans,
+        transactions: [...prev.transactions, newTransaction]
+      };
+    });
+  }, [showToast]);
+
+  const handlePayTax = useCallback((taxId: string) => {
+    setState((prev) => {
+      const taxIndex = prev.pendingTaxes.findIndex((t) => t.id === taxId);
+      if (taxIndex === -1) return prev;
+      
+      const tax = prev.pendingTaxes[taxIndex];
+      if (prev.money < tax.amount) {
+        showToast('Không đủ tiền đóng thuế!');
+        return prev;
+      }
+      
+      const newTransaction = {
+        id: `tx_${Date.now()}`,
+        day: prev.currentDay,
+        type: 'expense',
+        amount: tax.amount,
+        category: 'tax',
+        description: `Đóng thuế mùa ${tax.season} (Năm ${tax.year})`,
+        timestamp: Date.now(),
+      } as const;
+      
+      const newTaxes = [...prev.pendingTaxes];
+      newTaxes.splice(taxIndex, 1);
+      
+      return {
+        ...prev,
+        money: prev.money - tax.amount,
+        pendingTaxes: newTaxes,
+        transactions: [...prev.transactions, newTransaction]
+      };
+    });
+    sound.playPop();
+    showToast('Đã nộp thuế thành công! Làng xã ghi nhận sự đóng góp của bạn.');
+  }, [showToast]);
+
+  const handleFastForward = useCallback(() => {
+    sound.playLevelUp();
+    setState((prev) => {
+      const remainingFraction = 1.0 - prev.timeOfDay;
+      const extraMs = remainingFraction * DAY_REAL_SECONDS * 1000 + 100; // Add 100ms buffer to safely cross the day boundary
+      const fakeNow = prev.lastTimestamp + extraMs;
+      
+      const result = advanceGameTime(prev, fakeNow, true);
+      
+      if (result.notifications.length > 0) {
+        result.notifications.forEach((msg) => showToast(msg));
+      }
+      
+      return {
+        ...result.nextState,
+        lastTimestamp: Date.now()
+      };
+    });
+    showToast('Đã qua ngày mới! Giờ công đã được hồi phục toàn bộ.');
+  }, [showToast]);
+
   // ==========================================
   // FIELD (TRỒNG TRỌT) HANDLERS VỚI HỆ SỐ ĐẤT
   // ==========================================
   const handlePlowPlot = useCallback(
     (plotId: number) => {
+      if (!consumeLabor(1)) return;
       setState((prev) => {
         const updated = prev.plots.map((p) => {
           if (p.id === plotId && (p.state === 'empty' || p.state === 'withered')) {
@@ -341,6 +463,8 @@ export default function App() {
     (plotId: number, cropId: string) => {
       const cropDef = CROPS_CONFIG[cropId];
       if (!cropDef) return;
+
+      if (!consumeLabor(1)) return;
 
       const hasSeed = consumeItemFromInventory(cropId, 1);
       if (!hasSeed) {
@@ -374,6 +498,7 @@ export default function App() {
 
   const handleWaterPlot = useCallback(
     (plotId: number) => {
+      if (!consumeLabor(1)) return;
       setState((prev) => {
         const updated = prev.plots.map((p) => {
           if (p.id === plotId) {
@@ -384,13 +509,13 @@ export default function App() {
         });
         return { ...prev, plots: updated };
       });
-      updateQuestProgress('q3', 1);
     },
-    [updateQuestProgress]
+    [consumeLabor]
   );
 
   const handleFertilizePlot = useCallback(
     (plotId: number) => {
+      if (!consumeLabor(1)) return;
       const hasFertilizer = consumeItemFromInventory('fertilizer', 1);
       if (!hasFertilizer) {
         showToast('Bạn không có phân bón hữu cơ! Mua tại Cửa Hàng Vật Tư.');
@@ -409,11 +534,12 @@ export default function App() {
       });
       showToast('Đã bón phân hữu cơ! Cải tạo đất và tăng sản lượng +25%.');
     },
-    [consumeItemFromInventory, showToast]
+    [consumeLabor, consumeItemFromInventory, showToast]
   );
 
   const handleCurePestPlot = useCallback(
     (plotId: number) => {
+      if (!consumeLabor(1)) return;
       const hasPesticide = consumeItemFromInventory('pesticide', 1);
       if (!hasPesticide) {
         showToast('Bạn không có thuốc trừ sâu sinh học! Mua tại Cửa Hàng Vật Tư.');
@@ -432,11 +558,12 @@ export default function App() {
       });
       showToast('Đã phun xịt tiêu diệt sâu hại sinh học an toàn!');
     },
-    [consumeItemFromInventory, showToast]
+    [consumeLabor, consumeItemFromInventory, showToast]
   );
 
   const handleHarvestPlot = useCallback(
     (plotId: number, e: React.MouseEvent) => {
+      if (!consumeLabor(1)) return;
       const plot = state.plots.find((p) => p.id === plotId);
       if (!plot || plot.state !== 'ready' || !plot.cropId) return;
 
@@ -500,10 +627,8 @@ export default function App() {
           },
         };
       });
-
-      updateQuestProgress('q1', yieldAmount);
     },
-    [state.plots, addItemToInventory, addParticle, awardXPAndMoney, updateQuestProgress]
+    [consumeLabor, state.plots, addItemToInventory, addParticle, awardXPAndMoney]
   );
 
   const handleHarvestAll = useCallback(() => {
@@ -615,6 +740,8 @@ export default function App() {
       const def = ANIMALS_CONFIG[penType];
       if (!def) return;
 
+      if (!consumeLabor(1)) return;
+
       const hasFeed = consumeItemFromInventory(def.feedItemId, 1);
       if (!hasFeed) {
         showToast(`Không có thức ăn cho ${def.name}! Cần ${ALL_ITEMS_CATALOG[def.feedItemId]?.name || def.feedItemId}.`);
@@ -648,6 +775,7 @@ export default function App() {
 
   const handleFillWaterTrough = useCallback(
     (penType: string) => {
+      if (!consumeLabor(1)) return;
       sound.playWater();
       setState((prev) => {
         const pen = prev.pens[penType];
@@ -671,6 +799,7 @@ export default function App() {
 
   const handleCureAnimal = useCallback(
     (penType: string, animalId: string) => {
+      if (!consumeLabor(1)) return;
       const hasMed = consumeItemFromInventory('vet_medicine', 1);
       if (!hasMed) {
         showToast('Bạn không có thuốc thú y! Hãy ghé Cửa Hàng Vật Tư mua thêm.');
@@ -711,6 +840,8 @@ export default function App() {
         return;
       }
 
+      if (!consumeLabor(1)) return;
+
       const totalProduce = readyAnimals.length * def.produceAmount;
       const added = addItemToInventory(def.produceItemId, totalProduce);
       if (!added) return;
@@ -742,7 +873,7 @@ export default function App() {
 
       showToast(`Đã thu hoạch ${totalProduce} sản phẩm tươi từ chuồng ${def.name}!`);
     },
-    [state.pens, addItemToInventory, addParticle, awardXPAndMoney, showToast]
+    [consumeLabor, state.pens, addItemToInventory, addParticle, awardXPAndMoney, showToast]
   );
 
   const handleBuyAnimal = useCallback(
@@ -1060,9 +1191,8 @@ export default function App() {
       });
 
       showToast(`Đội xe đã xuất phát đi ${routeDef.name}! Chuyến đi dự kiến mất ${routeDef.travelDays} ngày.`);
-      updateQuestProgress('q2', 1);
     },
-    [state.money, state.currentDay, consumeItemFromInventory, showToast, updateQuestProgress]
+    [state.money, state.currentDay, consumeItemFromInventory, showToast]
   );
 
   const handleBuyVehicle = useCallback(
@@ -1166,9 +1296,8 @@ export default function App() {
       });
 
       showToast(`Giao hàng thành công cho ${order.customerName}! Nhận +${order.rewardMoney} vàng và +${order.rewardXP} XP!`);
-      updateQuestProgress('q2', 1);
     },
-    [state.orders, state.inventory, state.currentDay, consumeItemFromInventory, addParticle, awardXPAndMoney, showToast, updateQuestProgress]
+    [state.orders, state.inventory, state.currentDay, consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
 
   // ==========================================
@@ -1302,25 +1431,6 @@ export default function App() {
   // ==========================================
   // PROGRESSION & QUESTS HANDLERS
   // ==========================================
-  const handleClaimQuest = useCallback(
-    (questId: string, e: React.MouseEvent) => {
-      const quest = state.quests.find((q) => q.id === questId);
-      if (!quest || !quest.completed || quest.claimed) return;
-
-      sound.playCoin();
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(rect.left + rect.width / 2, rect.top, `+${quest.rewardMoney} 🪙`, 'coin');
-      awardXPAndMoney(quest.rewardXP, quest.rewardMoney);
-
-      setState((prev) => ({
-        ...prev,
-        quests: prev.quests.map((q) => (q.id === questId ? { ...q, claimed: true } : q)),
-      }));
-
-      showToast(`Đã nhận thưởng nhiệm vụ "${quest.title}": +${quest.rewardMoney} vàng, +${quest.rewardXP} XP!`);
-    },
-    [state.quests, addParticle, awardXPAndMoney, showToast]
-  );
 
   const handleClaimSeasonGoal = useCallback(
     (goalId: string, e: React.MouseEvent) => {
@@ -1330,7 +1440,7 @@ export default function App() {
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
       addParticle(rect.left + rect.width / 2, rect.top, `+${goal.rewardMoney} 🪙`, 'coin');
-      awardXPAndMoney(goal.rewardXP, goal.rewardMoney);
+      awardXPAndMoney(0, goal.rewardMoney);
 
       setState((prev) => ({
         ...prev,
@@ -1409,32 +1519,6 @@ export default function App() {
     showToast('Đã tham gia Gói Bảo Hiểm Nông Nghiệp HTX! Bạn được bảo vệ 70% tổn thất.');
   }, [state.money, showToast]);
 
-  const handlePayTax = useCallback(
-    (taxId: string) => {
-      const tax = state.pendingTaxes?.find((t) => t.id === taxId);
-      if (!tax) return;
-
-      if (state.money < tax.amount) {
-        showToast(`Không đủ tiền vàng nộp thuế! Cần ${tax.amount} vàng.`);
-        return;
-      }
-
-      sound.playCoin();
-      setState((prev) => ({
-        ...prev,
-        money: prev.money - tax.amount,
-        pendingTaxes: (prev.pendingTaxes || []).map((t) =>
-          t.id === taxId ? { ...t, paid: true } : t
-        ),
-        stats: {
-          ...prev.stats,
-          totalTaxesPaid: (prev.stats.totalTaxesPaid || 0) + tax.amount,
-        },
-      }));
-      showToast(`Đã nộp thuế mùa vụ ${tax.amount} vàng vào ngân sách công làng!`);
-    },
-    [state.pendingTaxes, state.money, showToast]
-  );
 
   const handleSetDifficulty = useCallback((diff: RiskDifficulty) => {
     sound.playClick();
@@ -1529,10 +1613,9 @@ export default function App() {
     });
   }).length;
   const claimableQuestsCount =
-    state.quests.filter((q) => q.completed && !q.claimed).length +
     (state.seasonalGoals || []).filter((g) => g.completed && !g.claimed).length;
 
-  const villageAlertsCount =
+  const adminAlertsCount =
     (state.riskAlerts?.length || 0) +
     (state.pendingTaxes?.filter((t) => !t.paid).length || 0);
 
@@ -1541,9 +1624,8 @@ export default function App() {
     pasture: readyAnimalsCount,
     workshop: readyWorkshopCount,
     transport: arrivingTripsCount,
-    market: fulfillableOrdersCount,
-    village: villageAlertsCount,
-    progress: claimableQuestsCount,
+    supermarket: fulfillableOrdersCount,
+    admin: adminAlertsCount,
   };
 
   const emptyPlotsCount = state.plots.filter((p) => p.state === 'plowed').length;
@@ -1587,6 +1669,7 @@ export default function App() {
         }}
         onShowToast={showToast}
         onOpenNewGameModal={() => setShowNewGameModal(true)}
+        onFastForward={handleFastForward}
       />
 
       {/* Navigation Tabs (Hidden on mobile, only bottom bar on mobile) */}
@@ -1627,7 +1710,7 @@ export default function App() {
             pens={state.pens}
             inventory={state.inventory}
             money={state.money}
-            playerLevel={state.level}
+            playerLevel={1}
             onFeedPen={handleFeedPen}
             onFillWaterTrough={handleFillWaterTrough}
             onCureAnimal={handleCureAnimal}
@@ -1656,7 +1739,7 @@ export default function App() {
             factories={state.factories}
             inventory={state.inventory}
             money={state.money}
-            playerLevel={state.level}
+            playerLevel={1}
             onStartCraft={handleStartCraft}
             onCollectFinishedTask={handleCollectFinishedTask}
             onUnlockFactory={handleUnlockFactory}
@@ -1667,7 +1750,7 @@ export default function App() {
         {activeTab === 'shop' && (
           <ShopTab
             money={state.money}
-            playerLevel={state.level}
+            playerLevel={1}
             emptyPlotsCount={emptyPlotsCount}
             hasAutoIrrigation={state.hasAutoIrrigation}
             autoWorkersCount={state.autoWorkersCount}
@@ -1687,7 +1770,7 @@ export default function App() {
             inventory={state.inventory}
             currentDay={state.currentDay}
             money={state.money}
-            playerLevel={state.level}
+            playerLevel={1}
             onDispatchTrip={handleDispatchTrip}
             onBuyVehicle={handleBuyVehicle}
           />
@@ -1697,34 +1780,28 @@ export default function App() {
           <MarketTab
             inventory={state.inventory}
             demandMultipliers={state.demandMultipliers}
-            orders={state.orders}
-            currentDay={state.currentDay}
-            currentSeason={state.currentSeason}
             marketProfiles={state.marketProfiles}
             onDirectSell={handleDirectSell}
+          />
+        )}
+
+        {activeTab === 'supermarket' && (
+          <SupermarketTab
+            inventory={state.inventory}
+            orders={state.orders}
+            currentDay={state.currentDay}
             onFulfillOrder={handleFulfillOrder}
           />
         )}
 
-        {activeTab === 'village' && (
-          <VillageTab
+        {activeTab === 'admin' && (
+          <AdminCenterTab
             state={state}
             onBuyDefense={handleBuyDefense}
             onBuyInsurance={handleBuyInsurance}
             onPayTax={handlePayTax}
-          />
-        )}
-
-        {activeTab === 'progress' && (
-          <ProgressTab
-            level={state.level}
-            xp={state.xp}
-            nextXP={getXPForNextLevel(state.level)}
-            stats={state.stats}
-            quests={state.quests}
-            seasonalGoals={state.seasonalGoals}
-            onClaimQuest={handleClaimQuest}
-            onClaimSeasonGoal={handleClaimSeasonGoal}
+            onTakeLoan={handleTakeLoan}
+            onPayLoan={handlePayLoan}
           />
         )}
       </main>

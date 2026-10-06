@@ -16,13 +16,13 @@ import {
 export type GameTab =
   | 'field'
   | 'pasture'
-  | 'barn'
   | 'workshop'
-  | 'shop'
-  | 'transport'
   | 'market'
-  | 'village'
-  | 'progress';
+  | 'supermarket'
+  | 'shop'
+  | 'barn'
+  | 'admin'
+  | 'transport';
 
 interface Props {
   activeTab: GameTab;
@@ -34,15 +34,15 @@ export const NavigationTabs: React.FC<Props> = ({ activeTab, onSelectTab, badges
   const [showMoreModal, setShowMoreModal] = useState(false);
 
   const tabs: { id: GameTab; label: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
-    { id: 'field', label: 'Đồng Ruộng', icon: Trees },
-    { id: 'pasture', label: 'Chuồng Trại', icon: Beef },
-    { id: 'barn', label: 'Kho Lưu Trữ', icon: Package },
-    { id: 'workshop', label: 'Xưởng Chế Biến', icon: CookingPot },
-    { id: 'market', label: 'Chợ & Đơn Hàng', icon: Store },
-    { id: 'village', label: 'Xóm Làng & An Ninh', icon: ShieldCheck },
+    { id: 'field', label: 'Ruộng', icon: Trees },
+    { id: 'pasture', label: 'Chuồng', icon: Beef },
+    { id: 'workshop', label: 'Xưởng', icon: CookingPot },
+    { id: 'market', label: 'Chợ Làng', icon: Store },
+    { id: 'supermarket', label: 'Siêu Thị', icon: Store },
     { id: 'shop', label: 'Cửa Hàng', icon: ShoppingBag },
-    { id: 'transport', label: 'Đội Vận Tải', icon: Truck },
-    { id: 'progress', label: 'Tiến Trình', icon: Trophy },
+    { id: 'barn', label: 'Kho', icon: Package },
+    { id: 'admin', label: 'Hành Chính', icon: ShieldCheck },
+    { id: 'transport', label: 'Vận Tải', icon: Truck },
   ];
 
   // Mobile bottom bar tabs: 4 main + 1 more button
@@ -55,20 +55,20 @@ export const NavigationTabs: React.FC<Props> = ({ activeTab, onSelectTab, badges
 
   // More drawer tabs
   const secondaryTabs: { id: GameTab; label: string; desc: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
-    { id: 'village', label: 'Xóm Làng & Bảo Hiểm', desc: 'Bảo hiểm HTX, công trình phòng vệ, thuế đất và an ninh', icon: ShieldCheck },
+    { id: 'supermarket', label: 'Siêu Thị', desc: 'Đơn hàng số lượng lớn, giá ổn định', icon: Store },
+    { id: 'shop', label: 'Cửa Hàng Nông Nghiệp', desc: 'Mua hạt giống, phân bón, thuốc BVTV sinh học', icon: ShoppingBag },
     { id: 'barn', label: 'Kho Lưu Trữ', desc: 'Kiểm tra hàng tồn, quản lý hạn dùng và kho lạnh', icon: Package },
-    { id: 'shop', label: 'Cửa Hàng Vật Tư', desc: 'Mua hạt giống, phân bón, thuốc BVTV sinh học', icon: ShoppingBag },
+    { id: 'admin', label: 'Trung Tâm Hành Chính', desc: 'Quản lý an ninh, bảo hiểm, thuế và khoản vay', icon: ShieldCheck },
     { id: 'transport', label: 'Đội Vận Tải', desc: 'Điều phối xe đi giao thương liên huyện, thành phố', icon: Truck },
-    { id: 'progress', label: 'Tiến Trình & Nhiệm Vụ', desc: 'Nhận thưởng nhiệm vụ, theo dõi cấp bậc mở khóa', icon: Trophy },
   ];
 
-  const isMoreActive = ['village', 'barn', 'shop', 'transport', 'progress'].includes(activeTab);
+  const isMoreActive = ['supermarket', 'shop', 'barn', 'admin', 'transport'].includes(activeTab);
   const moreBadgeCount =
-    (badges.village || 0) +
-    (badges.barn || 0) +
+    (badges.supermarket || 0) +
     (badges.shop || 0) +
-    (badges.transport || 0) +
-    (badges.progress || 0);
+    (badges.barn || 0) +
+    (badges.admin || 0) +
+    (badges.transport || 0);
 
   return (
     <>

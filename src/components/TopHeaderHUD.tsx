@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { FarmGameState } from '../types/farmSystem';
-import { SEASON_NAMES, WEATHER_NAMES, getXPForNextLevel } from '../config/farmData';
+import { SEASON_NAMES, WEATHER_NAMES } from '../config/farmData';
 import { STARTING_PROFILES_CONFIG } from '../config/variabilityData';
 import {
   Volume2,
@@ -27,6 +27,7 @@ interface Props {
   onLoadImportedState: (loaded: FarmGameState) => void;
   onShowToast: (msg: string) => void;
   onOpenNewGameModal: () => void;
+  onFastForward: () => void;
 }
 
 export const TopHeaderHUD: React.FC<Props> = ({
@@ -36,15 +37,21 @@ export const TopHeaderHUD: React.FC<Props> = ({
   onLoadImportedState,
   onShowToast,
   onOpenNewGameModal,
+  onFastForward,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const seasonInfo = SEASON_NAMES[state.currentSeason];
   const weatherInfo = WEATHER_NAMES[state.weather];
-  const nextXP = getXPForNextLevel(state.level);
-  const xpPercent = Math.min(100, Math.floor((state.xp / nextXP) * 100));
   const profileInfo = STARTING_PROFILES_CONFIG[state.startingProfileId] || STARTING_PROFILES_CONFIG.hardworking_farmer;
+  const laborHours = state.laborHours ?? 10;
+  const dayPartName = {
+    morning: 'Sáng',
+    noon: 'Trưa',
+    afternoon: 'Chiều',
+    evening: 'Tối',
+  }[state.dayPart] || 'Sáng';
 
   // In-game clock from timeOfDay (0.0 = 06:00 sáng, 0.5 = 18:00 chiều)
   const hour = Math.floor(6 + state.timeOfDay * 18);
@@ -98,20 +105,12 @@ export const TopHeaderHUD: React.FC<Props> = ({
           <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] px-2.5 sm:px-3 rounded-2xl border border-[#DFD9C3] shadow-inner shrink-0 whitespace-nowrap">
             <span className="text-xl sm:text-2xl animate-bounce-slight shrink-0">{profileInfo.icon}</span>
             <div className="flex flex-col justify-center leading-none">
-              <div className="flex items-center gap-1 leading-none whitespace-nowrap">
-                <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-display whitespace-nowrap">
-                  Cấp {state.level}
-                </span>
-                <span className="text-[9px] sm:text-[10px] text-slate-500 font-mono whitespace-nowrap">
-                  ({state.xp}/{nextXP})
-                </span>
-              </div>
-              <div className="w-14 sm:w-24 h-1.5 bg-slate-300 rounded-full overflow-hidden mt-1 shrink-0">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-300"
-                  style={{ width: `${xpPercent}%` }}
-                />
-              </div>
+              <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-display whitespace-nowrap">
+                ⏳ {laborHours} Giờ công
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-slate-500 font-mono whitespace-nowrap mt-1">
+                Ngân sách hôm nay
+              </span>
             </div>
           </div>
 
@@ -123,7 +122,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 <span className="hidden md:inline">{seasonInfo.name} · </span>Ngày {state.currentDay}
               </span>
               <span className="text-[9px] sm:text-[10px] text-slate-500 flex items-center gap-0.5 font-mono mt-1 leading-none whitespace-nowrap">
-                <Clock size={9} className="shrink-0" /> {timeFormatted}
+                <Clock size={9} className="shrink-0" /> {dayPartName} ({timeFormatted})
               </span>
             </div>
           </div>
@@ -144,6 +143,16 @@ export const TopHeaderHUD: React.FC<Props> = ({
             <span className="text-lg sm:text-xl shrink-0">{weatherInfo.icon}</span>
             <span className="font-bold text-xs text-slate-800 hidden lg:inline whitespace-nowrap">{weatherInfo.name}</span>
           </div>
+          
+          {/* Box 5: Nút Tua Nhanh */}
+          <button
+            onClick={onFastForward}
+            className="h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center gap-1.5 bg-[#2E4A35] hover:bg-[#233a29] text-white border border-[#1e3022] rounded-2xl shrink-0 cursor-pointer active:scale-95 transition-all whitespace-nowrap shadow-md"
+            title="Tua nhanh tới sáng hôm sau để hồi phục Giờ công"
+          >
+            <FastForward size={16} className="shrink-0" />
+            <span className="font-bold text-xs hidden md:inline">Tua Nhanh</span>
+          </button>
         </div>
 
         {/* Group 2: Cài đặt */}
