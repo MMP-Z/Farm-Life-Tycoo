@@ -6,6 +6,8 @@ import { getSoilYieldFactor } from '../utils/seedEngine';
 import { Droplets, Sparkles, Scissors, Shovel, Bug, Plus } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { CROP_SPRITES, getCropStageSprite } from '../utils/sprites';
 
 interface Props {
   plots: FieldPlot[];
@@ -65,7 +67,7 @@ export const FieldTab: React.FC<Props> = ({
       <div className="bg-white rounded-3xl p-3.5 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl sm:text-3xl">🌾</span>
+            <SpriteIcon src={CROP_SPRITES.wheat.mature} alt="Cánh đồng" size={34} />
             <div>
               <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">Cánh Đồng & Luống Đất Canh Tác</h2>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -132,7 +134,9 @@ export const FieldTab: React.FC<Props> = ({
               >
                 <div className="flex flex-col items-center text-center w-full">
                   <div className="mb-0.5 filter drop-shadow-xs">
-                    <span className="text-2xl sm:text-3xl">{crop.icon}</span>
+                    {CROP_SPRITES[crop.id]
+                      ? <SpriteIcon src={CROP_SPRITES[crop.id].item} alt={crop.name} size={34} />
+                      : <span className="text-2xl sm:text-3xl">{crop.icon}</span>}
                   </div>
                   <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
                     Giống {crop.name.split(' ')[0]}
@@ -253,7 +257,11 @@ export const FieldTab: React.FC<Props> = ({
 
                 {plot.state === 'plowed' && (
                   <div className="flex flex-col items-center group">
-                    <span className="text-3xl mb-0.5 group-hover:scale-110 transition-transform">🌱</span>
+                    <span className="mb-0.5 group-hover:scale-110 transition-transform">
+                      {CROP_SPRITES[selectedCropId]
+                        ? <SpriteIcon src={CROP_SPRITES[selectedCropId].seed} alt="Hạt giống" size={32} />
+                        : <span className="text-3xl">🌱</span>}
+                    </span>
                     <span className="text-xs font-bold text-amber-200">Đất đã cày xới</span>
                     <span className="text-[11px] text-amber-300/90 font-medium">
                       Gieo {CROPS_CONFIG[selectedCropId]?.name} · {soilFactor.note}
@@ -263,8 +271,10 @@ export const FieldTab: React.FC<Props> = ({
 
                 {plot.state === 'growing' && (
                   <div className="flex flex-col items-center w-full">
-                    <span className="text-4xl filter drop-shadow-sm mb-0.5 animate-bounce-slight">
-                      {progressPercent < 35 ? '🌱' : progressPercent < 75 ? '🌿' : crop?.icon}
+                    <span className="filter drop-shadow-sm mb-0.5 animate-bounce-slight">
+                      {plot.cropId && CROP_SPRITES[plot.cropId]
+                        ? <SpriteIcon src={getCropStageSprite(plot.cropId, progressPercent)} alt={crop?.name || ''} size={44} />
+                        : <span className="text-4xl">{progressPercent < 35 ? '🌱' : progressPercent < 75 ? '🌿' : crop?.icon}</span>}
                     </span>
                     <span className="font-extrabold text-xs text-white leading-tight font-display">{crop?.name}</span>
 
@@ -290,7 +300,11 @@ export const FieldTab: React.FC<Props> = ({
 
                 {plot.state === 'ready' && (
                   <div className="flex flex-col items-center animate-bounce-slight">
-                    <span className="text-4xl sm:text-5xl filter drop-shadow-md mb-0.5">{crop?.icon}</span>
+                    <span className="filter drop-shadow-md mb-0.5">
+                      {plot.cropId && CROP_SPRITES[plot.cropId]
+                        ? <SpriteIcon src={CROP_SPRITES[plot.cropId].mature} alt={crop?.name || ''} size={52} />
+                        : <span className="text-4xl sm:text-5xl">{crop?.icon}</span>}
+                    </span>
                     <span className="font-black text-xs text-amber-300 font-display">{crop?.name} chín rộ!</span>
                     <span className="text-[11px] font-extrabold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
                       Thu hoạch ({soilFactor.note})

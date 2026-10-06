@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { exportSaveFile, importSaveFile } from '../utils/storageEngine';
 import { sound } from '../utils/sound';
+import { SpriteIcon } from './SpriteIcon';
+import { FARMER_SPRITE } from '../utils/sprites';
 
 interface Props {
   state: FarmGameState;
@@ -124,7 +126,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
             className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] px-2.5 sm:px-3 rounded-2xl border border-[#DFD9C3] shadow-inner shrink-0 whitespace-nowrap cursor-pointer hover:bg-white transition-all active:scale-95"
             title="Xem hồ sơ cá nhân"
           >
-            <span className="text-xl sm:text-2xl animate-bounce-slight shrink-0">{profileInfo.icon}</span>
+            <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={28} className="animate-bounce-slight shrink-0" />
             {/* Ẩn tên hồ sơ trên mobile để HUD vừa 1 hàng ở 390px (vẫn mở được modal hồ sơ khi bấm icon) */}
             <div className="hidden sm:flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-display whitespace-nowrap">
@@ -217,7 +219,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-600">Hồ sơ khởi đầu:</span>
                   <span className="text-xs font-black text-slate-900 flex items-center gap-1">
-                    {profileInfo.icon} {profileInfo.name}
+                    <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={18} /> {profileInfo.name}
                   </span>
                 </div>
                 <div className="flex items-center justify-between pt-1 border-t border-slate-100">
@@ -324,7 +326,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
           <div className="bg-[#FAF8F2] border-2 border-[#DFD9C3] rounded-3xl p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-[#E8E2D2]">
               <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
-                <span className="text-2xl">{profileInfo.icon}</span>
+                <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={30} />
                 <span>Hồ Sơ Cá Nhân</span>
               </h3>
               <button

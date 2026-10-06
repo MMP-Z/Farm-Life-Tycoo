@@ -3,6 +3,8 @@ import { CROPS_CONFIG, ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmD
 import { ShoppingCart, Sparkles, Tag, Plus, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { CROP_SPRITES, ANIMAL_SPRITES } from '../utils/sprites';
 
 interface Props {
   money: number;
@@ -107,8 +109,9 @@ export const ShopTab: React.FC<Props> = ({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="flex items-center gap-1 filter drop-shadow-xs">
-                        <span className="text-2xl">🌱</span>
-                        <span className="text-2xl">{crop.icon}</span>
+                        {CROP_SPRITES[crop.id]
+                          ? <SpriteIcon src={CROP_SPRITES[crop.id].seed} alt={`Giống ${crop.name}`} size={34} />
+                          : <><span className="text-2xl">🌱</span><span className="text-2xl">{crop.icon}</span></>}
                       </div>
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">Giống {crop.name}</h4>
@@ -326,7 +329,9 @@ export const ShopTab: React.FC<Props> = ({
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-3xl filter drop-shadow-xs">{def.icon}</span>
+                      {ANIMAL_SPRITES[def.id]
+                        ? <SpriteIcon src={ANIMAL_SPRITES[def.id]} alt={def.name} size={44} className="filter drop-shadow-xs" />
+                        : <span className="text-3xl filter drop-shadow-xs">{def.icon}</span>}
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">{def.name}</h4>
                         <span className="text-[11px] font-mono text-amber-800 font-bold">

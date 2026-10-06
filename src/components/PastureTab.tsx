@@ -4,6 +4,8 @@ import { ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck, DollarSign } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
+import { SpriteIcon } from './SpriteIcon';
+import { ANIMAL_SPRITES } from '../utils/sprites';
 
 interface Props {
   pens: Record<string, AnimalPen>;
@@ -170,7 +172,9 @@ export const PastureTab: React.FC<Props> = ({
 
               return (
                 <div key={animal.id} className={`flex flex-col items-center p-3 rounded-2xl bg-white border shadow-xs relative ${isReady ? 'border-amber-300 bg-amber-50/30' : 'border-[#E8E2D2]'}`}>
-                  <span className="text-3xl filter drop-shadow-xs">{def?.icon || '❓'}</span>
+                  {def && ANIMAL_SPRITES[animal.type]
+                    ? <SpriteIcon src={ANIMAL_SPRITES[animal.type]} alt={def.name} size={40} className="filter drop-shadow-xs" />
+                    : <span className="text-3xl filter drop-shadow-xs">{def?.icon || '❓'}</span>}
                   <span className="text-[11px] font-bold text-slate-800 mt-1 text-center leading-tight">{animal.name}</span>
                   
                   {/* Status */}
