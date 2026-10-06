@@ -2,6 +2,7 @@ import React from 'react';
 import { InventoryItem, OrderItem, Season } from '../types/farmSystem';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
 import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   inventory: InventoryItem[];
@@ -67,17 +68,17 @@ export const MarketTab: React.FC<Props> = ({
                   <div>
                     <h4 className="font-bold text-xs text-slate-900 font-display">{meta.name}</h4>
                     <div className="flex items-center gap-1.5 text-[11px] font-mono mt-0.5">
-                      <span className="font-extrabold text-emerald-800">{currentPrice} 💰</span>
+                      <span className="font-extrabold text-emerald-800">💰 {formatMoney(currentPrice)}</span>
                       {isHighDemand ? (
-                        <span className="text-emerald-700 font-bold flex items-center text-[10px]">
+                        <span className="text-emerald-700 font-bold flex items-center text-[11px]">
                           <TrendingUp size={11} /> Cầu cao
                         </span>
                       ) : isLowDemand ? (
-                        <span className="text-rose-600 font-bold flex items-center text-[10px]">
+                        <span className="text-rose-600 font-bold flex items-center text-[11px]">
                           <TrendingDown size={11} /> Bão hòa
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-[10px]">Ổn định</span>
+                        <span className="text-slate-500 text-[11px]">Ổn định</span>
                       )}
                     </div>
                   </div>
@@ -88,8 +89,8 @@ export const MarketTab: React.FC<Props> = ({
                   <button
                     onClick={(e) => onDirectSell(itemId, 1, currentPrice, e)}
                     disabled={inStock < 1}
-                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:active:scale-100"
-                    title={`Bán 1 cái lấy ${currentPrice} vàng (Có: ${inStock})`}
+                    className="px-2.5 py-1.5 min-h-[40px] rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:active:scale-100"
+                    title={`Bán 1 cái lấy ${formatMoney(currentPrice)} 💰 (Có: ${inStock})`}
                   >
                     Bán 1 ({inStock})
                   </button>
@@ -97,8 +98,8 @@ export const MarketTab: React.FC<Props> = ({
                   {inStock > 1 && (
                     <button
                       onClick={(e) => onDirectSell(itemId, inStock, currentPrice, e)}
-                      className="px-2 py-1.5 rounded-xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                      title={`Bán tất cả ${inStock} cái lấy ${inStock * currentPrice} vàng`}
+                      className="px-2 py-1.5 min-h-[40px] rounded-xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                      title={`Bán tất cả ${inStock} cái lấy ${formatMoney(inStock * currentPrice)} 💰`}
                     >
                       Bán hết
                     </button>
