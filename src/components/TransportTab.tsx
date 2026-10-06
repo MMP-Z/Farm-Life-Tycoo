@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { InventoryItem, TransportTrip, VehicleDefinition } from '../types/farmSystem';
+import { InventoryItem, TransportTrip, VehicleDefinition, MarketProfile } from '../types/farmSystem';
 import { VEHICLES_CONFIG, ROUTES_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
+import { MARKET_TRAITS_CONFIG } from '../config/variabilityData';
 import { Truck, MapPin, Package, ArrowRight, Clock, AlertTriangle, Plus, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
 
@@ -11,6 +12,7 @@ interface Props {
   currentDay: number;
   money: number;
   playerLevel: number;
+  marketProfiles?: Record<string, MarketProfile>;
   onDispatchTrip: (
     vehicleId: string,
     routeId: string,
@@ -28,12 +30,14 @@ export const TransportTab: React.FC<Props> = ({
   currentDay,
   money,
   playerLevel,
+  marketProfiles = {},
   onDispatchTrip,
   onBuyVehicle,
 }) => {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('handcart');
   const [selectedRouteId, setSelectedRouteId] = useState<string>('village');
   const [cargoManifest, setCargoManifest] = useState<Record<string, number>>({});
+  const [showMarketProfiles, setShowMarketProfiles] = useState(false);
 
   const vehicleDef = VEHICLES_CONFIG[selectedVehicleId] || VEHICLES_CONFIG.handcart;
   const routeDef = ROUTES_CONFIG[selectedRouteId] || ROUTES_CONFIG.village;
@@ -107,6 +111,79 @@ export const TransportTab: React.FC<Props> = ({
         </div>
       </div>
 
+      {/* Bảng Tin Tính Cách & Thị Hiếu Chợ (Market Traits) */}
+      {Object.keys(marketProfiles).length > 0 && (
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🗺️</span>
+                <h3 className="font-black text-sm sm:text-base text-slate-900 font-display">
+                  Thị Hiếu & Tính Cách Các Khu Chợ
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowMarketProfiles(!showMarketProfiles)}
+                className="text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-full transition-all cursor-pointer"
+              >
+                {showMarketProfiles ? 'Thu gọn' : 'Xem chi tiết'}
+              </button>
+            </div>
+          </div>
+
+          {showMarketProfiles && (
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-hide mt-3">
+              {Object.values(marketProfiles).map((prof) => {
+                const traitMeta = MARKET_TRAITS_CONFIG[prof.trait] || MARKET_TRAITS_CONFIG.stable;
+
+                return (
+                  <div
+                    key={prof.routeId}
+                    className="min-w-[260px] max-w-[280px] snap-start p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between text-xs flex-shrink-0"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5 gap-2">
+                        <h4 className="font-black text-sm text-slate-900 font-display truncate">{prof.routeName}</h4>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex-shrink-0">
+                          {traitMeta.icon} {traitMeta.name}
+                        </span>
+                      </div>
+
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {traitMeta.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-slate-200/80 space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-emerald-700 whitespace-nowrap">Ưa chuộng (+25%):</span>
+                        <span className="flex items-center gap-1 justify-end">
+                          {prof.preferredItems.map((id) => (
+                            <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
+                              {ALL_ITEMS_CATALOG[id]?.icon || id}
+                            </span>
+                          ))}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-rose-600 whitespace-nowrap">Dìm giá (-15%):</span>
+                        <span className="flex items-center gap-1 justify-end">
+                          {prof.discountedItems.map((id) => (
+                            <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
+                              {ALL_ITEMS_CATALOG[id]?.icon || id}
+                            </span>
+                          ))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
       {/* Active Trips on the road */}
       {activeTrips.length > 0 && (
         <div className="bg-[#FAF8F2] rounded-3xl p-5 border border-[#E8E2D2]">
@@ -156,11 +233,11 @@ export const TransportTab: React.FC<Props> = ({
           <span>1. Chọn Phương Tiện Vận Tải:</span>
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-hide">
           {Object.values(VEHICLES_CONFIG).map((v) => {
             const isOwned = ownedVehicles.includes(v.id);
             const isSelected = selectedVehicleId === v.id;
-            const canUnlock = playerLevel >= v.unlockLevel;
+            const canUnlock = true;
 
             return (
               <div
@@ -171,7 +248,7 @@ export const TransportTab: React.FC<Props> = ({
                     sound.playClick();
                   }
                 }}
-                className={`p-4 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer ${
+                className={`min-w-[200px] snap-start p-4 rounded-2xl border flex flex-col justify-between transition-all cursor-pointer flex-shrink-0 ${
                   !isOwned
                     ? 'bg-slate-50 border-slate-200'
                     : isSelected
@@ -201,7 +278,7 @@ export const TransportTab: React.FC<Props> = ({
                     <span className="text-xs font-bold flex items-center gap-1">
                       <Check size={13} className="stroke-[3]" /> Sẵn sàng chạy
                     </span>
-                  ) : canUnlock ? (
+                  ) : (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -214,8 +291,6 @@ export const TransportTab: React.FC<Props> = ({
                     >
                       Mua xe ({v.buyPrice} 💰)
                     </button>
-                  ) : (
-                    <span className="text-[11px] text-slate-400">Khóa (Cấp {v.unlockLevel})</span>
                   )}
                 </div>
               </div>
@@ -230,11 +305,11 @@ export const TransportTab: React.FC<Props> = ({
           <span>2. Chọn Tuyến Đường Đi Chợ:</span>
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scrollbar-hide">
           {Object.values(ROUTES_CONFIG).map((r) => {
             const isSupported = vehicleDef.routes ? vehicleDef.routes.includes(r.id) : true;
             const isSelected = selectedRouteId === r.id;
-            const isUnlocked = playerLevel >= r.unlockLevel;
+            const isUnlocked = true;
 
             return (
               <button
@@ -246,7 +321,7 @@ export const TransportTab: React.FC<Props> = ({
                   }
                 }}
                 disabled={!isSupported || !isUnlocked}
-                className={`p-4 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                className={`min-w-[200px] snap-start p-4 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer flex-shrink-0 ${
                   !isSupported || !isUnlocked
                     ? 'opacity-40 bg-slate-100 border-slate-200 cursor-not-allowed'
                     : isSelected
@@ -275,11 +350,11 @@ export const TransportTab: React.FC<Props> = ({
 
       {/* Step 3: Xếp Hàng Hóa Lên Xe & Khởi Hành */}
       <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
           <h3 className="font-extrabold text-sm text-slate-800 font-display">
             3. Xếp Hàng Từ Kho Lên {vehicleDef.name}:
           </h3>
-          <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full ${
+          <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 ${
             currentLoadedWeight >= vehicleDef.capacity ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-800'
           }`}>
             Đã tải: {currentLoadedWeight} / {vehicleDef.capacity} kg

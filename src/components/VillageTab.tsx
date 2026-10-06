@@ -22,6 +22,7 @@ interface Props {
   onBuyDefense: (type: 'dog' | 'reinforced_lock' | 'crop_netting' | 'vaccine', cost: number) => void;
   onBuyInsurance: () => void;
   onPayTax: (taxId: string) => void;
+  section?: 'police' | 'coop' | 'tax';
 }
 
 export const VillageTab: React.FC<Props> = ({
@@ -29,6 +30,7 @@ export const VillageTab: React.FC<Props> = ({
   onBuyDefense,
   onBuyInsurance,
   onPayTax,
+  section,
 }) => {
   const { insurance, defenses, pendingTaxes, riskAlerts, recentIncidents } = state;
   const isInsured = insurance.active && state.currentDay < insurance.expiresDay;
@@ -36,7 +38,7 @@ export const VillageTab: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       {/* Cảnh Báo An Ninh & Dự Báo Thời Tiết Sớm */}
-      {riskAlerts && riskAlerts.length > 0 && (
+      {(!section || section === 'police') && riskAlerts && riskAlerts.length > 0 && (
         <div className="bg-white rounded-3xl p-4 sm:p-5 border border-amber-300 ring-2 ring-amber-300/20 shadow-xs">
           <div className="flex items-center gap-2 mb-2.5">
             <AlertTriangle className="text-amber-600 animate-bounce-slight" size={18} />
@@ -66,12 +68,13 @@ export const VillageTab: React.FC<Props> = ({
       )}
 
       {/* Row: Bảo Hiểm Hợp Tác Xã & Chi Cục Thuế */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={`grid grid-cols-1 gap-4 ${!section ? 'lg:grid-cols-2' : ''}`}>
         
         {/* Card 1: Bảo Hiểm HTX */}
+        {(!section || section === 'coop') && (
         <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-start sm:items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🛡️</span>
                 <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
@@ -80,7 +83,7 @@ export const VillageTab: React.FC<Props> = ({
               </div>
 
               <span
-                className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+                className={`text-xs font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
                   isInsured
                     ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                     : 'bg-slate-100 text-slate-500 border-slate-200'
@@ -123,22 +126,24 @@ export const VillageTab: React.FC<Props> = ({
             )}
           </div>
         </div>
+        )}
 
         {/* Card 2: Chi Cục Thuế & Quỹ Làng */}
+        {(!section || section === 'tax') && (
         <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-start sm:items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📜</span>
                 <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
                   Sổ Thuế Nông Nghiệp & Quỹ Làng
                 </h3>
               </div>
-              <span className="text-xs text-slate-500 font-medium">Nộp cuối mỗi mùa vụ</span>
+              <span className="text-xs text-slate-500 font-medium whitespace-nowrap shrink-0">Nộp cuối mỗi mùa vụ</span>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Mỗi ô đất canh tác chịu mức thuế nhỏ (10 vàng / ô). <strong>Ưu đãi:</strong> Hoàn thành mục tiêu mùa vụ sẽ được giảm -50% thuế đất!
+              Mỗi ô đất canh tác chịu mức thuế nhỏ (10 vàng / ô).
             </p>
 
             <div className="my-3 p-3 bg-[#FAF8F2] rounded-2xl border border-[#DFD9C3] flex items-center justify-between text-xs font-mono">
@@ -174,10 +179,11 @@ export const VillageTab: React.FC<Props> = ({
             )}
           </div>
         </div>
-
+        )}
       </div>
 
       {/* Công Trình & Trang Bị Phòng Vệ Nông Trại */}
+      {(!section || section === 'police') && (
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -325,9 +331,10 @@ export const VillageTab: React.FC<Props> = ({
 
         </div>
       </div>
+      )}
 
       {/* Nhật Ký Sự Cố Gần Nhất */}
-      {recentIncidents && recentIncidents.length > 0 && (
+      {(!section || section === 'police') && recentIncidents && recentIncidents.length > 0 && (
         <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
           <div className="flex items-center gap-2 mb-2.5">
             <History size={18} className="text-slate-500" />
@@ -371,7 +378,6 @@ export const VillageTab: React.FC<Props> = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };

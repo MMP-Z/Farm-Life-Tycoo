@@ -21,7 +21,12 @@ export const AdminCenterTab: React.FC<Props> = ({
   onTakeLoan,
   onPayLoan,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'village' | 'financials'>('village');
+  const [activeTab, setActiveTab] = useState<'police' | 'finance' | 'tax' | 'coop'>('police');
+
+  const unlockedFactoriesCount = Object.values(state.factories || {}).filter(f => f.unlocked).length;
+  const totalDebt = (state.loans || []).reduce((sum, l) => sum + l.remainingAmount, 0);
+  const inventoryValue = (state.inventory || []).reduce((sum, item) => sum + (item.quantity * 2), 0);
+  const totalAssets = state.money + (state.plots.length * 50) + inventoryValue + (unlockedFactoriesCount * 500) - totalDebt;
 
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
@@ -43,48 +48,105 @@ export const AdminCenterTab: React.FC<Props> = ({
       </div>
 
       {/* Tab switchers */}
-      <div className="bg-white p-1.5 rounded-2xl flex gap-1.5 shadow-xs border border-[#E8E2D2]">
+      <div className="bg-white p-1.5 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-1.5 shadow-xs border border-[#E8E2D2]">
         <button
-          onClick={() => setActiveSubTab('village')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-            activeSubTab === 'village' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          onClick={() => setActiveTab('police')}
+          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeTab === 'police' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
           }`}
         >
-          <ShieldCheck size={18} />
-          Xóm Làng & An Ninh
+          <ShieldCheck size={16} />
+          Bảo Vệ
         </button>
         <button
-          onClick={() => setActiveSubTab('financials')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-            activeSubTab === 'financials' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          onClick={() => setActiveTab('finance')}
+          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeTab === 'finance' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
           }`}
         >
-          <Landmark size={18} />
-          Tài Chính & Thuế
+          <Landmark size={16} />
+          Tài Chính
+        </button>
+        <button
+          onClick={() => setActiveTab('tax')}
+          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeTab === 'tax' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          }`}
+        >
+          <span className="text-base">📜</span>
+          Thuế
+        </button>
+        <button
+          onClick={() => setActiveTab('coop')}
+          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeTab === 'coop' ? 'bg-[#2E4A35] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          }`}
+        >
+          <span className="text-base">🤝</span>
+          Hợp Tác Xã
         </button>
       </div>
 
       <div className="mt-2">
-        {activeSubTab === 'village' && (
+        {activeTab === 'police' && (
           <VillageTab
             state={state}
             onBuyDefense={onBuyDefense}
             onBuyInsurance={onBuyInsurance}
             onPayTax={onPayTax}
+            section="police"
           />
         )}
 
-        {activeSubTab === 'financials' && (
+        {activeTab === 'coop' && (
+          <VillageTab
+            state={state}
+            onBuyDefense={onBuyDefense}
+            onBuyInsurance={onBuyInsurance}
+            onPayTax={onPayTax}
+            section="coop"
+          />
+        )}
+
+        {activeTab === 'finance' && (
           <FinancialsTab
             money={state.money}
             currentDay={state.currentDay}
             transactions={state.transactions || []}
             loans={state.loans || []}
             pendingTaxes={state.pendingTaxes || []}
+            creditScore={state.creditScore || 500}
+            totalAssets={totalAssets}
             onTakeLoan={onTakeLoan}
             onPayLoan={onPayLoan}
             onPayTax={onPayTax}
+            section="finance"
           />
+        )}
+
+        {activeTab === 'tax' && (
+          <div className="space-y-4">
+            <VillageTab
+              state={state}
+              onBuyDefense={onBuyDefense}
+              onBuyInsurance={onBuyInsurance}
+              onPayTax={onPayTax}
+              section="tax"
+            />
+            <FinancialsTab
+              money={state.money}
+              currentDay={state.currentDay}
+              transactions={state.transactions || []}
+              loans={state.loans || []}
+              pendingTaxes={state.pendingTaxes || []}
+              creditScore={state.creditScore || 500}
+              totalAssets={totalAssets}
+              onTakeLoan={onTakeLoan}
+              onPayLoan={onPayLoan}
+              onPayTax={onPayTax}
+              section="tax"
+            />
+          </div>
         )}
       </div>
     </div>

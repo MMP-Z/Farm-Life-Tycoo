@@ -9,9 +9,12 @@ interface Props {
   transactions: FinancialTransaction[];
   loans: BankLoan[];
   pendingTaxes: PendingTax[];
+  creditScore: number;
+  totalAssets: number;
   onTakeLoan: (amount: number, interestRate: number) => void;
   onPayLoan: (loanId: string, amount: number) => void;
   onPayTax: (taxId: string) => void;
+  section?: 'finance' | 'tax';
 }
 
 export const FinancialsTab: React.FC<Props> = ({
@@ -20,16 +23,19 @@ export const FinancialsTab: React.FC<Props> = ({
   transactions,
   loans,
   pendingTaxes,
+  creditScore,
+  totalAssets,
   onTakeLoan,
   onPayLoan,
   onPayTax,
+  section,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'ledger' | 'loan' | 'tax'>('ledger');
+  const [activeSubTab, setActiveSubTab] = useState<'ledger' | 'loan' | 'tax'>(section === 'tax' ? 'tax' : 'ledger');
 
   // Thống kê cơ bản (Tính trong 7 ngày gần nhất)
   const recentTransactions = transactions.filter(t => t.day >= currentDay - 7);
-  const income = recentTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const expense = recentTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const income = Math.round(recentTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0));
+  const expense = Math.round(recentTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0));
   const profit = income - expense;
 
   return (
@@ -44,6 +50,7 @@ export const FinancialsTab: React.FC<Props> = ({
         </div>
       </div>
 
+      {!section && (
       <div className="grid grid-cols-3 gap-3">
         <button
           onClick={() => { setActiveSubTab('ledger'); sound.playClick(); }}
@@ -76,6 +83,30 @@ export const FinancialsTab: React.FC<Props> = ({
           )}
         </button>
       </div>
+      )}
+
+      {section === 'finance' && (
+      <div className="bg-white p-1.5 rounded-2xl flex gap-1.5 shadow-xs border border-[#E8E2D2]">
+        <button
+          onClick={() => setActiveSubTab('ledger')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeSubTab === 'ledger' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          }`}
+        >
+          <Receipt size={18} />
+          Sổ Sách
+        </button>
+        <button
+          onClick={() => setActiveSubTab('loan')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+            activeSubTab === 'loan' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+          }`}
+        >
+          <Landmark size={18} />
+          Ngân Hàng
+        </button>
+      </div>
+      )}
 
       {activeSubTab === 'ledger' && (
         <div className="space-y-4">
@@ -115,7 +146,7 @@ export const FinancialsTab: React.FC<Props> = ({
                       <div className="text-xs text-slate-500 font-medium mt-0.5">Ngày {t.day} • {t.category}</div>
                     </div>
                     <div className={`font-black tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {t.type === 'income' ? '+' : '-'}{t.amount} 💰
+                      {t.type === 'income' ? '+' : '-'}{Math.round(t.amount)} 💰
                     </div>
                   </div>
                 ))}
@@ -136,16 +167,23 @@ export const FinancialsTab: React.FC<Props> = ({
                 </h3>
                 <p className="text-indigo-700/80 text-sm font-medium mt-1">Cung cấp vốn vay cho nông nghiệp</p>
               </div>
+              <div className="text-right">
+                <div className="text-xs text-indigo-700 font-bold mb-0.5">Điểm Uy Tín</div>
+                <div className="font-black text-xl text-indigo-900">{creditScore}</div>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => onTakeLoan(500, 0.02)}
-                className="w-full py-3 bg-white hover:bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl font-bold flex items-center justify-between px-4 transition-all"
+                disabled={creditScore < 400}
+                className="w-full py-3 bg-white hover:bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl font-bold flex items-center justify-between px-4 transition-all disabled:opacity-50"
               >
-                <div className="flex flex-col items-start">
+                <div className="flex flex-col items-start text-left">
                   <span>Gói Vay Khởi Nghiệp</span>
-                  <span className="text-xs font-medium opacity-70">Lãi suất 2%/ngày</span>
+                  <span className="text-xs font-medium opacity-70">
+                    Lãi 2%/ngày • Yêu cầu: Uy tín ≥400
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-black">+500 💰</span>
@@ -153,11 +191,14 @@ export const FinancialsTab: React.FC<Props> = ({
               </button>
               <button
                 onClick={() => onTakeLoan(2000, 0.05)}
-                className="w-full py-3 bg-white hover:bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl font-bold flex items-center justify-between px-4 transition-all"
+                disabled={creditScore < 600 || totalAssets < 3000}
+                className="w-full py-3 bg-white hover:bg-indigo-50 border-2 border-indigo-200 text-indigo-800 rounded-2xl font-bold flex items-center justify-between px-4 transition-all disabled:opacity-50"
               >
-                <div className="flex flex-col items-start">
+                <div className="flex flex-col items-start text-left">
                   <span>Gói Vay Mở Rộng</span>
-                  <span className="text-xs font-medium opacity-70">Lãi suất 5%/ngày</span>
+                  <span className="text-xs font-medium opacity-70">
+                    Lãi 5%/ngày • Y/C: Uy tín ≥600, Tài sản ≥3000
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-black">+2,000 💰</span>

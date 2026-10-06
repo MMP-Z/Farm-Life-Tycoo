@@ -43,7 +43,7 @@ export const NPCGuide: React.FC<Props> = ({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-18 sm:bottom-4 right-3 sm:right-4 z-30 bg-[#FFF9E6] border-2 border-amber-300 text-amber-950 p-2.5 sm:p-3 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none"
+        className="bg-[#FFF9E6] border-2 border-amber-300 text-amber-950 p-2.5 sm:p-3 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none"
         title="Bác Ba Nông Dân khuyên nhủ"
       >
         <span className="text-xl sm:text-2xl animate-bounce-slight">👨‍🌾</span>
@@ -53,7 +53,7 @@ export const NPCGuide: React.FC<Props> = ({
   }
 
   return (
-    <div className="fixed bottom-18 sm:bottom-4 right-3 sm:right-4 z-30 max-w-sm w-[calc(100%-1.5rem)] sm:w-80 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-3.5 border-2 border-amber-300 shadow-xl select-none animate-in fade-in slide-in-from-bottom-3 duration-200">
+    <div className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-80 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-3.5 border-2 border-amber-300 shadow-xl select-none animate-in fade-in slide-in-from-bottom-3 duration-200">
       <div className="flex items-start gap-3">
         <div className="w-11 h-11 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shrink-0 shadow-inner">
           👨‍🌾

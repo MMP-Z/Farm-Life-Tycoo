@@ -13,6 +13,7 @@ interface Props {
   onBuySeedsForEmptyPlots: (cropId: string, count: number, unitCost: number) => void;
   onBuyAutoIrrigation: () => void;
   onHireAutoWorker: () => void;
+  onBuyAnimal: (animalType: string) => void;
   autoIrrigationCost: number;
   autoWorkerCost: number;
 }
@@ -27,10 +28,11 @@ export const ShopTab: React.FC<Props> = ({
   onBuySeedsForEmptyPlots,
   onBuyAutoIrrigation,
   onHireAutoWorker,
+  onBuyAnimal,
   autoIrrigationCost,
   autoWorkerCost,
 }) => {
-  const [shopCategory, setShopCategory] = useState<'seeds' | 'supplies' | 'automation'>('seeds');
+  const [shopCategory, setShopCategory] = useState<'seeds' | 'supplies' | 'automation' | 'animals'>('seeds');
 
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
@@ -62,6 +64,7 @@ export const ShopTab: React.FC<Props> = ({
       <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2] overflow-x-auto no-scrollbar">
         {[
           { id: 'seeds', label: '🌱 Hạt Giống' },
+          { id: 'animals', label: '🐄 Con Giống' },
           { id: 'supplies', label: '🧪 Phân & Thuốc' },
           { id: 'automation', label: '⚙️ Tự Động Hóa' },
         ].map((tab) => (
@@ -86,7 +89,7 @@ export const ShopTab: React.FC<Props> = ({
       {shopCategory === 'seeds' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {Object.values(CROPS_CONFIG).map((crop) => {
-            const isLocked = playerLevel < crop.unlockLevel;
+            const isLocked = false;
             const canAffordSingle = money >= crop.seedPrice;
             const bulkCount = Math.max(1, emptyPlotsCount);
             const bulkCost = crop.seedPrice * bulkCount;
@@ -111,19 +114,12 @@ export const ShopTab: React.FC<Props> = ({
                       </div>
                     </div>
 
-                    {isLocked ? (
-                      <span className="text-[10px] text-amber-800 bg-amber-100 font-bold px-2 py-0.5 rounded-full">
-                        Mở ở Cấp {crop.unlockLevel}
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-slate-500 font-mono">⏱️ {crop.growDays} ngày</span>
-                    )}
+                    <span className="text-[10px] text-slate-500 font-mono">⏱️ {crop.growDays} ngày</span>
                   </div>
 
                   <p className="text-xs text-slate-500 leading-relaxed my-2">{crop.description}</p>
                 </div>
 
-                {!isLocked && (
                   <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => onBuyItem(crop.id, 1, crop.seedPrice)}
@@ -152,7 +148,6 @@ export const ShopTab: React.FC<Props> = ({
                       </button>
                     )}
                   </div>
-                )}
               </div>
             );
           })}
@@ -307,6 +302,55 @@ export const ShopTab: React.FC<Props> = ({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 4. ANIMALS CATEGORY */}
+      {shopCategory === 'animals' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {Object.values(ANIMALS_CONFIG).map((def) => {
+            const isLocked = false;
+            const canAfford = money >= def.buyPrice;
+
+            return (
+              <div
+                key={def.id}
+                className={`bg-white rounded-3xl border p-4 sm:p-5 flex flex-col justify-between shadow-xs transition-all ${
+                  isLocked ? 'border-slate-200 opacity-60' : 'border-[#E8E2D2] hover:border-amber-300'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-3xl filter drop-shadow-xs">{def.icon}</span>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-900 font-display">{def.name}</h4>
+                        <span className="text-[11px] font-mono text-amber-800 font-bold">
+                          {def.buyPrice} 💰 / con
+                        </span>
+                      </div>
+                    </div>
+
+                      <span className="text-[10px] text-slate-500 font-mono">⏱️ {def.produceDays} ngày thu</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => onBuyAnimal(def.id)}
+                    disabled={!canAfford}
+                    className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                      canAfford
+                        ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Mua con giống
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

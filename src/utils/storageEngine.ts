@@ -54,31 +54,26 @@ export function createNewFarmWithProfile(
 
   // Chuồng trại
   const initialPens: Record<string, any> = {
-    chicken: { id: 'chicken', capacity: 4, waterTrough: 100, cleanliness: 100, animals: [] },
-    cow: { id: 'cow', capacity: 2, waterTrough: 100, cleanliness: 100, animals: [] },
-    sheep: { id: 'sheep', capacity: 2, waterTrough: 100, cleanliness: 100, animals: [] },
-    bee: { id: 'bee', capacity: 2, waterTrough: 100, cleanliness: 100, animals: [] },
+    main: { id: 'main', capacity: 10, waterTrough: 100, cleanliness: 100, animals: [] },
   };
 
   // Nếu hồ sơ có sẵn vật nuôi
   if (profile.bonusPens) {
     profile.bonusPens.forEach((bp) => {
-      if (initialPens[bp.penType]) {
-        for (let i = 0; i < bp.animalCount; i++) {
-          initialPens[bp.penType].animals.push({
-            id: `an_init_${i}`,
-            type: bp.penType,
-            name: `Gà con #${i + 1}`,
-            hunger: 100,
-            thirst: 100,
-            health: 100,
-            happiness: 100,
-            daysWithoutFood: 0,
-            isSick: false,
-            lastFedDay: 1,
-            daysUntilProduce: 1,
-          });
-        }
+      for (let i = 0; i < bp.animalCount; i++) {
+        initialPens['main'].animals.push({
+          id: `an_init_${bp.penType}_${i}`,
+          type: bp.penType,
+          name: `Vật nuôi #${initialPens['main'].animals.length + 1}`,
+          hunger: 100,
+          thirst: 100,
+          health: 100,
+          happiness: 100,
+          daysWithoutFood: 0,
+          isSick: false,
+          lastFedDay: 1,
+          daysUntilProduce: 1,
+        });
       }
     });
   }
@@ -204,6 +199,7 @@ export function createNewFarmWithProfile(
 
     transactions: [],
     loans: [],
+    creditScore: 500,
 
     settings: {
       soundEnabled: true,
@@ -249,6 +245,37 @@ export function parseFarmState(parsed: any): FarmGameState {
     const marketProfiles = parsed.marketProfiles || generateSeededMarketProfiles(seed, parsed.currentYear || 1);
     const seasonalGoals = parsed.seasonalGoals || generateSeededSeasonalGoals(seed, parsed.currentSeason || 'spring', parsed.currentYear || 1);
 
+    // MIGRATION: Gộp tất cả các chuồng (pens) thành 1 chuồng duy nhất (main)
+    let migratedPens = parsed.pens || {};
+    if (!migratedPens['main']) {
+      let totalCapacity = 0;
+      const allAnimals: any[] = [];
+      let totalWater = 0;
+      let totalClean = 0;
+      let penCount = 0;
+
+      Object.keys(migratedPens).forEach((key) => {
+        totalCapacity += migratedPens[key].capacity || 0;
+        allAnimals.push(...(migratedPens[key].animals || []));
+        totalWater += migratedPens[key].waterTrough || 100;
+        totalClean += migratedPens[key].cleanliness || 100;
+        penCount++;
+      });
+
+      if (totalCapacity === 0) totalCapacity = 10;
+      if (penCount === 0) penCount = 1;
+
+      migratedPens = {
+        main: {
+          id: 'main',
+          capacity: totalCapacity,
+          waterTrough: Math.round(totalWater / penCount),
+          cleanliness: Math.round(totalClean / penCount),
+          animals: allAnimals,
+        }
+      };
+    }
+
     return {
       ...createInitialFarmState(),
       ...parsed,
@@ -266,13 +293,27 @@ export function parseFarmState(parsed: any): FarmGameState {
       disasterCooldown: parsed.disasterCooldown ?? 2,
       activeEvent: parsed.activeEvent || null,
       completedEventDays: parsed.completedEventDays || [],
-      inventory: parsed.inventory || [],
-      pens: { ...createInitialFarmState().pens, ...(parsed.pens || {}) },
-      factories: { ...createInitialFarmState().factories, ...(parsed.factories || {}) },
+      inventory: (parsed.inventory || []).map((item: any) => {
+        const meta = ALL_ITEMS_CATALOG[item.itemId];
+        if (meta) {
+          return { ...item, name: meta.name, icon: meta.icon };
+        }
+        return item;
+      }),
+      pens: migratedPens,
+      factories: Object.keys(createInitialFarmState().factories).reduce((acc, key) => {
+        acc[key] = {
+          ...createInitialFarmState().factories[key],
+          ...(parsed.factories ? parsed.factories[key] : {})
+        };
+        return acc;
+      }, {} as any),
       transactions: parsed.transactions || [],
       loans: parsed.loans || [],
+      creditScore: parsed.creditScore ?? 500,
       settings: { ...createInitialFarmState().settings, ...(parsed.settings || {}) },
       stats: { ...createInitialFarmState().stats, ...(parsed.stats || {}) },
+      lastTimestamp: Date.now(), // Override saved timestamp so offline time doesn't jump the clock
     };
 }
 

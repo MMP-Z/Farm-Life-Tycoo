@@ -1,20 +1,17 @@
 import React from 'react';
-import { InventoryItem, OrderItem, Season, MarketProfile } from '../types/farmSystem';
+import { InventoryItem, OrderItem, Season } from '../types/farmSystem';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
-import { MARKET_TRAITS_CONFIG } from '../config/variabilityData';
 import { TrendingDown, TrendingUp, Check, Clock, Sparkles } from 'lucide-react';
 
 interface Props {
   inventory: InventoryItem[];
   demandMultipliers: Record<string, number>;
-  marketProfiles?: Record<string, MarketProfile>;
   onDirectSell: (itemId: string, quantity: number, unitPrice: number, e: React.MouseEvent) => void;
 }
 
 export const MarketTab: React.FC<Props> = ({
   inventory,
   demandMultipliers,
-  marketProfiles = {},
   onDirectSell,
 }) => {
   return (
@@ -28,7 +25,7 @@ export const MarketTab: React.FC<Props> = ({
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
-              Chợ Giao Thương & Bảng Đơn Hàng
+              Chợ Làng
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
               Mỗi khu chợ có tính cách và sở thích riêng theo Seed thế giới. Theo dõi thị trường để chốt lời cao nhất!
@@ -37,70 +34,7 @@ export const MarketTab: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Lớp 2: Bảng Tin Tính Cách & Thị Hiếu Chợ (Market Traits) */}
-      {Object.keys(marketProfiles).length > 0 && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🗺️</span>
-              <h3 className="font-black text-sm sm:text-base text-slate-900 font-display">
-                Thị Hiếu & Tính Cách Các Khu Chợ
-              </h3>
-            </div>
-            <span className="text-xs text-slate-500 hidden sm:inline">Dịch chuyển theo mùa vụ & năm</span>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            {Object.values(marketProfiles).map((prof) => {
-              const traitMeta = MARKET_TRAITS_CONFIG[prof.trait] || MARKET_TRAITS_CONFIG.stable;
-
-              return (
-                <div
-                  key={prof.routeId}
-                  className="p-3.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between text-xs"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <h4 className="font-black text-sm text-slate-900 font-display">{prof.routeName}</h4>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                        {traitMeta.icon} {traitMeta.name}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      {traitMeta.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-2.5 pt-2 border-t border-slate-200/80 space-y-1">
-                    <div className="flex items-center gap-1.5 text-[11px]">
-                      <span className="font-bold text-emerald-700">Ưa chuộng (+25%):</span>
-                      <span className="flex items-center gap-1">
-                        {prof.preferredItems.map((id) => (
-                          <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
-                            {ALL_ITEMS_CATALOG[id]?.icon || id}
-                          </span>
-                        ))}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-[11px]">
-                      <span className="font-bold text-rose-600">Dìm giá (-15%):</span>
-                      <span className="flex items-center gap-1">
-                        {prof.discountedItems.map((id) => (
-                          <span key={id} title={ALL_ITEMS_CATALOG[id]?.name}>
-                            {ALL_ITEMS_CATALOG[id]?.icon || id}
-                          </span>
-                        ))}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Bảng Giá Cung - Cầu Thị Trường & Bán Trực Tiếp */}
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E8E2D2] shadow-xs">

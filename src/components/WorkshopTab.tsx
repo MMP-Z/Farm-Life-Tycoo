@@ -55,7 +55,7 @@ export const WorkshopTab: React.FC<Props> = ({
           const upgradeSlotCost = 120 + factory.queueSlots * 60;
 
           if (!isUnlocked) {
-            const canUnlock = playerLevel >= factory.unlockLevel && money >= factory.cost;
+            const canUnlock = money >= factory.cost;
 
             return (
               <div
@@ -69,10 +69,10 @@ export const WorkshopTab: React.FC<Props> = ({
                   <div>
                     <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
                       <span>{factory.name}</span>
-                      <span className="text-[10px] bg-slate-100 text-slate-600 font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Lock size={10} /> Mở ở Cấp {factory.unlockLevel}
-                      </span>
                     </h3>
+                    <p className="text-[11px] text-slate-500 font-medium mt-1">
+                      Sản xuất: {factoryRecipes.map(r => r.name).join(', ')}
+                    </p>
                     <p className="text-xs text-slate-500 mt-1">Chi phí đầu tư xây dựng: {factory.cost} 💰</p>
                   </div>
                 </div>
@@ -177,10 +177,9 @@ export const WorkshopTab: React.FC<Props> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                   {factoryRecipes.map((recipe) => {
-                    const isRecipeLocked = playerLevel < recipe.unlockLevel;
+                    const isRecipeLocked = false; // Luôn mở
                     const canCraft =
                       currentTasks.length < queueCapacity &&
-                      !isRecipeLocked &&
                       recipe.ingredients.every((ing) => {
                         const inStock = inventory.find((i) => i.itemId === ing.itemId)?.quantity || 0;
                         return inStock >= ing.amount;
@@ -232,13 +231,10 @@ export const WorkshopTab: React.FC<Props> = ({
                             Bán: ~{recipe.basePrice} 💰
                           </span>
 
-                          {isRecipeLocked ? (
-                            <span className="text-[10px] text-slate-400 font-bold">Cấp {recipe.unlockLevel}</span>
-                          ) : (
-                            <button
-                              onClick={() => onStartCraft(factory.id, recipe.id)}
-                              disabled={!canCraft}
-                              className={`py-1.5 px-3 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95 shadow-xs ${
+                          <button
+                            onClick={() => onStartCraft(factory.id, recipe.id)}
+                            disabled={!canCraft}
+                            className={`py-1.5 px-3 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95 shadow-xs ${
                                 canCraft
                                   ? 'bg-[#2E4A35] hover:bg-[#233a29] text-white cursor-pointer'
                                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
@@ -247,7 +243,6 @@ export const WorkshopTab: React.FC<Props> = ({
                               <Play size={11} className="fill-current" />
                               <span>Đưa vào lò</span>
                             </button>
-                          )}
                         </div>
                       </div>
                     );

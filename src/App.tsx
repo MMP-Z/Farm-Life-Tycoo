@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Map } from 'lucide-react';
 import {
   FarmGameState,
   SoilType,
@@ -41,6 +42,7 @@ import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
+import { HubTab } from './components/HubTab';
 import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
 import { FarmLevelUpModal } from './components/FarmLevelUpModal';
@@ -51,7 +53,7 @@ import { FloatingReward } from './types/game';
 
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
-  const [activeTab, setActiveTab] = useState<GameTab>('field');
+  const [activeTab, setActiveTab] = useState<GameTab>('hub');
   const [floatingParticles, setFloatingParticles] = useState<FloatingReward[]>([]);
   const [levelUpData, setLevelUpData] = useState<{ level: number; rewardMoney: number } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -181,6 +183,8 @@ export default function App() {
           const curr = updated[existingIdx];
           updated[existingIdx] = {
             ...curr,
+            name: itemMeta?.name || curr.name,
+            icon: itemMeta?.icon || curr.icon,
             quantity: curr.quantity + quantity,
             daysRemaining: Math.max(curr.daysRemaining, itemMeta?.shelfLifeDays || 15),
           };
@@ -230,18 +234,24 @@ export default function App() {
   }, []);
 
   const consumeLabor = useCallback((cost = 1): boolean => {
-    if (stateRef.current.laborHours < cost) {
-      showToast('⚠️ Bạn đã kiệt sức hôm nay! Hãy dùng Tua Nhanh để qua ngày và hồi phục giờ công.');
-      sound.playError();
-      return false;
-    }
-    setState((prev) => ({ ...prev, laborHours: prev.laborHours - cost }));
+    // Đã gỡ bỏ giới hạn Giờ công, người chơi có thể thao tác thoải mái
     return true;
-  }, [showToast]);
+  }, []);
 
   // Main Game Clock Engine Loop (runs every 1 second)
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Khi người chơi mở lại tab, đồng bộ mốc thời gian để game không tua nhanh khoảng thời gian tab bị ẩn
+      if (!document.hidden) {
+        setState((prev) => ({ ...prev, lastTimestamp: Date.now() }));
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     const interval = setInterval(() => {
+      // Nếu tab đang bị ẩn/treo ở nền, tạm dừng vòng lặp thời gian
+      if (document.hidden) return;
+
       const now = Date.now();
       setState((prev) => {
         const result = advanceGameTime(prev, now, false);
@@ -282,7 +292,10 @@ export default function App() {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [showToast]);
 
   const addTransaction = useCallback((type: 'income' | 'expense', amount: number, category: any, description: string) => {
@@ -356,13 +369,16 @@ export default function App() {
       } as const;
       
       const newLoans = [...prev.loans];
+      let creditBonus = 0;
       if (newRemaining <= 0) {
         newLoans.splice(loanIndex, 1);
-        showToast('Chúc mừng! Bạn đã tất toán khoản vay thành công.');
+        creditBonus = prev.currentDay <= loan.dueDate ? 20 : -10;
+        showToast(`Tất toán khoản vay thành công! Uy tín ${creditBonus > 0 ? '+' : ''}${creditBonus}`);
         sound.playLevelUp();
       } else {
         newLoans[loanIndex] = { ...loan, remainingAmount: newRemaining };
-        showToast(`Đã thanh toán ${paidAmount} 💰 dư nợ.`);
+        creditBonus = 2;
+        showToast(`Đã thanh toán ${paidAmount} 💰 dư nợ. Uy tín +${creditBonus}`);
         sound.playPop();
       }
 
@@ -370,7 +386,8 @@ export default function App() {
         ...prev,
         money: prev.money - paidAmount,
         loans: newLoans,
-        transactions: [...prev.transactions, newTransaction]
+        transactions: [...prev.transactions, newTransaction],
+        creditScore: Math.max(0, Math.min(1000, (prev.creditScore || 500) + creditBonus))
       };
     });
   }, [showToast]);
@@ -736,69 +753,66 @@ export default function App() {
   // PASTURE (CHUỒNG TRẠI) HANDLERS
   // ==========================================
   const handleFeedPen = useCallback(
-    (penType: string) => {
-      const def = ANIMALS_CONFIG[penType];
-      if (!def) return;
-
+    () => {
       if (!consumeLabor(1)) return;
+      const pen = state.pens['main'];
+      if (!pen || pen.animals.length === 0) return;
 
-      const hasFeed = consumeItemFromInventory(def.feedItemId, 1);
-      if (!hasFeed) {
-        showToast(`Không có thức ăn cho ${def.name}! Cần ${ALL_ITEMS_CATALOG[def.feedItemId]?.name || def.feedItemId}.`);
-        return;
+      const feedNeeded: Record<string, number> = {};
+      pen.animals.forEach(a => {
+        const def = ANIMALS_CONFIG[a.type];
+        if (def && def.feedItemId) {
+          feedNeeded[def.feedItemId] = (feedNeeded[def.feedItemId] || 0) + def.feedPerDay;
+        }
+      });
+
+      for (const [itemId, amount] of Object.entries(feedNeeded)) {
+        const hasFeed = consumeItemFromInventory(itemId, amount);
+        if (!hasFeed) {
+          showToast(`Không đủ thức ăn! Cần ${amount}x ${ALL_ITEMS_CATALOG[itemId]?.name || itemId}.`);
+          return;
+        }
       }
 
-      sound.playAnimal(penType);
+      sound.playAnimal('chicken'); // Just a generic sound
       setState((prev) => {
-        const pen = prev.pens[penType];
-        if (!pen) return prev;
-
-        const updatedAnimals = pen.animals.map((a) => ({
+        const curPen = prev.pens['main'];
+        if (!curPen) return prev;
+        const updatedAnimals = curPen.animals.map((a) => ({
           ...a,
           hunger: 100,
           happiness: Math.min(100, a.happiness + 20),
           daysWithoutFood: 0,
         }));
-
-        return {
-          ...prev,
-          pens: {
-            ...prev.pens,
-            [penType]: { ...pen, animals: updatedAnimals },
-          },
-        };
+        return { ...prev, pens: { ...prev.pens, main: { ...curPen, animals: updatedAnimals } } };
       });
-      showToast(`Đã rải thức ăn cho đàn ${def.name}! Chúng đang ăn ngon lành.`);
+      showToast('Đã rải thức ăn cho toàn bộ vật nuôi trong kho!');
     },
-    [consumeItemFromInventory, showToast]
+    [state.pens, consumeItemFromInventory, consumeLabor, showToast]
   );
 
   const handleFillWaterTrough = useCallback(
-    (penType: string) => {
+    () => {
       if (!consumeLabor(1)) return;
       sound.playWater();
       setState((prev) => {
-        const pen = prev.pens[penType];
+        const pen = prev.pens['main'];
         if (!pen) return prev;
         return {
           ...prev,
           pens: {
             ...prev.pens,
-            [penType]: {
-              ...pen,
-              waterTrough: 100,
-              animals: pen.animals.map((a) => ({ ...a, thirst: 100 })),
-            },
+            main: { ...pen, waterTrough: 100, animals: pen.animals.map((a) => ({ ...a, thirst: 100 })) },
           },
         };
       });
       showToast('Đã bơm đầy máng nước mát lành cho đàn vật nuôi!');
     },
-    [showToast]
+    [consumeLabor, showToast]
   );
 
   const handleCureAnimal = useCallback(
-    (penType: string, animalId: string) => {
+    (animalId: string) => {
       if (!consumeLabor(1)) return;
       const hasMed = consumeItemFromInventory('vet_medicine', 1);
       if (!hasMed) {
@@ -808,94 +822,82 @@ export default function App() {
 
       sound.playPop();
       setState((prev) => {
-        const pen = prev.pens[penType];
+        const pen = prev.pens['main'];
         if (!pen) return prev;
-
-        const updatedAnimals = pen.animals.map((a) =>
-          a.id === animalId ? { ...a, isSick: false, health: 100 } : a
-        );
-
-        return {
-          ...prev,
-          pens: {
-            ...prev.pens,
-            [penType]: { ...pen, animals: updatedAnimals },
-          },
-        };
+        const updatedAnimals = pen.animals.map((a) => (a.id === animalId ? { ...a, isSick: false, health: 100 } : a));
+        return { ...prev, pens: { ...prev.pens, main: { ...pen, animals: updatedAnimals } } };
       });
       showToast('Đã cho vật nuôi uống thuốc thú y! Sức khỏe đã phục hồi hoàn toàn.');
     },
-    [consumeItemFromInventory, showToast]
+    [consumeLabor, consumeItemFromInventory, showToast]
   );
 
   const handleCollectProduce = useCallback(
-    (penType: string, e: React.MouseEvent) => {
-      const def = ANIMALS_CONFIG[penType];
-      const pen = state.pens[penType];
-      if (!def || !pen) return;
+    (e: React.MouseEvent) => {
+      const pen = state.pens['main'];
+      if (!pen) return;
 
-      const readyAnimals = pen.animals.filter((a) => a.daysUntilProduce <= 0);
+      const readyAnimals = pen.animals.filter((a) => a.daysUntilProduce <= 0 && !a.isSick && a.hunger > 20);
       if (readyAnimals.length === 0) {
-        showToast('Vật nuôi chưa đến kỳ sinh sản sản phẩm!');
+        showToast('Chưa có vật nuôi nào sẵn sàng thu hoạch!');
         return;
       }
 
       if (!consumeLabor(1)) return;
 
-      const totalProduce = readyAnimals.length * def.produceAmount;
-      const added = addItemToInventory(def.produceItemId, totalProduce);
-      if (!added) return;
+      let totalXP = 0;
+      let textLines: string[] = [];
 
-      sound.playAnimal(penType);
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
-      addParticle(
-        rect.left + rect.width / 2,
-        rect.top,
-        `+${totalProduce} ${ALL_ITEMS_CATALOG[def.produceItemId]?.name}`,
-        'item',
-        ALL_ITEMS_CATALOG[def.produceItemId]?.icon
-      );
-      awardXPAndMoney(totalProduce * 5, 0);
-
-      setState((prev) => {
-        const curPen = prev.pens[penType];
-        const updatedAnimals = curPen.animals.map((a) =>
-          a.daysUntilProduce <= 0 ? { ...a, daysUntilProduce: def.produceDays } : a
-        );
-        return {
-          ...prev,
-          pens: {
-            ...prev.pens,
-            [penType]: { ...curPen, animals: updatedAnimals },
-          },
-        };
+      readyAnimals.forEach((a) => {
+        const def = ANIMALS_CONFIG[a.type];
+        if (def) {
+          addItemToInventory(def.produceItemId, def.produceAmount);
+          totalXP += def.produceAmount * 5;
+          textLines.push(`+${def.produceAmount} ${ALL_ITEMS_CATALOG[def.produceItemId]?.name}`);
+        }
       });
 
-      showToast(`Đã thu hoạch ${totalProduce} sản phẩm tươi từ chuồng ${def.name}!`);
+      sound.playAnimal('chicken');
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      addParticle(rect.left + rect.width / 2, rect.top, 'Thu hoạch thành công!', 'item', '✨');
+      awardXPAndMoney(totalXP, 0);
+
+      setState((prev) => {
+        const curPen = prev.pens['main'];
+        const updatedAnimals = curPen.animals.map((a) => {
+          const def = ANIMALS_CONFIG[a.type];
+          return a.daysUntilProduce <= 0 && !a.isSick && a.hunger > 20 && def
+            ? { ...a, daysUntilProduce: def.produceDays }
+            : a;
+        });
+        return { ...prev, pens: { ...prev.pens, main: { ...curPen, animals: updatedAnimals } } };
+      });
+
+      showToast(`Đã thu hoạch sản phẩm từ ${readyAnimals.length} vật nuôi!`);
     },
-    [consumeLabor, state.pens, addItemToInventory, addParticle, awardXPAndMoney, showToast]
+    [state.pens, consumeLabor, addItemToInventory, addParticle, awardXPAndMoney, showToast]
   );
 
   const handleBuyAnimal = useCallback(
-    (penType: string) => {
-      const def = ANIMALS_CONFIG[penType];
-      const pen = state.pens[penType];
-      if (!def || !pen) return;
+    (animalType: string) => {
+      const def = ANIMALS_CONFIG[animalType];
+      if (!def) return;
+      const pen = state.pens['main'] || { id: 'main', capacity: 10, waterTrough: 100, cleanliness: 100, animals: [] };
 
       if (pen.animals.length >= pen.capacity) {
-        showToast(`Chuồng ${def.name} đã đầy (${pen.animals.length}/${pen.capacity})! Cần nâng cấp chuồng trước.`);
+        showToast(`Nhà kho đã đầy (${pen.animals.length}/${pen.capacity})! Cần mở rộng thêm.`);
         return;
       }
 
       if (state.money < def.buyPrice) {
-        showToast(`Không đủ tiền vàng! Cần ${def.buyPrice} vàng để mua giống ${def.name}.`);
+        showToast(`Không đủ tiền vàng! Cần ${def.buyPrice} vàng để mua ${def.name}.`);
         return;
       }
 
-      sound.playAnimal(penType);
+      sound.playAnimal(animalType);
       const newAnimal = {
         id: `an_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-        type: penType,
+        type: animalType,
         name: `${def.name} #${pen.animals.length + 1}`,
         hunger: 100,
         thirst: 100,
@@ -908,17 +910,10 @@ export default function App() {
       };
 
       setState((prev) => {
-        const curPen = prev.pens[penType];
         return {
           ...prev,
           money: prev.money - def.buyPrice,
-          pens: {
-            ...prev.pens,
-            [penType]: {
-              ...curPen,
-              animals: [...curPen.animals, newAnimal],
-            },
-          },
+          pens: { ...prev.pens, main: { ...pen, animals: [...pen.animals, newAnimal] } },
         };
       });
 
@@ -928,51 +923,59 @@ export default function App() {
   );
 
   const handleUpgradeCapacity = useCallback(
-    (penType: string) => {
-      const pen = state.pens[penType];
-      if (!pen) return;
+    () => {
+      const pen = state.pens['main'] || { id: 'main', capacity: 10, waterTrough: 100, cleanliness: 100, animals: [] };
       const cost = 150 + pen.capacity * 40;
 
       if (state.money < cost) {
-        showToast(`Không đủ tiền vàng! Cần ${cost} vàng để mở rộng thêm chỗ.`);
+        showToast(`Không đủ tiền vàng! Cần ${cost} vàng để mở rộng.`);
         return;
       }
 
       sound.playPop();
       setState((prev) => {
-        const curPen = prev.pens[penType];
         return {
           ...prev,
           money: prev.money - cost,
-          pens: {
-            ...prev.pens,
-            [penType]: {
-              ...curPen,
-              capacity: curPen.capacity + 2,
-            },
-          },
+          pens: { ...prev.pens, main: { ...pen, capacity: pen.capacity + 2 } },
         };
       });
-      showToast(`Đã mở rộng chuồng thêm +2 ô chứa sức chứa!`);
+      showToast(`Đã mở rộng nhà kho thêm +2 sức chứa!`);
     },
     [state.pens, state.money, showToast]
   );
 
   const handleCleanPen = useCallback(
-    (penType: string) => {
+    () => {
       sound.playWater();
       setState((prev) => {
-        const pen = prev.pens[penType];
+        const pen = prev.pens['main'];
         if (!pen) return prev;
-        return {
-          ...prev,
-          pens: {
-            ...prev.pens,
-            [penType]: { ...pen, cleanliness: 100 },
-          },
-        };
+        return { ...prev, pens: { ...prev.pens, main: { ...pen, cleanliness: 100 } } };
       });
       showToast('Đã quét dọn chuồng trại sạch sẽ tinh tươm!');
+    },
+    [showToast]
+  );
+
+  const handleSellAnimal = useCallback(
+    (animalId: string) => {
+      setState((prev) => {
+        const pen = prev.pens['main'];
+        if (!pen) return prev;
+        const animal = pen.animals.find(a => a.id === animalId);
+        if (!animal) return prev;
+        const def = ANIMALS_CONFIG[animal.type];
+        const sellPrice = Math.floor((def?.buyPrice || 0) / 2);
+        
+        sound.playPop();
+        showToast(`Đã bán ${animal.name} lấy ${sellPrice} vàng!`);
+        return {
+          ...prev,
+          money: prev.money + sellPrice,
+          pens: { ...prev.pens, main: { ...pen, animals: pen.animals.filter(a => a.id !== animalId) } },
+        };
+      });
     },
     [showToast]
   );
@@ -1672,18 +1675,10 @@ export default function App() {
         onFastForward={handleFastForward}
       />
 
-      {/* Navigation Tabs (Hidden on mobile, only bottom bar on mobile) */}
-      <NavigationTabs
-        activeTab={activeTab}
-        onSelectTab={(tab) => {
-          setActiveTab(tab);
-          sound.playClick();
-        }}
-        badges={badges}
-      />
-
       {/* Main Tab Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 pb-28 sm:pb-12">
+        {activeTab === 'hub' && <HubTab onSelectTab={setActiveTab} />}
+        
         {activeTab === 'field' && (
           <FieldTab
             plots={state.plots}
@@ -1718,6 +1713,7 @@ export default function App() {
             onBuyAnimal={handleBuyAnimal}
             onUpgradeCapacity={handleUpgradeCapacity}
             onCleanPen={handleCleanPen}
+            onSellAnimal={handleSellAnimal}
           />
         )}
 
@@ -1758,6 +1754,7 @@ export default function App() {
             onBuySeedsForEmptyPlots={handleBuySeedsForEmptyPlots}
             onBuyAutoIrrigation={handleBuyAutoIrrigation}
             onHireAutoWorker={handleHireAutoWorker}
+            onBuyAnimal={handleBuyAnimal}
             autoIrrigationCost={500}
             autoWorkerCost={300}
           />
@@ -1771,6 +1768,7 @@ export default function App() {
             currentDay={state.currentDay}
             money={state.money}
             playerLevel={1}
+            marketProfiles={state.marketProfiles}
             onDispatchTrip={handleDispatchTrip}
             onBuyVehicle={handleBuyVehicle}
           />
@@ -1780,19 +1778,10 @@ export default function App() {
           <MarketTab
             inventory={state.inventory}
             demandMultipliers={state.demandMultipliers}
-            marketProfiles={state.marketProfiles}
             onDirectSell={handleDirectSell}
           />
         )}
 
-        {activeTab === 'supermarket' && (
-          <SupermarketTab
-            inventory={state.inventory}
-            orders={state.orders}
-            currentDay={state.currentDay}
-            onFulfillOrder={handleFulfillOrder}
-          />
-        )}
 
         {activeTab === 'admin' && (
           <AdminCenterTab
@@ -1840,16 +1829,37 @@ export default function App() {
         />
       )}
 
-      {/* NPC Guide Bác Ba */}
-      <NPCGuide
-        currentDay={state.currentDay}
-        currentSeason={state.currentSeason}
-        weather={state.weather}
-        hasPest={hasPestOnField}
-        hasDryPlots={hasDryPlotsOnField}
-        readyHarvestCount={readyCropsCount}
-        readyAnimalProduce={readyAnimalsCount > 0}
-      />
+      {/* Các nút nổi ở góc dưới phải (Map & NPC Guide) */}
+      <div className="fixed bottom-18 sm:bottom-4 right-3 sm:right-4 z-30 flex flex-col items-end gap-3 pointer-events-none">
+        
+        {/* Nút Quay Về Bản Đồ (Map) */}
+        {activeTab !== 'hub' && (
+          <button
+            onClick={() => {
+              setActiveTab('hub');
+              sound.playClick();
+            }}
+            className="pointer-events-auto bg-[#2E4A35] border border-[#1e3022] text-white p-2.5 sm:p-3 rounded-2xl shadow-lg flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            title="Về Bản Đồ"
+          >
+            <Map size={24} />
+            <span className="text-xs font-bold font-display hidden sm:inline">Về Bản Đồ</span>
+          </button>
+        )}
+
+        {/* NPC Guide Bác Ba */}
+        <div className="pointer-events-auto relative">
+          <NPCGuide
+            currentDay={state.currentDay}
+            currentSeason={state.currentSeason}
+            weather={state.weather}
+            hasPest={hasPestOnField}
+            hasDryPlots={hasDryPlotsOnField}
+            readyHarvestCount={readyCropsCount}
+            readyAnimalProduce={readyAnimalsCount > 0}
+          />
+        </div>
+      </div>
     </div>
   );
 }

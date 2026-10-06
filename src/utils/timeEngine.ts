@@ -194,12 +194,15 @@ export function advanceGameTime(
   // 2. Process Animals with Rancher Perk
   const isRancher = state.startingProfileId === 'rancher';
   const updatedPens = { ...state.pens };
-  Object.keys(updatedPens).forEach((penKey) => {
+    Object.keys(updatedPens).forEach((penKey) => {
     const pen = { ...updatedPens[penKey] };
-    const def = ANIMALS_CONFIG[penKey];
 
+    let deadCount = 0;
     pen.animals = pen.animals.map((animal) => {
       let a = { ...animal };
+      const def = ANIMALS_CONFIG[a.type];
+      if (!def) return a;
+
       if (daysAdvanced > 0) {
         if (def.requiresWater) {
           if (pen.waterTrough >= 20) {
@@ -224,7 +227,17 @@ export function advanceGameTime(
         }
       }
       return a;
+    }).filter((a) => {
+      if (a.daysWithoutFood >= 7) {
+        deadCount++;
+        return false;
+      }
+      return true;
     });
+
+    if (deadCount > 0) {
+      notifications.push(`💀 Tin buồn: ${deadCount} vật nuôi đã chết vì bị bỏ đói quá 7 ngày!`);
+    }
 
     updatedPens[penKey] = pen;
   });

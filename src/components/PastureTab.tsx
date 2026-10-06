@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnimalPen } from '../types/farmSystem';
-import { ANIMALS_CONFIG } from '../config/farmData';
-import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck } from 'lucide-react';
+import { ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
+import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck, DollarSign } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 interface Props {
@@ -9,13 +9,14 @@ interface Props {
   inventory: { itemId: string; quantity: number }[];
   money: number;
   playerLevel: number;
-  onFeedPen: (penType: string) => void;
-  onFillWaterTrough: (penType: string) => void;
-  onCureAnimal: (penType: string, animalId: string) => void;
-  onCollectProduce: (penType: string, e: React.MouseEvent) => void;
-  onBuyAnimal: (penType: string) => void;
-  onUpgradeCapacity: (penType: string) => void;
-  onCleanPen: (penType: string) => void;
+  onFeedPen: () => void;
+  onFillWaterTrough: () => void;
+  onCureAnimal: (animalId: string) => void;
+  onCollectProduce: (e: React.MouseEvent) => void;
+  onBuyAnimal: (animalType: string) => void;
+  onUpgradeCapacity: () => void;
+  onCleanPen: () => void;
+  onSellAnimal: (animalId: string) => void;
 }
 
 export const PastureTab: React.FC<Props> = ({
@@ -30,223 +31,178 @@ export const PastureTab: React.FC<Props> = ({
   onBuyAnimal,
   onUpgradeCapacity,
   onCleanPen,
+  onSellAnimal,
 }) => {
+  const mainPen = pens['main'] || { capacity: 10, animals: [], waterTrough: 100, cleanliness: 100 };
+  const vetMedCount = inventory.find((i) => i.itemId === 'vet_medicine')?.quantity || 0;
+  const upgradeCost = 150 + mainPen.capacity * 40;
+
+  // Calculate ready to harvest
+  const readyAnimals = mainPen.animals.filter(a => a.daysUntilProduce <= 0 && !a.isSick && a.hunger > 20);
+
+  // Calculate required feed
+  const feedNeeded: Record<string, number> = {};
+  mainPen.animals.forEach(a => {
+    const def = ANIMALS_CONFIG[a.type];
+    if (def && def.feedItemId) {
+      feedNeeded[def.feedItemId] = (feedNeeded[def.feedItemId] || 0) + def.feedPerDay;
+    }
+  });
+
+  // Check if we have enough feed
+  let canFeedAll = true;
+  Object.entries(feedNeeded).forEach(([itemId, amount]) => {
+    const inStock = inventory.find(i => i.itemId === itemId)?.quantity || 0;
+    if (inStock < amount) canFeedAll = false;
+  });
+
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
-      
-      {/* Header */}
+      {/* Header Info */}
       <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
-            🐮
+            🏡
           </div>
           <div>
             <h2 className="font-extrabold text-base sm:text-lg text-slate-900 font-display">
-              Khu Chuồng Trại Chăn Nuôi Cozy
+              Chuồng Trại
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Cho ăn, bơm nước máng, dọn vệ sinh chuồng và vuốt ve để đàn vật nuôi vui vẻ cho sản lượng cao nhất
+              Đang nuôi: {mainPen.animals.length}/{mainPen.capacity} con
             </p>
+          </div>
+        </div>
+        <button
+          onClick={onUpgradeCapacity}
+          disabled={money < upgradeCost}
+          className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer ${
+            money >= upgradeCost
+              ? 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'
+              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+          }`}
+        >
+          <Plus size={12} />
+          <span>Mở rộng ({upgradeCost}💰)</span>
+        </button>
+      </div>
+
+      {/* Shared Meters */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="p-3 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-600 flex items-center gap-1.5 font-medium text-xs">
+              <Droplets size={14} className="text-sky-600" />
+              Máng nước: <strong className="font-mono">{mainPen.waterTrough}%</strong>
+            </span>
+            {mainPen.waterTrough < 50 && (
+              <button onClick={onFillWaterTrough} className="px-2 py-0.5 rounded-lg bg-sky-600 text-white font-bold text-[10px] cursor-pointer">Bơm</button>
+            )}
+          </div>
+          <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2">
+            <div className="bg-sky-500 h-1.5 rounded-full" style={{ width: `${mainPen.waterTrough}%` }}></div>
+          </div>
+        </div>
+
+        <div className="p-3 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex flex-col justify-between">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-600 flex items-center gap-1.5 font-medium text-xs">
+              <ShieldCheck size={14} className="text-emerald-700" />
+              Vệ sinh: <strong className="font-mono">{mainPen.cleanliness}%</strong>
+            </span>
+            {mainPen.cleanliness < 70 && (
+              <button onClick={onCleanPen} className="px-2 py-0.5 rounded-lg bg-emerald-700 text-white font-bold text-[10px] cursor-pointer">Dọn</button>
+            )}
+          </div>
+          <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2">
+            <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${mainPen.cleanliness}%` }}></div>
           </div>
         </div>
       </div>
 
-      {/* Pens List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {Object.values(ANIMALS_CONFIG).map((def) => {
-          const pen = pens[def.id] || { capacity: 2, animals: [], waterTrough: 100, cleanliness: 100 };
-          const isUnlocked = playerLevel >= def.unlockLevel;
-          const feedInStock = inventory.find((i) => i.itemId === def.feedItemId)?.quantity || 0;
-          const vetMedCount = inventory.find((i) => i.itemId === 'vet_medicine')?.quantity || 0;
-          const requiredFeed = pen.animals.length * def.feedPerDay;
-          const readyCount = pen.animals.filter((a) => a.daysUntilProduce <= 0).length;
-          const upgradeCost = 150 + pen.capacity * 80;
+      {/* Main Actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onFeedPen()}
+          disabled={!canFeedAll || mainPen.animals.length === 0}
+          className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-xs ${
+            canFeedAll && mainPen.animals.length > 0
+              ? 'bg-[#2E4A35] hover:bg-[#233a29] text-white cursor-pointer'
+              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+          }`}
+        >
+          <div className="flex items-center gap-1"><span>🌾</span> Cho ăn toàn bộ</div>
+          <div className="text-[10px] font-normal opacity-80 flex flex-wrap gap-1 justify-center">
+            {Object.keys(feedNeeded).length === 0 ? '(Chưa cần)' : Object.entries(feedNeeded).map(([id, amt]) => {
+              const inStock = inventory.find(i => i.itemId === id)?.quantity || 0;
+              return <span key={id} className={inStock < amt ? 'text-rose-300 font-bold' : ''}>{ALL_ITEMS_CATALOG[id]?.name}: {amt}</span>;
+            })}
+          </div>
+        </button>
 
-          if (!isUnlocked) {
-            return (
-              <div
-                key={def.id}
-                className="bg-white rounded-3xl border border-[#E8E2D2] p-6 flex flex-col justify-between min-h-[240px] shadow-xs opacity-75"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50 shrink-0">
-                    {def.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-base text-slate-900 font-display">{def.name}</h3>
-                    <p className="text-xs text-amber-800 font-bold mt-1">Mở khóa khi đạt Cấp Độ {def.unlockLevel}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Giá con giống: {def.buyPrice} 💰</p>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2] text-xs text-slate-600 mt-4">
-                  <span className="font-bold">Sản phẩm:</span> {def.produceItemId === 'egg' ? 'Trứng gà' : def.produceItemId === 'milk' ? 'Sữa tươi' : def.produceItemId === 'wool' ? 'Lông cừu' : 'Mật ong'} (chu kỳ {def.produceDays} ngày)
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <div
-              key={def.id}
-              className={`bg-white rounded-3xl border p-5 sm:p-6 flex flex-col justify-between min-h-[280px] shadow-xs transition-all ${
-                readyCount > 0 ? 'border-amber-400 ring-4 ring-amber-400/20' : 'border-[#E8E2D2]'
-              }`}
-            >
-              {/* Pen Title & Capacity */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#F2EFE9]">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl filter drop-shadow-xs">{def.icon}</span>
-                  <div>
-                    <h3 className="font-extrabold text-base text-slate-900 font-display leading-tight">{def.name}</h3>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Đang nuôi: {pen.animals.length}/{pen.capacity} con · Sức chứa tối đa
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  {pen.animals.length < pen.capacity && (
-                    <button
-                      onClick={() => onBuyAnimal(def.id)}
-                      disabled={money < def.buyPrice}
-                      className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95 shadow-xs cursor-pointer ${
-                        money >= def.buyPrice
-                          ? 'bg-[#2E4A35] text-white hover:bg-[#233a29]'
-                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <Plus size={12} />
-                      <span>Mua ({def.buyPrice}💰)</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => onUpgradeCapacity(def.id)}
-                    disabled={money < upgradeCost}
-                    className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
-                    title={`Nâng cấp chuồng +2 chỗ (${upgradeCost}💰)`}
-                  >
-                    +2 Chỗ
-                  </button>
-                </div>
-              </div>
-
-              {/* Water trough & Cleanliness meters */}
-              <div className="grid grid-cols-2 gap-2 my-2.5 text-xs">
-                {def.requiresWater && (
-                  <div className="p-2.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-between">
-                    <span className="text-slate-600 flex items-center gap-1 font-medium">
-                      <Droplets size={13} className="text-sky-600" />
-                      Máng nước: <strong className="font-mono">{pen.waterTrough}%</strong>
-                    </span>
-                    {pen.waterTrough < 50 && (
-                      <button
-                        onClick={() => onFillWaterTrough(def.id)}
-                        className="px-2 py-0.5 rounded-lg bg-sky-600 text-white font-bold text-[10px] cursor-pointer"
-                      >
-                        Bơm
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                <div className="p-2.5 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-between col-span-1">
-                  <span className="text-slate-600 flex items-center gap-1 font-medium">
-                    <ShieldCheck size={13} className="text-emerald-700" />
-                    Vệ sinh: <strong className="font-mono">{pen.cleanliness}%</strong>
-                  </span>
-                  {pen.cleanliness < 70 && (
-                    <button
-                      onClick={() => onCleanPen(def.id)}
-                      className="px-2 py-0.5 rounded-lg bg-emerald-700 text-white font-bold text-[10px] cursor-pointer"
-                    >
-                      Dọn
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Animals Grid with Cute Expressions */}
-              <div className="my-2 bg-[#FBF9F5] rounded-2xl p-3 border border-[#EFECE1] min-h-[90px] flex items-center justify-around flex-wrap gap-2">
-                {pen.animals.length === 0 ? (
-                  <span className="text-xs text-slate-400 italic">Chuồng trống. Hãy mua con giống để bắt đầu nuôi!</span>
-                ) : (
-                  pen.animals.map((animal) => (
-                    <div
-                      key={animal.id}
-                      className="flex flex-col items-center p-2 rounded-xl bg-white border border-[#E8E2D2] shadow-xs relative"
-                    >
-                      <span className="text-3xl filter drop-shadow-xs animate-bounce-slight">{def.icon}</span>
-                      <span className="text-[10px] font-bold text-slate-800 mt-1">{animal.name}</span>
-
-                      {/* Mood / Expression */}
-                      <span className="text-xs mt-0.5">
-                        {animal.isSick ? '🤒 Ốm' : animal.hunger < 20 ? '🥺 Đói' : animal.happiness > 70 ? '😊 Vui' : '😐 Bình thường'}
-                      </span>
-
-                      {/* Sick medicine cure action */}
-                      {animal.isSick && (
-                        <button
-                          onClick={() => onCureAnimal(def.id, animal.id)}
-                          className="mt-1 px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold flex items-center gap-0.5 cursor-pointer animate-pulse"
-                          title="Chữa bệnh bằng thuốc thú y"
-                        >
-                          <Pill size={9} /> Chữa ({vetMedCount})
-                        </button>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Actions: Feed and Harvest Produce */}
-              <div className="pt-2 border-t border-[#F2EFE9] flex items-center justify-between gap-2">
-                {readyCount > 0 ? (
-                  <button
-                    onClick={(e) => onCollectProduce(def.id, e)}
-                    className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer animate-pulse-gentle"
-                  >
-                    <span>{def.produceItemId === 'egg' ? '🥚' : def.produceItemId === 'milk' ? '🥛' : def.produceItemId === 'wool' ? '🧶' : '🍯'}</span>
-                    <span>Thu hoạch sản vật ({readyCount} con đã xong)</span>
-                    <Sparkles size={16} />
-                  </button>
-                ) : (
-                  <div className="w-full flex items-center justify-between text-xs">
-                    {def.feedItemId ? (
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <span>Cần:</span>
-                        <strong className="text-slate-900 font-bold">{requiredFeed} thức ăn</strong>
-                        <span className={`text-[11px] font-mono font-bold ${feedInStock >= requiredFeed ? 'text-emerald-700' : 'text-rose-600'}`}>
-                          (Có: {feedInStock})
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-500 italic text-[11px]">Tự hút mật hoa quanh tổ</span>
-                    )}
-
-                    {def.feedItemId && (
-                      <button
-                        onClick={() => onFeedPen(def.id)}
-                        disabled={feedInStock < requiredFeed || pen.animals.length === 0}
-                        className={`py-2 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 shadow-xs ${
-                          feedInStock >= requiredFeed && pen.animals.length > 0
-                            ? 'bg-[#2E4A35] hover:bg-[#233a29] text-white cursor-pointer'
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                        }`}
-                      >
-                        <span>🌾</span>
-                        <span>Cho ăn cả đàn</span>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        <button
+          onClick={(e) => onCollectProduce(e)}
+          disabled={readyAnimals.length === 0}
+          className={`flex-1 py-3 px-4 rounded-2xl font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-md ${
+            readyAnimals.length > 0
+              ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 cursor-pointer animate-pulse-gentle'
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+          }`}
+        >
+          <div className="flex items-center gap-1"><Sparkles size={14} /> Thu hoạch</div>
+          <span className="text-[10px] font-normal">{readyAnimals.length} con đã sẵn sàng</span>
+        </button>
       </div>
 
+
+      {/* Animal List */}
+      <div className="bg-[#FBF9F5] rounded-3xl p-4 border border-[#EFECE1]">
+        <h3 className="font-bold text-sm text-slate-800 mb-3">Đàn vật nuôi ({mainPen.animals.length})</h3>
+        {mainPen.animals.length === 0 ? (
+          <p className="text-xs text-slate-500 italic text-center py-4">Chuồng trại đang trống. Hãy mua con giống ở cửa hàng nông nghiệp!</p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+            {mainPen.animals.map((animal) => {
+              const def = ANIMALS_CONFIG[animal.type];
+              const sellPrice = Math.floor((def?.buyPrice || 0) / 2);
+              const isReady = animal.daysUntilProduce <= 0 && !animal.isSick && animal.hunger > 20;
+
+              return (
+                <div key={animal.id} className={`flex flex-col items-center p-3 rounded-2xl bg-white border shadow-xs relative ${isReady ? 'border-amber-300 bg-amber-50/30' : 'border-[#E8E2D2]'}`}>
+                  <span className="text-3xl filter drop-shadow-xs">{def?.icon || '❓'}</span>
+                  <span className="text-[10px] font-bold text-slate-800 mt-1 text-center leading-tight">{animal.name}</span>
+                  
+                  {/* Status */}
+                  <span className="text-[10px] mt-0.5">
+                    {animal.isSick ? '🤒 Ốm' : animal.hunger < 20 ? '🥺 Đói' : animal.happiness > 70 ? '😊 Vui vẻ' : '😐 Bình thường'}
+                  </span>
+
+                  {/* Ready Indicator */}
+                  {isReady && <span className="absolute -top-1 -right-1 bg-amber-400 w-3 h-3 rounded-full border border-white animate-pulse"></span>}
+
+                  <div className="flex w-full gap-1 mt-2">
+                    {animal.isSick && (
+                      <button
+                        onClick={() => onCureAnimal(animal.id)}
+                        className="flex-1 py-1 rounded-lg bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center gap-0.5 cursor-pointer animate-pulse"
+                      >
+                        <Pill size={10} /> Chữa
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onSellAnimal(animal.id)}
+                      className="flex-1 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[9px] font-bold flex items-center justify-center gap-0.5 cursor-pointer transition-colors"
+                      title="Bán nhận nửa giá vàng"
+                    >
+                      Bán ({sellPrice}💰)
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

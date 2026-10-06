@@ -423,4 +423,5 @@ export interface FarmGameState {
   // Tài chính & Sổ sách (Phase 3)
   transactions: FinancialTransaction[];
   loans: BankLoan[];
+  creditScore: number;
 }

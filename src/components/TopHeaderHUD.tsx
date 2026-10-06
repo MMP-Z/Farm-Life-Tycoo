@@ -41,11 +41,16 @@ export const TopHeaderHUD: React.FC<Props> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const unlockedFactoriesCount = Object.values(state.factories || {}).filter(f => f.unlocked).length;
+  const totalDebt = (state.loans || []).reduce((sum, l) => sum + l.remainingAmount, 0);
+  const inventoryValue = (state.inventory || []).reduce((sum, item) => sum + (item.quantity * 2), 0);
+  const totalAssets = state.money + (state.plots.length * 50) + inventoryValue + (unlockedFactoriesCount * 500) - totalDebt;
 
   const seasonInfo = SEASON_NAMES[state.currentSeason];
   const weatherInfo = WEATHER_NAMES[state.weather];
   const profileInfo = STARTING_PROFILES_CONFIG[state.startingProfileId] || STARTING_PROFILES_CONFIG.hardworking_farmer;
-  const laborHours = state.laborHours ?? 10;
   const dayPartName = {
     morning: 'Sáng',
     noon: 'Trưa',
@@ -102,14 +107,18 @@ export const TopHeaderHUD: React.FC<Props> = ({
         {/* Group 1: Level, Lịch Ngày & Tiền */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Box 1: Avatar & Level */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] px-2.5 sm:px-3 rounded-2xl border border-[#DFD9C3] shadow-inner shrink-0 whitespace-nowrap">
+          <div 
+            onClick={() => setShowProfileModal(true)}
+            className="h-10 sm:h-11 flex items-center gap-1.5 sm:gap-2 bg-[#F3EFE0] px-2.5 sm:px-3 rounded-2xl border border-[#DFD9C3] shadow-inner shrink-0 whitespace-nowrap cursor-pointer hover:bg-white transition-all active:scale-95"
+            title="Xem hồ sơ cá nhân"
+          >
             <span className="text-xl sm:text-2xl animate-bounce-slight shrink-0">{profileInfo.icon}</span>
             <div className="flex flex-col justify-center leading-none">
               <span className="font-extrabold text-xs sm:text-sm text-slate-900 font-display whitespace-nowrap">
-                ⏳ {laborHours} Giờ công
+                {profileInfo.name}
               </span>
               <span className="text-[9px] sm:text-[10px] text-slate-500 font-mono whitespace-nowrap mt-1">
-                Ngân sách hôm nay
+                Nông dân
               </span>
             </div>
           </div>
@@ -287,6 +296,73 @@ export const TopHeaderHUD: React.FC<Props> = ({
               className="w-full py-2 rounded-2xl bg-[#2E4A35] text-white font-bold text-xs shadow-md mt-1 cursor-pointer active:scale-98"
             >
               Đóng Cài Đặt
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FAF8F2] border-2 border-[#DFD9C3] rounded-3xl p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8E2D2]">
+              <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
+                <span className="text-2xl">{profileInfo.icon}</span>
+                <span>Hồ Sơ Cá Nhân</span>
+              </h3>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 py-4">
+              <div className="text-center space-y-1">
+                <div className="font-black text-xl text-slate-900">{profileInfo.name}</div>
+                <div className="text-sm font-medium text-slate-600">{profileInfo.description}</div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-3 border border-[#DFD9C3] space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-600">Điểm Uy Tín:</span>
+                  <span className="text-lg font-black text-indigo-700">{state.creditScore || 500}</span>
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="text-sm font-bold text-slate-600">Tài Sản Ròng Ước Tính:</span>
+                  <span className="text-lg font-black text-amber-700">{totalAssets.toLocaleString()} 💰</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-3 border border-[#DFD9C3]">
+                <h4 className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Thống kê hoạt động</h4>
+                <div className="space-y-1.5 text-sm font-medium text-slate-700">
+                  <div className="flex justify-between">
+                    <span>Số ngày đã chơi:</span>
+                    <span className="font-bold">{state.stats.daysPlayed} ngày</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tổng doanh thu:</span>
+                    <span className="font-bold text-emerald-600">+{state.stats.totalEarnings.toLocaleString()} 💰</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Lần thu hoạch:</span>
+                    <span className="font-bold text-amber-600">{state.stats.totalHarvests} lần</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Đơn hàng / Chuyến xe:</span>
+                    <span className="font-bold text-blue-600">{state.stats.totalDeliveries} chuyến</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowProfileModal(false)}
+              className="w-full py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm shadow-md transition-all cursor-pointer active:scale-98"
+            >
+              Đóng Hồ Sơ
             </button>
           </div>
         </div>
