@@ -16,7 +16,7 @@ export const FloatingParticles: React.FC<Props> = ({ particles }) => {
         >
           {p.type === 'coin' && (
             <span className="bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full shadow-lg border border-amber-300 flex items-center gap-1">
-              <span>🪙</span>
+              <span>💰</span>
               <span>{p.text}</span>
             </span>
           )}
