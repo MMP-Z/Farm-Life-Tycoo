@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CROPS_CONFIG, ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { ShoppingCart, Sparkles, Tag, Plus, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   money: number;
@@ -37,10 +38,10 @@ export const ShopTab: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
-      {/* Header Banner */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      {/* Header Banner — xếp dọc trên mobile để chip tiền không bị ép */}
+      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner shrink-0">
             🏪
           </div>
           <div>
@@ -54,9 +55,9 @@ export const ShopTab: React.FC<Props> = ({
         </div>
 
         {/* Ví tiền */}
-        <div className="bg-[#FFF9E6] border border-[#F5E6B3] px-3.5 py-1.5 rounded-2xl flex items-center gap-2">
+        <div className="bg-[#FFF9E6] border border-[#F5E6B3] px-3.5 py-1.5 rounded-2xl flex items-center gap-2 self-start sm:self-auto">
           <span className="text-lg">💰</span>
-          <span className="font-mono font-extrabold text-amber-950">{money.toLocaleString()} vàng</span>
+          <span className="font-mono font-extrabold text-amber-950">{formatMoney(money)}</span>
         </div>
       </div>
 
@@ -112,12 +113,12 @@ export const ShopTab: React.FC<Props> = ({
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">Giống {crop.name}</h4>
                         <span className="text-[11px] font-mono text-emerald-800 font-bold">
-                          {crop.seedPrice} 💰 / túi
+                          💰 {formatMoney(crop.seedPrice)} / túi
                         </span>
                       </div>
                     </div>
 
-                    <span className="text-[10px] text-slate-500 font-mono">⏱️ {crop.growDays} ngày</span>
+                    <span className="text-[11px] text-slate-500 font-mono">⏱️ {crop.growDays} ngày</span>
                   </div>
 
                   <p className="text-xs text-slate-500 leading-relaxed my-2">{crop.description}</p>
@@ -127,7 +128,7 @@ export const ShopTab: React.FC<Props> = ({
                     <button
                       onClick={() => onBuyItem(`${crop.id}_seed`, 1, crop.seedPrice)}
                       disabled={!canAffordSingle}
-                      className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                      className={`flex-1 min-h-[40px] py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                         canAffordSingle
                           ? 'bg-[#2E4A35] text-white hover:bg-[#233a29]'
                           : 'bg-slate-200 text-slate-400 cursor-not-allowed'
@@ -140,14 +141,14 @@ export const ShopTab: React.FC<Props> = ({
                       <button
                         onClick={() => onBuySeedsForEmptyPlots(`${crop.id}_seed`, bulkCount, crop.seedPrice)}
                         disabled={!canAffordBulk}
-                        className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                        className={`flex-1 min-h-[40px] py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                           canAffordBulk
                             ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black'
                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
-                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (${bulkCost}💰)`}
+                        title={`Mua đủ hạt cho ${emptyPlotsCount} ô đất trống (${formatMoney(bulkCost)} 💰)`}
                       >
-                        Đủ {bulkCount} ô ({bulkCost}💰)
+                        Đủ {bulkCount} ô (💰 {formatMoney(bulkCost)})
                       </button>
                     )}
                   </div>
@@ -195,7 +196,7 @@ export const ShopTab: React.FC<Props> = ({
                     <span className="text-3xl">{sup.icon}</span>
                     <div>
                       <h4 className="font-extrabold text-sm text-slate-900 font-display">{sup.name}</h4>
-                      <span className="text-xs font-mono text-emerald-800 font-bold">{sup.price} 💰 / lọ</span>
+                      <span className="text-xs font-mono text-emerald-800 font-bold">💰 {formatMoney(sup.price)} / lọ</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed my-2">{sup.desc}</p>
@@ -205,7 +206,7 @@ export const ShopTab: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyItem(sup.id, 1, sup.price)}
                     disabled={!canAfford}
-                    className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                    className={`flex-1 min-h-[40px] py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                       canAfford
                         ? 'bg-[#2E4A35] text-white hover:bg-[#233a29]'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
@@ -217,13 +218,13 @@ export const ShopTab: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyItem(sup.id, 5, sup.price * 5)}
                     disabled={money < sup.price * 5}
-                    className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                    className={`flex-1 min-h-[40px] py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                       money >= sup.price * 5
                         ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
-                    Mua 5 lọ ({sup.price * 5}💰)
+                    Mua 5 lọ (💰 {formatMoney(sup.price * 5)})
                   </button>
                 </div>
               </div>
@@ -244,7 +245,7 @@ export const ShopTab: React.FC<Props> = ({
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 font-display">Hệ Thống Tưới Tự Động Toàn Cánh Đồng</h3>
-                  <span className="text-xs text-sky-800 font-bold font-mono">Chi phí: {autoIrrigationCost} 💰</span>
+                  <span className="text-xs text-sky-800 font-bold font-mono">Chi phí: 💰 {formatMoney(autoIrrigationCost)}</span>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed my-2">
@@ -268,7 +269,7 @@ export const ShopTab: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>Đầu Tư Lắp Đặt ({autoIrrigationCost} 💰)</span>
+                  <span>Đầu Tư Lắp Đặt (💰 {formatMoney(autoIrrigationCost)})</span>
                 </button>
               )}
             </div>
@@ -283,7 +284,7 @@ export const ShopTab: React.FC<Props> = ({
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 font-display">Thuê Nhân Công Chăm Sóc Nông Trại</h3>
-                  <span className="text-xs text-emerald-800 font-bold font-mono">Chi phí: {autoWorkerCost} 💰</span>
+                  <span className="text-xs text-emerald-800 font-bold font-mono">Chi phí: 💰 {formatMoney(autoWorkerCost)}</span>
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed my-2">
@@ -329,12 +330,12 @@ export const ShopTab: React.FC<Props> = ({
                       <div>
                         <h4 className="font-extrabold text-sm text-slate-900 font-display">{def.name}</h4>
                         <span className="text-[11px] font-mono text-amber-800 font-bold">
-                          {def.buyPrice} 💰 / con
+                          💰 {formatMoney(def.buyPrice)} / con
                         </span>
                       </div>
                     </div>
 
-                      <span className="text-[10px] text-slate-500 font-mono">⏱️ {def.produceDays} ngày thu</span>
+                      <span className="text-[11px] text-slate-500 font-mono">⏱️ {def.produceDays} ngày thu</span>
                   </div>
                 </div>
 
@@ -342,7 +343,7 @@ export const ShopTab: React.FC<Props> = ({
                   <button
                     onClick={() => onBuyAnimal(def.id)}
                     disabled={!canAfford}
-                    className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
+                    className={`flex-1 min-h-[40px] py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                       canAfford
                         ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
