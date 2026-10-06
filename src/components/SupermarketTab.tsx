@@ -1,6 +1,7 @@
 import React from 'react';
 import { InventoryItem, OrderItem } from '../types/farmSystem';
 import { Check, Clock, Sparkles } from 'lucide-react';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   inventory: InventoryItem[];
@@ -76,14 +77,14 @@ export const SupermarketTab: React.FC<Props> = ({
                         <span className="text-2xl">{order.customerAvatar}</span>
                         <div>
                           <h4 className="font-bold text-xs sm:text-sm text-slate-900">{order.customerName}</h4>
-                          <span className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
+                          <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
                             <Clock size={10} /> Hạn giao: còn {daysLeft} ngày
                           </span>
                         </div>
                       </div>
 
                       <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                        +{order.rewardMoney} 💰 · +{order.rewardXP} XP
+                        +💰 {formatMoney(order.rewardMoney)} · +{order.rewardXP} XP
                       </span>
                     </div>
 
