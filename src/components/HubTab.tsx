@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameTab } from './NavigationTabs';
-import { Trees, Beef, CookingPot, Store, ShoppingBag, Truck, Package, ShieldCheck, Lock, Coins } from 'lucide-react';
+import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock, Coins } from 'lucide-react';
 
 interface Props {
   onSelectTab: (tab: GameTab) => void;
@@ -23,6 +23,9 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
     { id: 'barn', label: 'Nhà Kho', icon: <Package size={32} className="text-stone-600" />, desc: 'Quản lý vật phẩm', color: 'bg-stone-200 border-stone-400', cost: 0 },
     { id: 'market', label: 'Chợ Làng', icon: <ShoppingBag size={32} className="text-blue-600" />, desc: 'Bán nông sản kiếm lời', color: 'bg-blue-100 border-blue-300', cost: 50 },
     { id: 'pasture', label: 'Khu Chăn Nuôi', icon: <Beef size={32} className="text-amber-600" />, desc: 'Chăm sóc vật nuôi', color: 'bg-amber-100 border-amber-300', cost: 150 },
+    // FIX (P1-1): Siêu Thị & Đơn Hàng Thương Lái từng là tính năng "ma" — code xong
+    // (SupermarketTab, badge, handleFulfillOrder) nhưng không có đường vào UI.
+    { id: 'supermarket', label: 'Siêu Thị', icon: <ShoppingCart size={32} className="text-rose-600" />, desc: 'Đơn hàng số lượng lớn', color: 'bg-rose-100 border-rose-300', cost: 200 },
     { id: 'workshop', label: 'Xưởng Chế Biến', icon: <CookingPot size={32} className="text-orange-600" />, desc: 'Làm bánh, mứt, bơ', color: 'bg-orange-100 border-orange-300', cost: 300 },
     { id: 'transport', label: 'Đội Vận Tải', icon: <Truck size={32} className="text-indigo-600" />, desc: 'Giao hàng đi muôn nơi', color: 'bg-indigo-100 border-indigo-300', cost: 500 },
     { id: 'admin', label: 'Trung Tâm Hành Chính', icon: <ShieldCheck size={32} className="text-slate-600" />, desc: 'Thuế, bảo hiểm', color: 'bg-slate-200 border-slate-400', cost: 1000 },
@@ -66,6 +69,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
           return (
             <button
               key={region.id}
+              data-tutorial={region.id === 'market' ? 'market-region' : undefined}
               onClick={() => handleRegionClick(region.id, region.cost, isLocked)}
               className={`relative flex flex-col items-center justify-center p-4 rounded-3xl border-b-4 transition-transform ${
                 shakeId === region.id ? 'animate-shake-x' : ''
