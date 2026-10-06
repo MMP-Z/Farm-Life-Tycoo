@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameTab } from './NavigationTabs';
-import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock, Coins } from 'lucide-react';
+import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock } from 'lucide-react';
 import { formatMoney } from '../utils/format';
 
 interface Props {
@@ -43,7 +43,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
       setPendingUnlock({ id: regionId, label, cost });
     } else {
       // Phản hồi rõ ràng khi không đủ tiền
-      onNotify?.(`Không đủ vàng! Cần ${formatMoney(cost)} 💰 để mở khóa ${label} (đang có ${formatMoney(money)} 💰).`);
+      onNotify?.(`Không đủ vàng! Cần 💰 ${formatMoney(cost)} để mở khóa ${label} (đang có 💰 ${formatMoney(money)}).`);
       setShakeId(regionId);
       window.setTimeout(() => setShakeId((cur) => (cur === regionId ? null : cur)), 500);
     }
@@ -95,7 +95,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
               <div className={`text-[11px] mt-1 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-600 font-bold' : 'text-rose-500') : 'text-slate-600'}`}>
                 {isLocked ? (
                   <>
-                    <Coins size={12} /> Mở khóa: {region.cost}
+                    Mở khóa: 💰 {formatMoney(region.cost)}
                   </>
                 ) : (
                   region.desc
