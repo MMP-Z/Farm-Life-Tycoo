@@ -3,7 +3,6 @@ import {
   generateRandomSeed,
   generateSeededPlots,
   generateSeededMarketProfiles,
-  generateSeededSeasonalGoals,
 } from './seedEngine';
 import { STARTING_PROFILES_CONFIG } from '../config/variabilityData';
 import { ALL_ITEMS_CATALOG } from '../config/farmData';
@@ -29,8 +28,6 @@ export function createNewFarmWithProfile(
   // Sinh tính cách chợ
   const marketProfiles = generateSeededMarketProfiles(seed, 1);
 
-  // Sinh mục tiêu mùa xuân năm 1
-  const seasonalGoals = generateSeededSeasonalGoals(seed, 'spring', 1);
 
   // Khởi tạo đồ trong kho theo hồ sơ
   const inventory = (profile.bonusItems || []).map((item, idx) => {
@@ -162,8 +159,6 @@ export function createNewFarmWithProfile(
       },
     ],
 
-    seasonalGoals,
-
     activeEvent: null,
     completedEventDays: [],
 
@@ -245,7 +240,6 @@ export function parseFarmState(parsed: any): FarmGameState {
     });
 
     const marketProfiles = parsed.marketProfiles || generateSeededMarketProfiles(seed, parsed.currentYear || 1);
-    const seasonalGoals = parsed.seasonalGoals || generateSeededSeasonalGoals(seed, parsed.currentSeason || 'spring', parsed.currentYear || 1);
 
     // MIGRATION: Gộp tất cả các chuồng (pens) thành 1 chuồng duy nhất (main)
     let migratedPens = parsed.pens || {};
@@ -285,7 +279,6 @@ export function parseFarmState(parsed: any): FarmGameState {
       startingProfileId: profileId,
       plots: plots.length > 0 ? plots : createInitialFarmState().plots,
       marketProfiles,
-      seasonalGoals,
       difficulty: parsed.difficulty || 'standard',
       insurance: { ...createInitialFarmState().insurance, ...(parsed.insurance || {}) },
       defenses: { ...createInitialFarmState().defenses, ...(parsed.defenses || {}) },

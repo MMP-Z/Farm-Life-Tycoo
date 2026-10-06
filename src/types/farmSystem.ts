@@ -228,24 +228,6 @@ export interface StartingProfile {
   bonusFactories?: string[];
 }
 
-// Lớp 4: Mục tiêu mùa
-export interface SeasonGoal {
-  id: string;
-  season: Season;
-  year: number;
-  title: string;
-  description: string;
-  icon: string;
-  goalType: 'harvest_item' | 'earn_money' | 'deliveries' | 'craft_item';
-  targetItemId?: string;
-  targetAmount: number;
-  currentAmount: number;
-  rewardMoney: number;
-  rewardXP: number;
-  completed: boolean;
-  claimed: boolean;
-}
-
 // Lớp 5: Sự kiện ngẫu nhiên có lựa chọn
 export interface DynamicFarmEventChoice {
   text: string;
@@ -399,9 +381,6 @@ export interface FarmGameState {
   marketProfiles: Record<string, MarketProfile>;
   demandMultipliers: Record<string, number>;
   orders: OrderItem[];
-  
-  // Lớp 4: Mục tiêu mùa
-  seasonalGoals: SeasonGoal[];
   
   // Lớp 5: Chuỗi sự kiện có hệ quả
   activeEvent: DynamicFarmEvent | null;

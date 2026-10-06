@@ -2,7 +2,6 @@ import { FarmGameState, Season, WeatherType } from '../types/farmSystem';
 import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG } from '../config/farmData';
 import { SOIL_CONFIG } from '../config/variabilityData';
 import {
-  generateSeededSeasonalGoals,
   generateSeededMarketProfiles,
   checkDailyDynamicEvent,
 } from './seedEngine';
@@ -60,7 +59,6 @@ export function advanceGameTime(
   let currentDay = state.currentDay + daysAdvanced;
   let currentSeason = state.currentSeason;
   let currentYear = state.currentYear;
-  let seasonalGoals = state.seasonalGoals || [];
   let marketProfiles = state.marketProfiles;
   let pendingTaxes = [...(state.pendingTaxes || [])];
 
@@ -87,9 +85,6 @@ export function advanceGameTime(
         } năm thứ ${currentYear}!`
       );
 
-      // Sinh mục tiêu mùa mới (Lớp 4)
-      seasonalGoals = generateSeededSeasonalGoals(state.worldSeed, newSeason, currentYear);
-      notifications.push('🎯 Làng đã đưa ra Mục Tiêu Mùa Vụ mới! Hãy kiểm tra để nhận thưởng lớn.');
 
       // Mỗi năm mới, thị trường các chợ dịch chuyển thị hiếu (Lớp 2)
       if (newYear !== state.currentYear) {
@@ -345,7 +340,6 @@ export function advanceGameTime(
     inventory,
     demandMultipliers,
     marketProfiles: marketProfiles || state.marketProfiles,
-    seasonalGoals,
     pendingTaxes,
     loans: updatedLoans,
     activeEvent,

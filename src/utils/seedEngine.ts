@@ -4,7 +4,6 @@ import {
   SpecialPlotFeature,
   MarketProfile,
   MarketTraitId,
-  SeasonGoal,
   DynamicFarmEvent,
   Season,
 } from '../types/farmSystem';
@@ -12,7 +11,6 @@ import {
   SOIL_CONFIG,
   SOIL_CROP_MULTIPLIERS,
   MARKET_TRAITS_CONFIG,
-  SEASONAL_GOALS_POOL,
   DYNAMIC_EVENTS_POOL,
   makeRng,
   hashString,
@@ -153,47 +151,6 @@ export function generateSeededMarketProfiles(
   });
 
   return profiles;
-}
-
-// ==========================================
-// 3. SINH MỤC TIÊU MÙA VỤ THEO SEED (LỚP 4)
-// ==========================================
-export function generateSeededSeasonalGoals(
-  worldSeed: string,
-  season: Season,
-  year: number
-): SeasonGoal[] {
-  const rng = makeRng(hashString(`${worldSeed}:goals:${season}:y${year}`));
-  const pool = SEASONAL_GOALS_POOL[season] || SEASONAL_GOALS_POOL.spring;
-
-  // Chọn 2 mục tiêu khác nhau từ pool
-  const chosenIndices: number[] = [];
-  while (chosenIndices.length < Math.min(2, pool.length)) {
-    const nextIdx = Math.floor(rng() * pool.length);
-    if (!chosenIndices.includes(nextIdx)) {
-      chosenIndices.push(nextIdx);
-    }
-  }
-
-  return chosenIndices.map((idx, gIdx) => {
-    const goalDef = pool[idx];
-    return {
-      id: `goal_${season}_y${year}_${gIdx}`,
-      season,
-      year,
-      title: goalDef.title,
-      description: goalDef.description,
-      icon: goalDef.icon,
-      goalType: goalDef.goalType,
-      targetItemId: goalDef.targetItemId,
-      targetAmount: goalDef.targetAmount,
-      currentAmount: 0,
-      rewardMoney: goalDef.rewardMoney,
-      rewardXP: goalDef.rewardXP,
-      completed: false,
-      claimed: false,
-    };
-  });
 }
 
 // ==========================================
