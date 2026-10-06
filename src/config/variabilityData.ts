@@ -3,7 +3,6 @@ import {
   SoilDefinition,
   StartingProfile,
   MarketTraitId,
-  SeasonGoal,
   DynamicFarmEvent,
   Season,
 } from '../types/farmSystem';
@@ -236,129 +235,6 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
       { itemId: 'fertilizer', quantity: 5 },
     ],
   },
-};
-
-// ==========================================
-// 4. LỚP 4: MỤC TIÊU MÙA VỤ CỦA LÀNG
-// ==========================================
-export const SEASONAL_GOALS_POOL: Record<
-  Season,
-  {
-    title: string;
-    description: string;
-    icon: string;
-    goalType: 'harvest_item' | 'earn_money' | 'deliveries' | 'craft_item';
-    targetItemId?: string;
-    targetAmount: number;
-    rewardMoney: number;
-    rewardXP: number;
-  }[]
-> = {
-  spring: [
-    {
-      title: 'Lễ Hội Bánh Mì Mùa Xuân',
-      description: 'Làng chuẩn bị tiệc hội hoa xuân, cần bà con cung ứng 25 bó Lúa Mì hảo hạng.',
-      icon: '🌾',
-      goalType: 'harvest_item',
-      targetItemId: 'wheat',
-      targetAmount: 25,
-      rewardMoney: 280,
-      rewardXP: 180,
-    },
-    {
-      title: 'Món Súp Cà Rốt Tươi',
-      description: 'Nhà ăn thiện nguyện thị trấn cần 20 củ Cà Rốt ngọt giòn đầu vụ.',
-      icon: '🥕',
-      goalType: 'harvest_item',
-      targetItemId: 'carrot',
-      targetAmount: 20,
-      rewardMoney: 320,
-      rewardXP: 200,
-    },
-    {
-      title: 'Khởi Đầu Mùa Màng Thuận Lợi',
-      description: 'Đạt doanh số tích lũy 500 vàng từ việc bán nông sản trong Mùa Xuân.',
-      icon: '💰',
-      goalType: 'earn_money',
-      targetAmount: 500,
-      rewardMoney: 250,
-      rewardXP: 150,
-    },
-  ],
-  summer: [
-    {
-      title: 'Mùa Hè Nắng Rực - Bắp Ngô Nướng',
-      description: 'Hội chợ du lịch hè cần thu mua 25 bắp Ngô vàng ươm phục vụ du khách.',
-      icon: '🌽',
-      goalType: 'harvest_item',
-      targetItemId: 'corn',
-      targetAmount: 25,
-      rewardMoney: 350,
-      rewardXP: 220,
-    },
-    {
-      title: 'Giải Nhiệt Trưa Hè - Cà Chua Mọng',
-      description: 'Cung cấp 20 quả Cà Chua tươi mọng làm nước sốt và giải khát cho xóm làng.',
-      icon: '🍅',
-      goalType: 'harvest_item',
-      targetItemId: 'tomato',
-      targetAmount: 20,
-      rewardMoney: 300,
-      rewardXP: 190,
-    },
-    {
-      title: 'Giao Thương Hè Nhộn Nhịp',
-      description: 'Hoàn thành 5 chuyến xe vận tải hoặc đơn hàng chuyển đi các chợ xa.',
-      icon: '🚚',
-      goalType: 'deliveries',
-      targetAmount: 5,
-      rewardMoney: 400,
-      rewardXP: 250,
-    },
-  ],
-  autumn: [
-    {
-      title: 'Lễ Hội Thu Hoạch Bí Ngô Vàng',
-      description: 'Trưng bày mâm cỗ tạ ơn mùa màng với 18 quả Bí Ngô khổng lồ.',
-      icon: '🎃',
-      goalType: 'harvest_item',
-      targetItemId: 'pumpkin',
-      targetAmount: 18,
-      rewardMoney: 420,
-      rewardXP: 260,
-    },
-    {
-      title: 'Bánh Mì Thơm Lừng Mùa Thu',
-      description: 'Xưởng bánh cung cấp 8 ổ Bánh Mì nóng giòn cho cư dân xóm dưới.',
-      icon: '🍞',
-      goalType: 'craft_item',
-      targetItemId: 'bread',
-      targetAmount: 8,
-      rewardMoney: 380,
-      rewardXP: 240,
-    },
-  ],
-  winter: [
-    {
-      title: 'Mứt Dâu Tây Mùa Đông Ấm Áp',
-      description: 'Thu hoạch 20 quả Dâu Tây chín mọng giữa trời lạnh giá.',
-      icon: '🍓',
-      goalType: 'harvest_item',
-      targetItemId: 'strawberry',
-      targetAmount: 20,
-      rewardMoney: 450,
-      rewardXP: 280,
-    },
-    {
-      title: 'Dự Trữ Mùa Đông Sung Túc',
-      description: 'Cán mốc 800 vàng doanh thu trong những ngày mùa đông để đón năm mới.',
-      icon: '🪙',
-      goalType: 'earn_money',
-      targetAmount: 800,
-      rewardMoney: 500,
-      rewardXP: 320,
-    },
-  ],
 };
 
 // ==========================================
