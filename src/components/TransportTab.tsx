@@ -4,6 +4,7 @@ import { VEHICLES_CONFIG, ROUTES_CONFIG, ALL_ITEMS_CATALOG } from '../config/far
 import { MARKET_TRAITS_CONFIG } from '../config/variabilityData';
 import { Truck, MapPin, Package, ArrowRight, Clock, AlertTriangle, Plus, Check } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   ownedVehicles: string[];
@@ -144,7 +145,7 @@ export const TransportTab: React.FC<Props> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1.5 gap-2">
                         <h4 className="font-black text-sm text-slate-900 font-display truncate">{prof.routeName}</h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex-shrink-0">
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex-shrink-0">
                           {traitMeta.icon} {traitMeta.name}
                         </span>
                       </div>
@@ -211,8 +212,8 @@ export const TransportTab: React.FC<Props> = ({
                       <p className="text-[11px] text-slate-500">
                         Chở: {trip.cargo.map((c) => `${c.quantity}x ${c.name}`).join(', ')}
                       </p>
-                      <span className="text-[10px] text-emerald-800 font-mono font-bold">
-                        Dự kiến thu: +{trip.totalEarnings.toLocaleString()} 💰
+                      <span className="text-[11px] text-emerald-800 font-mono font-bold">
+                        Dự kiến thu: +💰 {trip.totalEarnings.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -260,7 +261,7 @@ export const TransportTab: React.FC<Props> = ({
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-3xl">{v.icon}</span>
                     {v.isColdStorage && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         isSelected ? 'bg-sky-800 text-sky-100' : 'bg-sky-100 text-sky-800'
                       }`}>
                         Thùng lạnh
@@ -270,7 +271,7 @@ export const TransportTab: React.FC<Props> = ({
 
                   <h4 className="font-extrabold text-sm leading-tight font-display">{v.name}</h4>
                   <p className="text-xs opacity-80 mt-1">Tải trọng: <strong className="font-mono">{v.capacity} kg</strong></p>
-                  <p className="text-[11px] opacity-75">Chi phí chuyến: {v.cost} 💰</p>
+                  <p className="text-[11px] opacity-75">Chi phí chuyến: 💰 {formatMoney(v.cost)}</p>
                 </div>
 
                 <div className="mt-3 pt-2 border-t border-current/15">
@@ -289,7 +290,7 @@ export const TransportTab: React.FC<Props> = ({
                         money >= v.buyPrice ? 'bg-[#2E4A35] text-white hover:bg-[#233a29]' : 'bg-slate-200 text-slate-400'
                       }`}
                     >
-                      Mua xe ({v.buyPrice} 💰)
+                      Mua xe (💰 {formatMoney(v.buyPrice)})
                     </button>
                   )}
                 </div>
@@ -332,7 +333,7 @@ export const TransportTab: React.FC<Props> = ({
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xl">📍</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                       isSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-emerald-100 text-emerald-800'
                     }`}>
                       {r.priceBonusPercent > 0 ? `+${r.priceBonusPercent}% Giá Bán` : 'Giá Chuẩn'}
@@ -379,7 +380,7 @@ export const TransportTab: React.FC<Props> = ({
                     <span className="text-2xl">{item.icon}</span>
                     <div>
                       <h4 className="font-bold text-xs text-slate-900">{item.name}</h4>
-                      <p className="text-[10px] text-slate-500">Kho: {item.quantity} · Bán: {unitPrice}💰/cái</p>
+                      <p className="text-[11px] text-slate-500">Kho: {item.quantity} · Bán: 💰 {formatMoney(unitPrice)}/cái</p>
                     </div>
                   </div>
 
@@ -408,9 +409,9 @@ export const TransportTab: React.FC<Props> = ({
         {/* Dispatch Action Button */}
         <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-slate-700">
-            <span>Chi phí xe: <strong>{vehicleDef.cost} 💰</strong></span>
+            <span>Chi phí xe: <strong>💰 {formatMoney(vehicleDef.cost)}</strong></span>
             <span className="mx-2">·</span>
-            <span>Doanh thu ước tính: <strong className="text-emerald-700 font-mono font-bold text-sm">+{totalEstimatedEarnings} 💰</strong></span>
+            <span>Doanh thu ước tính: <strong className="text-emerald-700 font-mono font-bold text-sm">+💰 {formatMoney(totalEstimatedEarnings)}</strong></span>
           </div>
 
           <button
