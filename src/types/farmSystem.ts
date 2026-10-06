@@ -180,7 +180,7 @@ export interface InventoryItem {
   isPerishable: boolean;
   daysRemaining: number;
   maxShelfLife: number;
-  category: 'crop' | 'animal_product' | 'processed' | 'supply';
+  category: 'crop' | 'animal_product' | 'processed' | 'supply' | 'seed';
   quality: number;
 }
 
@@ -424,4 +424,5 @@ export interface FarmGameState {
   transactions: FinancialTransaction[];
   loans: BankLoan[];
   creditScore: number;
+  unlockedRegions: string[];
 }

@@ -105,9 +105,12 @@ export const ShopTab: React.FC<Props> = ({
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-3xl filter drop-shadow-xs">{crop.icon}</span>
+                      <div className="flex items-center gap-1 filter drop-shadow-xs">
+                        <span className="text-2xl">🌱</span>
+                        <span className="text-2xl">{crop.icon}</span>
+                      </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-slate-900 font-display">{crop.name}</h4>
+                        <h4 className="font-extrabold text-sm text-slate-900 font-display">Giống {crop.name}</h4>
                         <span className="text-[11px] font-mono text-emerald-800 font-bold">
                           {crop.seedPrice} 💰 / túi
                         </span>

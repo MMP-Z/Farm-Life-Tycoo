@@ -161,8 +161,8 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     plotCount: 6,
     defaultSoil: 'alluvial',
     bonusItems: [
-      { itemId: 'wheat', quantity: 8 },
-      { itemId: 'carrot', quantity: 6 },
+      { itemId: 'wheat_seed', quantity: 8 },
+      { itemId: 'carrot_seed', quantity: 6 },
       { itemId: 'fertilizer', quantity: 4 },
     ],
   },
@@ -179,7 +179,7 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     defaultSoil: 'alluvial',
     bonusPens: [{ penType: 'chicken', animalCount: 2 }],
     bonusItems: [
-      { itemId: 'wheat', quantity: 5 },
+      { itemId: 'wheat_seed', quantity: 5 },
       { itemId: 'vet_medicine', quantity: 2 },
     ],
   },
@@ -196,8 +196,8 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     defaultSoil: 'sandy',
     bonusVehicles: ['wheelbarrow', 'ox_cart'],
     bonusItems: [
-      { itemId: 'wheat', quantity: 4 },
-      { itemId: 'corn', quantity: 4 },
+      { itemId: 'wheat_seed', quantity: 4 },
+      { itemId: 'corn_seed', quantity: 4 },
     ],
   },
   chef: {
@@ -213,7 +213,7 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     defaultSoil: 'clay',
     bonusFactories: ['bakery'],
     bonusItems: [
-      { itemId: 'wheat', quantity: 8 },
+      { itemId: 'wheat_seed', quantity: 8 },
       { itemId: 'bread', quantity: 3 },
     ],
   },
@@ -229,7 +229,7 @@ export const STARTING_PROFILES_CONFIG: Record<string, StartingProfile> = {
     plotCount: 8,
     defaultSoil: 'hill',
     bonusItems: [
-      { itemId: 'strawberry', quantity: 5 },
+      { itemId: 'strawberry_seed', quantity: 5 },
       { itemId: 'fertilizer', quantity: 5 },
     ],
   },

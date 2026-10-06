@@ -206,6 +206,8 @@ export function createNewFarmWithProfile(
       gameSpeed: 1,
       autoSaveIntervalSec: 30,
     },
+    
+    unlockedRegions: ['field', 'shop', 'barn'],
   };
 }
 
@@ -313,6 +315,7 @@ export function parseFarmState(parsed: any): FarmGameState {
       creditScore: parsed.creditScore ?? 500,
       settings: { ...createInitialFarmState().settings, ...(parsed.settings || {}) },
       stats: { ...createInitialFarmState().stats, ...(parsed.stats || {}) },
+      unlockedRegions: parsed.unlockedRegions || ['field', 'shop', 'barn'],
       lastTimestamp: Date.now(), // Override saved timestamp so offline time doesn't jump the clock
     };
 }
@@ -331,10 +334,30 @@ export async function loadCloudFarmState(uid: string): Promise<FarmGameState | n
   }
 }
 
+function sanitizeForFirestore(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeForFirestore);
+  }
+  const result: any = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const val = obj[key];
+      if (val !== undefined) {
+        result[key] = sanitizeForFirestore(val);
+      }
+    }
+  }
+  return result;
+}
+
 export async function saveCloudFarmState(uid: string, state: FarmGameState): Promise<void> {
   try {
     const docRef = doc(db, 'saves', uid);
-    await setDoc(docRef, state);
+    const sanitizedState = sanitizeForFirestore(state);
+    await setDoc(docRef, sanitizedState);
   } catch (e) {
     console.error("Lỗi ghi dữ liệu save lên cloud:", e);
   }

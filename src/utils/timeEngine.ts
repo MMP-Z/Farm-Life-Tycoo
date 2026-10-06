@@ -8,7 +8,7 @@ import {
 } from './seedEngine';
 import { processDailyRisks } from './riskEngine';
 
-export const DAY_REAL_SECONDS = 300; // 5 minutes real time = 1 in-game day
+export const DAY_REAL_SECONDS = 60; // 1 minute real time = 1 in-game day
 export const DAYS_PER_SEASON = 7;
 export const SEASONS_ORDER: Season[] = ['spring', 'summer', 'autumn', 'winter'];
 
@@ -170,8 +170,9 @@ export function advanceGameTime(
         const seasonFactor = isCorrectSeason ? 1.0 : 0.67;
         const moistureFactor = p.moisture > 30 ? 1.0 : 0.5;
         const perkFactor = isHardworking ? 1.15 : 1.0; // Nông dân chăm chỉ lớn nhanh hơn 15%
+        const currentAbsoluteTime = currentDay + newTimeOfDay;
         const effectiveGrowthDays =
-          (currentDay - p.plantedDay) * seasonFactor * moistureFactor * perkFactor;
+          (currentAbsoluteTime - p.plantedDay) * seasonFactor * moistureFactor * perkFactor;
 
         if (effectiveGrowthDays >= crop.growDays) {
           p.state = 'ready';

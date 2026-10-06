@@ -49,7 +49,7 @@ export const FieldTab: React.FC<Props> = ({
   const readyCount = plots.filter((p) => p.state === 'ready').length;
   const dryCount = plots.filter((p) => p.moisture < 30).length;
 
-  const seedInventoryCount = inventory.find((i) => i.itemId === selectedCropId)?.quantity || 0;
+  const seedInventoryCount = inventory.find((i) => i.itemId === `${selectedCropId}_seed`)?.quantity || 0;
   const fertilizerCount = inventory.find((i) => i.itemId === 'fertilizer')?.quantity || 0;
   const pesticideCount = inventory.find((i) => i.itemId === 'pesticide')?.quantity || 0;
 
@@ -108,7 +108,7 @@ export const FieldTab: React.FC<Props> = ({
           {Object.values(CROPS_CONFIG).map((crop) => {
             const isSelected = selectedCropId === crop.id;
             const isSeason = crop.seasons.includes(currentSeason);
-            const inStock = inventory.find((i) => i.itemId === crop.id)?.quantity || 0;
+            const inStock = inventory.find((i) => i.itemId === `${crop.id}_seed`)?.quantity || 0;
 
             return (
               <button
@@ -125,9 +125,12 @@ export const FieldTab: React.FC<Props> = ({
                 }`}
               >
                 <div className="flex flex-col items-center text-center w-full">
-                  <span className="text-2xl sm:text-3xl mb-0.5 filter drop-shadow-xs">{crop.icon}</span>
-                  <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display">
-                    {crop.name}
+                  <div className="flex items-center gap-1 mb-0.5 filter drop-shadow-xs">
+                    <span className="text-xl sm:text-2xl">🌱</span>
+                    <span className="text-xl sm:text-2xl">{crop.icon}</span>
+                  </div>
+                  <span className="font-extrabold text-[11px] sm:text-sm truncate w-full leading-tight font-display" title={`Hạt giống ${crop.name}`}>
+                    Giống {crop.name.split(' ')[0]}
                   </span>
                   <span className={`text-[9px] sm:text-[10px] font-bold mt-0.5 px-1 py-0.2 rounded-md ${
                     isSeason

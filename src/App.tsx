@@ -240,18 +240,7 @@ export default function App() {
 
   // Main Game Clock Engine Loop (runs every 1 second)
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Khi người chơi mở lại tab, đồng bộ mốc thời gian để game không tua nhanh khoảng thời gian tab bị ẩn
-      if (!document.hidden) {
-        setState((prev) => ({ ...prev, lastTimestamp: Date.now() }));
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     const interval = setInterval(() => {
-      // Nếu tab đang bị ẩn/treo ở nền, tạm dừng vòng lặp thời gian
-      if (document.hidden) return;
-
       const now = Date.now();
       setState((prev) => {
         const result = advanceGameTime(prev, now, false);
@@ -289,7 +278,6 @@ export default function App() {
 
     return () => {
       clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [showToast]);
 
@@ -492,7 +480,7 @@ export default function App() {
               ...p,
               state: 'growing' as const,
               cropId,
-              plantedDay: prev.currentDay,
+              plantedDay: prev.currentDay + prev.timeOfDay,
               plantedSeason: prev.currentSeason,
               fertilized: false,
               hasPest: false,
@@ -1450,6 +1438,19 @@ export default function App() {
   // PROGRESSION & QUESTS HANDLERS
   // ==========================================
 
+  const handleUnlockRegion = useCallback((regionId: string, cost: number) => {
+    setState((prev) => {
+      if (prev.money < cost || (prev.unlockedRegions && prev.unlockedRegions.includes(regionId))) return prev;
+      sound.playCoin();
+      showToast(`Đã mở khóa thành công khu vực mới!`);
+      return {
+        ...prev,
+        money: prev.money - cost,
+        unlockedRegions: [...(prev.unlockedRegions || []), regionId],
+      };
+    });
+  }, [showToast]);
+
   const handleClaimSeasonGoal = useCallback(
     (goalId: string, e: React.MouseEvent) => {
       const goal = state.seasonalGoals?.find((g) => g.id === goalId);
@@ -1699,7 +1700,14 @@ export default function App() {
 
       {/* Main Tab Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 pb-28 sm:pb-12">
-        {activeTab === 'hub' && <HubTab onSelectTab={setActiveTab} />}
+        {activeTab === 'hub' && (
+          <HubTab
+            onSelectTab={setActiveTab}
+            unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
+            money={state.money}
+            onUnlockRegion={handleUnlockRegion}
+          />
+        )}
         
         {activeTab === 'field' && (
           <FieldTab

@@ -25,7 +25,7 @@ export const BarnTab: React.FC<Props> = ({
   upgradeCost,
   coldStorageCost,
 }) => {
-  const [filter, setFilter] = useState<'all' | 'crop' | 'animal_product' | 'processed' | 'supply'>('all');
+  const [filter, setFilter] = useState<'all' | 'crop' | 'animal_product' | 'processed' | 'supply' | 'seed'>('all');
 
   const totalItemsCount = inventory.reduce((sum, item) => sum + item.quantity, 0);
   const percentUsed = Math.min(100, Math.floor((totalItemsCount / barnCapacity) * 100));
@@ -110,6 +110,7 @@ export const BarnTab: React.FC<Props> = ({
       <div className="flex items-center gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2] overflow-x-auto no-scrollbar">
         {[
           { id: 'all', label: 'Tất cả đồ' },
+          { id: 'seed', label: '🌱 Hạt giống' },
           { id: 'crop', label: '🌾 Hoa màu tươi' },
           { id: 'animal_product', label: '🥚 Sản phẩm vật nuôi' },
           { id: 'processed', label: '🥖 Thành phẩm chế biến' },
