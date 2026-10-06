@@ -65,6 +65,10 @@ export default function App() {
   const stateRef = useRef(state);
   stateRef.current = state;
 
+  // FIX (bug tua nhanh nhảy 2 ngày): chặn double-click / spam nút tua nhanh.
+  // Mỗi lần bấm chỉ được tính sau khi lần trước đã qua ít nhất 2 giây.
+  const lastFastForwardAt = useRef(0);
+
   // Sound sync
   useEffect(() => {
     sound.setEnabled(state.settings.soundEnabled);
@@ -411,22 +415,38 @@ export default function App() {
     showToast('Đã nộp thuế thành công! Làng xã ghi nhận sự đóng góp của bạn.');
   }, [showToast]);
 
+  // FIX (bug tua nhanh nhảy 2 ngày không ổn định):
+  // - Bản cũ tính fakeNow từ prev.lastTimestamp (stale), nên khi bấm gần thời điểm
+  //   game tự qua ngày (tick 1 giây), 1 lần bấm có thể nhảy 2 buổi sáng.
+  // - Bản mới neo theo wall-clock tại lúc bấm: luôn hạ cánh đúng "sáng hôm sau"
+  //   gần nhất SAU thời điểm thực, kèm debounce 2s chống double-click.
   const handleFastForward = useCallback(() => {
+    const clickNow = Date.now();
+    if (clickNow - lastFastForwardAt.current < 2000) {
+      showToast('Đang tua nhanh, chờ xíu nhé!');
+      return;
+    }
+    lastFastForwardAt.current = clickNow;
     sound.playLevelUp();
     setState((prev) => {
-      const remainingFraction = 1.0 - prev.timeOfDay;
-      const extraMs = remainingFraction * DAY_REAL_SECONDS * 1000 + 100; // Add 100ms buffer to safely cross the day boundary
-      const fakeNow = prev.lastTimestamp + extraMs;
-      
+      // Vị trí thời gian THỰC tại lúc bấm (gồm cả phần đã trôi từ tick cuối)
+      const elapsedDays = (clickNow - prev.lastTimestamp) / (DAY_REAL_SECONDS * 1000);
+      const trueAbsDay = prev.currentDay + prev.timeOfDay + elapsedDays;
+      // Mốc "sáng hôm sau" = ngày nguyên tiếp theo sau thời điểm thực
+      const nextMorning = Math.floor(trueAbsDay + 1e-6) + 1;
+      // Phần ngày còn thiếu để chạm mốc (số lẻ), cộng buffer 300ms cho chắc chắn qua mốc
+      const skipDays = Math.max(0, nextMorning - trueAbsDay);
+      const fakeNow = prev.lastTimestamp + (elapsedDays + skipDays) * DAY_REAL_SECONDS * 1000 + 300;
+
       const result = advanceGameTime(prev, fakeNow, true);
-      
+
       if (result.notifications.length > 0) {
         result.notifications.forEach((msg) => showToast(msg));
       }
-      
+
       return {
         ...result.nextState,
-        lastTimestamp: Date.now()
+        lastTimestamp: clickNow,
       };
     });
     showToast('Đã qua ngày mới! Giờ công đã được hồi phục toàn bộ.');
@@ -1707,6 +1727,7 @@ export default function App() {
             unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
             money={state.money}
             onUnlockRegion={handleUnlockRegion}
+            onNotify={showToast}
           />
         )}
         
