@@ -3,6 +3,7 @@ import { FactoryBuilding } from '../types/farmSystem';
 import { RECIPES_CONFIG } from '../config/farmData';
 import { Play, Sparkles, Lock, ArrowUpCircle, Clock } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   factories: Record<string, FactoryBuilding>;
@@ -73,7 +74,7 @@ export const WorkshopTab: React.FC<Props> = ({
                     <p className="text-[11px] text-slate-500 font-medium mt-1">
                       Sản xuất: {factoryRecipes.map(r => r.name).join(', ')}
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">Chi phí đầu tư xây dựng: {factory.cost} 💰</p>
+                    <p className="text-xs text-slate-500 mt-1">Chi phí đầu tư xây dựng: 💰 {formatMoney(factory.cost)}</p>
                   </div>
                 </div>
 
@@ -86,7 +87,7 @@ export const WorkshopTab: React.FC<Props> = ({
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
-                  <span>Xây Dựng ({factory.cost}💰)</span>
+                  <span>Xây Dựng (💰 {formatMoney(factory.cost)})</span>
                 </button>
               </div>
             );
@@ -113,10 +114,10 @@ export const WorkshopTab: React.FC<Props> = ({
                   onClick={() => onUpgradeQueue(factory.id)}
                   disabled={money < upgradeSlotCost}
                   className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
-                  title={`Thêm 1 slot hàng đợi (${upgradeSlotCost}💰)`}
+                  title={`Thêm 1 slot hàng đợi (${formatMoney(upgradeSlotCost)} 💰)`}
                 >
                   <ArrowUpCircle size={13} />
-                  <span>+1 Slot ({upgradeSlotCost}💰)</span>
+                  <span>+1 Slot (💰 {formatMoney(upgradeSlotCost)})</span>
                 </button>
               </div>
 
@@ -140,7 +141,7 @@ export const WorkshopTab: React.FC<Props> = ({
                             <span className="text-2xl">{recipe.icon}</span>
                             <div>
                               <h4 className="font-bold text-xs text-slate-900">{recipe.name}</h4>
-                              <p className="text-[10px] text-slate-500 font-mono">
+                              <p className="text-[11px] text-slate-500 font-mono">
                                 {task.completed ? 'Đã xong!' : `Tiến độ: ${task.progressPercent}%`}
                               </p>
                             </div>
@@ -213,7 +214,7 @@ export const WorkshopTab: React.FC<Props> = ({
                               return (
                                 <span
                                   key={ing.itemId}
-                                  className={`px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold ${
+                                  className={`px-2 py-0.5 rounded-md border text-[11px] font-mono font-bold ${
                                     hasEnough
                                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                                       : 'bg-rose-50 text-rose-800 border-rose-300'
@@ -228,7 +229,7 @@ export const WorkshopTab: React.FC<Props> = ({
 
                         <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center justify-between">
                           <span className="text-[11px] text-emerald-800 font-mono font-bold">
-                            Bán: ~{recipe.basePrice} 💰
+                            Bán: ~💰 {formatMoney(recipe.basePrice)}
                           </span>
 
                           <button
