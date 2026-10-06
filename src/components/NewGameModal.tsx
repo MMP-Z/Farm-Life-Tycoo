@@ -3,6 +3,7 @@ import { StartingProfileId } from '../types/farmSystem';
 import { STARTING_PROFILES_CONFIG, generateRandomSeed } from '../config/variabilityData';
 import { Dices, Sparkles, X, Check, ArrowRight } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   currentSeed: string;
@@ -111,7 +112,7 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
                           <span className="text-2xl">{profile.icon}</span>
                           <div>
                             <h4 className="font-extrabold text-sm leading-tight font-display">{profile.name}</h4>
-                            <span className={`text-[10px] font-bold ${isSelected ? 'text-amber-300' : 'text-emerald-800'}`}>
+                            <span className={`text-[11px] font-bold ${isSelected ? 'text-amber-300' : 'text-emerald-800'}`}>
                               {profile.style}
                             </span>
                           </div>
@@ -134,8 +135,8 @@ export const NewGameModal: React.FC<Props> = ({ currentSeed, onConfirmNewGame, o
                     }`}>
                       <strong className="block font-bold">✨ {profile.perkName}:</strong>
                       <span>{profile.perkDescription}</span>
-                      <div className="mt-1 flex items-center gap-2 font-mono text-[10px] opacity-80">
-                        <span>💰 {profile.initialMoney} vàng</span>
+                      <div className="mt-1 flex items-center gap-2 font-mono text-[11px] opacity-80">
+                        <span>💰 💰 {formatMoney(profile.initialMoney)}</span>
                         <span>·</span>
                         <span>🌾 {profile.plotCount} ô đất</span>
                       </div>
