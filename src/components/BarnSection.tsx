@@ -135,7 +135,7 @@ export const BarnSection: React.FC<Props> = ({
                 <button
                   onClick={(e) => onSellItem(item.itemId, 1, e)}
                   className="px-2.5 py-1 min-h-[40px] rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 font-semibold text-xs border border-emerald-600/40 cursor-pointer shadow-sm"
-                  title={`Bán 1 cái lấy ${formatMoney(item.sellPrice)} 💰`}
+                  title={`Bán 1 cái lấy 💰 ${formatMoney(item.sellPrice)}`}
                 >
                   Bán 1 (+💰 {formatMoney(item.sellPrice)})
                 </button>
@@ -144,7 +144,7 @@ export const BarnSection: React.FC<Props> = ({
                   <button
                     onClick={(e) => onSellItem(item.itemId, item.count, e)}
                     className="px-2 py-0.5 min-h-[40px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-[11px] border border-amber-400/30 cursor-pointer"
-                    title={`Bán tất cả ${item.count} cái lấy ${formatMoney(item.count * item.sellPrice)} 💰`}
+                    title={`Bán tất cả ${item.count} cái lấy 💰 ${formatMoney(item.count * item.sellPrice)}`}
                   >
                     Bán hết (💰 {formatMoney(item.count * item.sellPrice)})
                   </button>
