@@ -11,6 +11,8 @@ interface Props {
   plots: FieldPlot[];
   currentSeason: Season;
   currentDay: number;
+  timeOfDay: number;
+  isHardworking: boolean;
   money: number;
   inventory: { itemId: string; quantity: number }[];
   onPlowPlot: (plotId: number) => void;
@@ -30,6 +32,8 @@ export const FieldTab: React.FC<Props> = ({
   plots,
   currentSeason,
   currentDay,
+  timeOfDay,
+  isHardworking,
   money,
   inventory,
   onPlowPlot,
@@ -167,7 +171,13 @@ export const FieldTab: React.FC<Props> = ({
             const isCorrectSeason = crop.seasons.includes(currentSeason);
             const seasonFactor = isCorrectSeason ? 1.0 : 0.67;
             const moistureFactor = plot.moisture > 30 ? 1.0 : 0.5;
-            const effectiveDays = (currentDay - plot.plantedDay) * seasonFactor * moistureFactor;
+            // FIX: tính theo thời gian thực (kể cả phần lẻ trong ngày) và perk nông dân,
+            // khớp 100% công thức trong timeEngine — trước đây thanh chỉ nhảy theo ngày chẵn
+            // nên trông như "đứng yên" và chậm hơn thực tế
+            const perkFactor = isHardworking ? 1.15 : 1.0;
+            const currentAbsoluteTime = currentDay + (timeOfDay || 0);
+            const effectiveDays =
+              (currentAbsoluteTime - plot.plantedDay) * seasonFactor * moistureFactor * perkFactor;
             progressPercent = Math.min(100, Math.floor((effectiveDays / crop.growDays) * 100));
             daysLeft = Math.max(0, Math.ceil(crop.growDays - effectiveDays));
           }
