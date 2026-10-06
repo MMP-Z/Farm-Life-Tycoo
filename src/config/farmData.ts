@@ -354,6 +354,12 @@ export const ALL_ITEMS_CATALOG: Record<
   string,
   { name: string; icon: string; category: string; basePrice: number; isPerishable: boolean; shelfLifeDays: number }
 > = {
+  wheat_seed: { name: 'Hạt giống lúa mì', icon: '🌱', category: 'supply', basePrice: 12, isPerishable: false, shelfLifeDays: 999 },
+  carrot_seed: { name: 'Hạt giống cà rốt', icon: '🌱', category: 'supply', basePrice: 8, isPerishable: false, shelfLifeDays: 999 },
+  tomato_seed: { name: 'Hạt giống cà chua', icon: '🌱', category: 'supply', basePrice: 15, isPerishable: false, shelfLifeDays: 999 },
+  corn_seed: { name: 'Hạt giống ngô', icon: '🌱', category: 'supply', basePrice: 14, isPerishable: false, shelfLifeDays: 999 },
+  pumpkin_seed: { name: 'Hạt giống bí ngô', icon: '🌱', category: 'supply', basePrice: 20, isPerishable: false, shelfLifeDays: 999 },
+  strawberry_seed: { name: 'Hạt giống dâu tây', icon: '🌱', category: 'supply', basePrice: 30, isPerishable: false, shelfLifeDays: 999 },
   wheat: { name: 'Lúa mì', icon: '🌾', category: 'crop', basePrice: 6, isPerishable: false, shelfLifeDays: 20 },
   carrot: { name: 'Cà rốt', icon: '🥕', category: 'crop', basePrice: 7, isPerishable: true, shelfLifeDays: 10 },
   tomato: { name: 'Cà chua', icon: '🍅', category: 'crop', basePrice: 8, isPerishable: true, shelfLifeDays: 6 },

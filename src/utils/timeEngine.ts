@@ -213,6 +213,9 @@ export function advanceGameTime(
           }
         }
 
+        // Vật nuôi sẽ bị giảm độ no mỗi ngày
+        a.hunger = Math.max(0, a.hunger - 25 * daysAdvanced);
+
         if (a.hunger > 20 && (!def.requiresWater || a.thirst > 20)) {
           const produceAdvance = isRancher ? Math.max(1, daysAdvanced * 1.25) : daysAdvanced;
           a.daysUntilProduce = Math.max(0, a.daysUntilProduce - produceAdvance);

@@ -259,31 +259,26 @@ export default function App() {
           result.notifications.forEach((msg) => showToast(msg));
         }
 
-        // Check if any transport trips finished and auto-award earnings
-        let awardedCoins = 0;
-        let awardedXP = 0;
+        // Xử lý các chuyến xe đã hoàn thành (timeEngine đã cộng tiền và thêm thông báo)
+        let completedCount = 0;
         const remainingTrips: TransportTrip[] = [];
 
         result.nextState.activeTrips.forEach((trip) => {
-          if (trip.status === 'completed') {
-            awardedCoins += trip.totalEarnings;
-            awardedXP += Math.round(trip.totalEarnings * 0.4);
-            showToast(`🚚 Đội vận tải đã hoàn thành chuyến hàng về tới nông trại! Nhận ${trip.totalEarnings.toLocaleString()} vàng!`);
+          if (trip.status === 'arrived') {
+            completedCount++;
             sound.playTruck();
           } else {
             remainingTrips.push(trip);
           }
         });
 
-        if (awardedCoins > 0) {
+        if (completedCount > 0) {
           return {
             ...result.nextState,
-            money: result.nextState.money + awardedCoins,
             activeTrips: remainingTrips,
             stats: {
               ...result.nextState.stats,
-              totalEarnings: result.nextState.stats.totalEarnings + awardedCoins,
-              totalDeliveries: result.nextState.stats.totalDeliveries + 1,
+              totalDeliveries: result.nextState.stats.totalDeliveries + completedCount,
             },
           };
         }
@@ -483,7 +478,7 @@ export default function App() {
 
       if (!consumeLabor(1)) return;
 
-      const hasSeed = consumeItemFromInventory(cropId, 1);
+      const hasSeed = consumeItemFromInventory(`${cropId}_seed`, 1);
       if (!hasSeed) {
         showToast(`Không đủ hạt giống ${cropDef.name}! Vui lòng vào Cửa Hàng để mua thêm.`);
         return;
@@ -766,12 +761,18 @@ export default function App() {
         }
       });
 
+      // Atomic check: Verify all required feed exists before consuming
       for (const [itemId, amount] of Object.entries(feedNeeded)) {
-        const hasFeed = consumeItemFromInventory(itemId, amount);
-        if (!hasFeed) {
+        const existing = state.inventory.find(i => i.itemId === itemId);
+        if (!existing || existing.quantity < amount) {
           showToast(`Không đủ thức ăn! Cần ${amount}x ${ALL_ITEMS_CATALOG[itemId]?.name || itemId}.`);
           return;
         }
+      }
+
+      // Consume
+      for (const [itemId, amount] of Object.entries(feedNeeded)) {
+        consumeItemFromInventory(itemId, amount);
       }
 
       sound.playAnimal('chicken'); // Just a generic sound
@@ -1235,6 +1236,20 @@ export default function App() {
       const rect = (e.target as HTMLElement).getBoundingClientRect();
       addParticle(rect.left + rect.width / 2, rect.top, `+${totalEarn} 🪙`, 'coin');
       awardXPAndMoney(Math.round(totalEarn * 0.3), totalEarn);
+      
+      // Giảm giá bán (Cung cầu): bán 1 sản phẩm giảm 0.5% giá trị, tối đa giảm xuống còn 40% giá trị gốc.
+      setState((prev) => {
+        const currentDemand = prev.demandMultipliers[itemId] ?? 1.0;
+        const dropRate = quantity * 0.005;
+        const newDemand = Math.max(0.4, currentDemand - dropRate);
+        return {
+          ...prev,
+          demandMultipliers: {
+            ...prev.demandMultipliers,
+            [itemId]: newDemand
+          }
+        };
+      });
 
       showToast(`Đã bán ${quantity} sản phẩm với giá ${totalEarn.toLocaleString()} vàng!`);
     },
@@ -1592,10 +1607,13 @@ export default function App() {
       const freshFarm = createNewFarmWithProfile(profileId, seed);
       setState(freshFarm);
       saveFarmState(freshFarm);
+      if (user) {
+        saveCloudFarmState(user.uid, freshFarm);
+      }
       setShowNewGameModal(false);
       showToast(`Đã khởi tạo trang trại mới với Seed: ${freshFarm.worldSeed}!`);
     },
-    [showToast]
+    [showToast, user]
   );
 
   // ==========================================
@@ -1668,6 +1686,10 @@ export default function App() {
         }}
         onLoadImportedState={(loaded) => {
           setState(loaded);
+          saveFarmState(loaded);
+          if (user) {
+            saveCloudFarmState(user.uid, loaded);
+          }
           showToast('Nạp dữ liệu game thành công!');
         }}
         onShowToast={showToast}

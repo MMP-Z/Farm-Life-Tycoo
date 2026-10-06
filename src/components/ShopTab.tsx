@@ -122,7 +122,7 @@ export const ShopTab: React.FC<Props> = ({
 
                   <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
                     <button
-                      onClick={() => onBuyItem(crop.id, 1, crop.seedPrice)}
+                      onClick={() => onBuyItem(`${crop.id}_seed`, 1, crop.seedPrice)}
                       disabled={!canAffordSingle}
                       className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                         canAffordSingle
@@ -135,7 +135,7 @@ export const ShopTab: React.FC<Props> = ({
 
                     {emptyPlotsCount > 1 && (
                       <button
-                        onClick={() => onBuySeedsForEmptyPlots(crop.id, bulkCount, crop.seedPrice)}
+                        onClick={() => onBuySeedsForEmptyPlots(`${crop.id}_seed`, bulkCount, crop.seedPrice)}
                         disabled={!canAffordBulk}
                         className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs transition-all active:scale-95 shadow-xs cursor-pointer ${
                           canAffordBulk
