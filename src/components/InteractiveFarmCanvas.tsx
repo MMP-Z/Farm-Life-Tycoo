@@ -3,6 +3,7 @@ import { CROPS } from '../constants/gameData';
 import { CropId, FarmPlot } from '../types/game';
 import { Droplets, Sparkles, Zap, Plus, Check, RefreshCw } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   plots: FarmPlot[];
@@ -101,7 +102,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   ) : (
                     <>
                       <span className={`font-bold ${isSelected ? 'text-amber-300' : canAfford ? 'text-amber-700' : 'text-rose-500'}`}>
-                        🪙 {crop.buyCost}
+                        💰 {formatMoney(crop.buyCost)}
                       </span>
                       <span className={`opacity-80 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`}>
                         ⏱️ {crop.growTime}s
@@ -187,12 +188,12 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                 <span className="font-mono font-bold text-[11px] opacity-80">Ô đất #{plot.id}</span>
                 <div className="flex items-center gap-1">
                   {plot.watered && (
-                    <span className="bg-sky-500/30 text-sky-200 border border-sky-400/40 px-1.5 py-0.2 rounded-md text-[10px] flex items-center gap-0.5">
+                    <span className="bg-sky-500/30 text-sky-200 border border-sky-400/40 px-1.5 py-0.2 rounded-md text-[11px] flex items-center gap-0.5">
                       <Droplets size={11} /> Ẩm ướt (2x)
                     </span>
                   )}
                   {plot.fertilized && (
-                    <span className="bg-purple-500/30 text-purple-200 border border-purple-400/40 px-1.5 py-0.2 rounded-md text-[10px] flex items-center gap-0.5">
+                    <span className="bg-purple-500/30 text-purple-200 border border-purple-400/40 px-1.5 py-0.2 rounded-md text-[11px] flex items-center gap-0.5">
                       <Sparkles size={11} /> +1 Quả
                     </span>
                   )}
@@ -207,13 +208,13 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                       🌱
                     </span>
                     <span className="text-xs font-bold text-amber-100 mt-1">Đất trống sẵn sàng</span>
-                    <span className="text-[10px] text-amber-300/80">Chạm để gieo {CROPS[selectedCropId].nameVi}</span>
+                    <span className="text-[11px] text-amber-300/80">Chạm để gieo {CROPS[selectedCropId].nameVi}</span>
                   </div>
                 ) : isReady ? (
                   <div className="flex flex-col items-center animate-bounce-slight">
                     <span className="text-5xl filter drop-shadow-lg">{crop?.icon}</span>
                     <span className="text-xs font-black text-amber-300 mt-1.5">{crop?.nameVi} đã chín rộ!</span>
-                    <span className="text-[10px] font-bold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
+                    <span className="text-[11px] font-bold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
                       Chạm để thu hoạch
                     </span>
                   </div>
@@ -231,7 +232,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-amber-200/90 mt-1 tabular-nums font-semibold">
+                    <span className="text-[11px] font-mono text-amber-200/90 mt-1 tabular-nums font-semibold">
                       Còn {remaining}s ({progress}%)
                     </span>
                   </div>
@@ -241,7 +242,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
               {/* Action Buttons for Growing Plot */}
               {plot.cropId && !isReady && (
                 <div
-                  className="w-full flex items-center justify-between gap-1 pt-2 border-t border-white/10 text-[10px]"
+                  className="w-full flex items-center justify-between gap-1 pt-2 border-t border-white/10 text-[11px]"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {!plot.watered && (
@@ -260,7 +261,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                       className="flex-1 py-1.5 px-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer shadow-xs"
                       title="Bón phân nhận thêm +1 sản lượng khi thu hoạch (20 vàng)"
                     >
-                      <Sparkles size={12} /> Phân (20🪙)
+                      <Sparkles size={12} /> Phân (20💰)
                     </button>
                   )}
 
@@ -287,7 +288,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm">Khai Hoang Ô Đất Mới</span>
-            <span className="text-xs text-amber-700 font-mono font-bold mt-1">🪙 {unlockCost} vàng</span>
+            <span className="text-xs text-amber-700 font-mono font-bold mt-1">💰 💰 {formatMoney(unlockCost)}</span>
             <span className="text-[11px] text-slate-500 mt-0.5">Mở rộng thêm diện tích</span>
           </div>
         )}
