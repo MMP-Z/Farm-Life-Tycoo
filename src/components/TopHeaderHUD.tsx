@@ -162,14 +162,6 @@ export const TopHeaderHUD: React.FC<Props> = ({
             </span>
           </div>
 
-          {/* Box 3b: Giờ công */}
-          <div className="h-10 sm:h-11 flex items-center gap-1.5 px-chip px-2.5 sm:px-3 shrink-0 whitespace-nowrap" title="Giờ công lao động (hồi phục khi Tua Nhanh)">
-            <Clock size={16} className="text-slate-600 shrink-0" />
-            <span className="font-mono font-black text-xs sm:text-sm text-slate-800 tabular-nums whitespace-nowrap">
-              {state.laborHours}/10
-            </span>
-          </div>
-
           {/* Box 4: Thời tiết */}
           <div
             className="h-10 sm:h-11 px-2.5 sm:px-3 flex items-center justify-center gap-1 px-chip shrink-0 cursor-pointer hover:bg-white active:scale-95 transition-all whitespace-nowrap"
@@ -187,7 +179,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
             onPointerDown={() => fireFastForward('pointer')}
             onClick={() => fireFastForward('click')}
             className="h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center gap-1.5 bg-[#2E4A35] hover:bg-[#233a29] text-white border border-[#1e3022] rounded-2xl shrink-0 cursor-pointer active:scale-95 transition-all whitespace-nowrap shadow-md touch-manipulation select-none"
-            title="Tua nhanh tới sáng hôm sau để hồi phục Giờ công"
+            title="Tua nhanh tới sáng hôm sau"
           >
             <FastForward size={16} className="shrink-0" />
             <span className="font-bold text-xs hidden md:inline">Tua Nhanh</span>
