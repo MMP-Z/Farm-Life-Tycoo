@@ -67,7 +67,7 @@ export const ShopTab: React.FC<Props> = ({
       </div>
 
       {/* Category selector */}
-      <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2] overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 px-panel rounded-md overflow-x-auto no-scrollbar">
         {[
           { id: 'seeds', label: '🌱 Hạt Giống' },
           { id: 'animals', label: '🐄 Con Giống' },
@@ -80,10 +80,10 @@ export const ShopTab: React.FC<Props> = ({
               setShopCategory(tab.id as typeof shopCategory);
               sound.playClick();
             }}
-            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 ${
+            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 border-[3px] ${
               shopCategory === tab.id
-                ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
+                : 'bg-transparent text-slate-600 hover:text-slate-900 border-transparent'
             }`}
           >
             <RichText text={tab.label} />
@@ -104,8 +104,8 @@ export const ShopTab: React.FC<Props> = ({
             return (
               <div
                 key={crop.id}
-                className={`bg-white rounded-3xl border p-4 sm:p-5 flex flex-col justify-between shadow-xs transition-all ${
-                  isLocked ? 'border-slate-200 opacity-60' : 'border-[#E8E2D2] hover:border-[#2E4A35]'
+                className={`px-panel p-4 sm:p-5 flex flex-col justify-between transition-all ${
+                  isLocked ? 'opacity-60' : ''
                 }`}
               >
                 <div>
