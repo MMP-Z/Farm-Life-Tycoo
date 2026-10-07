@@ -162,6 +162,14 @@ export const TopHeaderHUD: React.FC<Props> = ({
             </span>
           </div>
 
+          {/* Box 3b: Giờ công */}
+          <div className="h-10 sm:h-11 flex items-center gap-1.5 px-chip px-2.5 sm:px-3 shrink-0 whitespace-nowrap" title="Giờ công lao động (hồi phục khi Tua Nhanh)">
+            <Clock size={16} className="text-slate-600 shrink-0" />
+            <span className="font-mono font-black text-xs sm:text-sm text-slate-800 tabular-nums whitespace-nowrap">
+              {state.laborHours}/10
+            </span>
+          </div>
+
           {/* Box 4: Thời tiết */}
           <div
             className="h-10 sm:h-11 px-2.5 sm:px-3 flex items-center justify-center gap-1 px-chip shrink-0 cursor-pointer hover:bg-white active:scale-95 transition-all whitespace-nowrap"

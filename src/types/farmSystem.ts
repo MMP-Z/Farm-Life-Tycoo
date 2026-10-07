@@ -79,6 +79,7 @@ export interface AnimalItem {
   happiness: number;
   daysWithoutFood: number;
   isSick: boolean;
+  sickDays?: number;
   lastFedDay: number;
   daysUntilProduce: number;
 }

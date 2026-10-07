@@ -113,7 +113,7 @@ export const PastureTab: React.FC<Props> = ({
           <div className="flex justify-between items-center">
             <span className="text-slate-600 flex items-center gap-1.5 font-medium text-xs">
               <ShieldCheck size={14} className="text-emerald-700" />
-              Vệ sinh: <strong className="font-mono">{mainPen.cleanliness}%</strong>
+              Vệ sinh: <strong className="font-mono">{mainPen.cleanliness ?? 100}%</strong>
             </span>
             {mainPen.cleanliness < 70 && (
               <button onClick={onCleanPen} className="px-2 py-0.5 rounded-lg bg-emerald-700 text-white font-bold text-[11px] cursor-pointer">Dọn</button>

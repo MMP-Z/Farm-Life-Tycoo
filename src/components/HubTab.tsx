@@ -59,7 +59,7 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
       setPendingUnlock({ id: regionId, label, cost });
     } else {
       // Phản hồi rõ ràng khi không đủ tiền
-      onNotify?.(`Không đủ vàng! Cần <CoinIcon /> ${formatMoney(cost)} để mở khóa ${label} (đang có <CoinIcon /> ${formatMoney(money)}).`);
+      onNotify?.(`Không đủ vàng! Cần 💰 ${formatMoney(cost)} để mở khóa ${label} (đang có 💰 ${formatMoney(money)}).`);
       setShakeId(regionId);
       window.setTimeout(() => setShakeId((cur) => (cur === regionId ? null : cur)), 500);
     }
@@ -177,7 +177,7 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-display font-bold text-lg text-slate-900 mb-2">
-              Mở khóa khu vực?
+              Mở khóa {pendingUnlock.label}?
             </h3>
             <p className="text-sm text-slate-600 mb-5 leading-relaxed">
               Bạn có muốn mở khóa <strong className="text-slate-900">{pendingUnlock.label}</strong> với

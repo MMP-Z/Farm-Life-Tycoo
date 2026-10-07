@@ -55,7 +55,7 @@ export const NPCGuide: React.FC<Props> = ({
   }
 
   return (
-    <div className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-80 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-3.5 border-2 border-amber-300 shadow-xl select-none animate-in fade-in slide-in-from-bottom-3 duration-200">
+    <div className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-80 px-panel p-3 sm:p-3.5 select-none animate-in fade-in slide-in-from-bottom-3 duration-200">
       <div className="flex items-start gap-3">
         <div className="w-11 h-11 rounded-md bg-amber-100 border flex items-center justify-center text-2xl shrink-0 border-[3px] border-[#3a2b3f]">
           <GameIcon e="👨‍🌾" />
