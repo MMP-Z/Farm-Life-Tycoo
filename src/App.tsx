@@ -48,6 +48,7 @@ import { TutorialOverlay } from './components/TutorialOverlay';
 import { HubTab } from './components/HubTab';
 import { MainQuestCard } from './components/MainQuestCard';
 import { MAIN_QUESTS } from './constants/mainQuests';
+import { pickUniqueCustomer } from './constants/customers';
 import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
 import { FarmLevelUpModal } from './components/FarmLevelUpModal';
@@ -1294,18 +1295,20 @@ export default function App() {
       sound.playCoin();
       const rect = (e.target as HTMLElement).getBoundingClientRect();
       addParticle(rect.left + rect.width / 2, rect.top, `+${formatMoney(order.rewardMoney)}`, 'coin');
-      awardXPAndMoney(order.rewardXP, order.rewardMoney);
+      awardXPAndMoney(0, order.rewardMoney);
 
+      const existingNames = state.orders.filter((o) => o.id !== orderId).map((o) => o.customerName);
+      const customer = pickUniqueCustomer(existingNames);
       const newOrders = state.orders
         .filter((o) => o.id !== orderId)
         .concat([
           {
             id: `ord_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-            customerName: 'Bác Ba Quán Phở',
-            customerAvatar: '👨‍🍳',
+            customerName: customer.name,
+            customerAvatar: customer.avatar,
             requirements: [{ itemId: 'wheat', name: 'Lúa mì', icon: '🌾', amount: Math.floor(Math.random() * 4) + 2 }],
             rewardMoney: 45 + Math.floor(Math.random() * 30),
-            rewardXP: 30 + Math.floor(Math.random() * 20),
+            rewardXP: 0,
             deadlineDay: state.currentDay + 5,
             isCompleted: false,
           },

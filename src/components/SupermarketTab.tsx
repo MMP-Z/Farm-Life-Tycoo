@@ -47,16 +47,16 @@ export const SupermarketTab: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             <span className="text-xl"><GameIcon e="📋" /></span>
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
-              Bảng Đơn Hàng Siêu Thị (Thưởng Thêm +30% Tiền & XP)
+              Gian Hàng Siêu Thị (Thưởng Thêm +30% Tiền)
             </h3>
           </div>
-          <span className="text-xs text-slate-500 hidden sm:inline">Yêu cầu chất lượng đồng đều</span>
+          <span className="text-xs text-slate-500 hidden sm:inline">{orders.length} gian hàng đang mở</span>
         </div>
 
         {orders.length === 0 ? (
           <div className="text-center py-8 text-slate-400 text-sm font-medium">Hiện tại không có đơn hàng nào từ siêu thị.</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {orders.map((order) => {
               const daysLeft = Math.max(0, order.deadlineDay - currentDay);
               const isExpired = daysLeft === 0;
@@ -70,28 +70,27 @@ export const SupermarketTab: React.FC<Props> = ({
               return (
                 <div
                   key={order.id}
-                  className={`p-4 rounded-3xl border flex flex-col justify-between transition-all shadow-xs ${
+                  className={`px-panel p-4 flex flex-col justify-between transition-all ${
                     canFulfill
-                      ? 'bg-white border-amber-400 ring-4 ring-amber-400/20'
-                      : 'bg-[#FAF8F2] border-[#E8E2D2]'
+                      ? 'border-amber-400'
+                      : 'opacity-95'
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between pb-2.5 border-b border-[#F2EFE9] mb-3">
-                      <div className="flex items-center gap-2.5">
-                        {CUSTOMER_SPRITES[order.customerAvatar] ? <SpriteIcon src={CUSTOMER_SPRITES[order.customerAvatar]} alt="" size={32} /> : <span className="text-2xl">{order.customerAvatar}</span>}
-                        <div>
-                          <h4 className="font-bold text-xs sm:text-sm text-slate-900">{order.customerName}</h4>
-                          <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
-                            <Clock size={10} /> Hạn giao: còn {daysLeft} ngày
-                          </span>
-                        </div>
-                      </div>
-
-                      <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                        +<CoinIcon /> {formatMoney(order.rewardMoney)} · +{order.rewardXP} XP
+                  {/* Mái gian hàng */}
+                  <div className="flex items-center gap-2.5 pb-3 border-b-2 border-dashed border-[#E8E2D2] mb-3">
+                    <div className="px-panel-inset p-1.5 shrink-0">
+                      {CUSTOMER_SPRITES[order.customerAvatar] ? <SpriteIcon src={CUSTOMER_SPRITES[order.customerAvatar]} alt="" size={36} /> : <span className="text-2xl">{order.customerAvatar}</span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 truncate">{order.customerName}</h4>
+                      <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
+                        <Clock size={10} /> Còn {daysLeft} ngày
                       </span>
                     </div>
+                    <span className="text-xs font-mono font-black text-amber-800 bg-amber-100 px-2 py-1 rounded-md border-2 border-[#3a2b3f] shrink-0">
+                      +<CoinIcon /> {formatMoney(order.rewardMoney)}
+                    </span>
+                  </div>
 
                     {/* Requirements List */}
                     <div className="flex flex-wrap gap-1.5 my-2">
@@ -102,10 +101,10 @@ export const SupermarketTab: React.FC<Props> = ({
                         return (
                           <div
                             key={req.itemId}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono border ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-mono border-2 ${
                               hasEnough
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-600 font-bold'
+                                : 'bg-rose-50 text-rose-700 border-rose-400'
                             }`}
                           >
                             {ITEM_SPRITES[req.itemId]
@@ -120,26 +119,25 @@ export const SupermarketTab: React.FC<Props> = ({
                         );
                       })}
                     </div>
-                  </div>
 
-                  <div className="pt-3 border-t border-[#F2EFE9] mt-2 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
+                  <div className="pt-3 border-t-2 border-dashed border-[#E8E2D2] mt-2 flex items-center justify-between gap-2">
+                    <span className="text-xs text-slate-500 flex-1">
                       {canFulfill ? (
                         <span className="text-emerald-700 font-bold flex items-center gap-1">
-                          <Sparkles size={13} /> Đủ số lượng giao ngay!
+                          <Sparkles size={13} /> Đủ hàng!
                         </span>
                       ) : (
-                        'Chưa đủ nông sản trong kho'
+                        'Chưa đủ hàng'
                       )}
                     </span>
 
                     <button
                       onClick={(e) => onFulfillOrder(order.id, e)}
                       disabled={!canFulfill}
-                      className={`py-2 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs ${
+                      className={`py-2 px-4 font-bold text-xs flex items-center gap-1.5 transition-all ${
                         canFulfill
-                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 cursor-pointer animate-pulse-gentle'
-                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          ? 'px-btn px-btn-amber animate-pulse-gentle'
+                          : 'px-btn px-btn-slate opacity-50 cursor-not-allowed'
                       }`}
                     >
                       <Check size={14} />
