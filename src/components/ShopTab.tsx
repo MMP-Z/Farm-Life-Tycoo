@@ -80,7 +80,7 @@ export const ShopTab: React.FC<Props> = ({
               setShopCategory(tab.id as typeof shopCategory);
               sound.playClick();
             }}
-            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 border-2 min-w-0 ${
+            className={`shrink-0 sm:flex-1 py-2.5 px-3 sm:px-3 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 border-2 ${
               shopCategory === tab.id
                 ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
                 : 'bg-transparent text-slate-600 hover:text-slate-900 border-transparent'
