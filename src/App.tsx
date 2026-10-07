@@ -1339,6 +1339,34 @@ export default function App() {
     [state.orders, state.inventory, state.currentDay, consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
 
+  const handleSkipOrder = useCallback(
+    (orderId: string) => {
+      const order = state.orders.find((o) => o.id === orderId);
+      if (!order) return;
+
+      sound.playPop();
+      const existingNames = state.orders.filter((o) => o.id !== orderId).map((o) => o.customerName);
+      const customer = pickUniqueCustomer(existingNames);
+      const newOrder = {
+        id: `ord_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        customerName: customer.name,
+        customerAvatar: customer.avatar,
+        requirements: [{ itemId: 'wheat', name: 'Lúa mì', icon: '🌾', amount: Math.floor(Math.random() * 4) + 2 }],
+        rewardMoney: 45 + Math.floor(Math.random() * 30),
+        rewardXP: 0,
+        deadlineDay: state.currentDay + 5,
+        isCompleted: false,
+      };
+
+      setState((prev) => ({
+        ...prev,
+        orders: prev.orders.filter((o) => o.id !== orderId).concat([newOrder]),
+      }));
+      showToast(`Đã bỏ đơn của ${order.customerName}. Đơn mới đã đến!`);
+    },
+    [state.orders, state.currentDay, showToast]
+  );
+
   // ==========================================
   // BARN & STORAGE HANDLERS
   // ==========================================
@@ -1856,6 +1884,7 @@ export default function App() {
             orders={state.orders}
             currentDay={state.currentDay}
             onFulfillOrder={handleFulfillOrder}
+            onSkipOrder={handleSkipOrder}
           />
         )}
 

@@ -13,6 +13,7 @@ interface Props {
   orders: OrderItem[];
   currentDay: number;
   onFulfillOrder: (orderId: string, e: React.MouseEvent) => void;
+  onSkipOrder?: (orderId: string) => void;
 }
 
 export const SupermarketTab: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const SupermarketTab: React.FC<Props> = ({
   orders,
   currentDay,
   onFulfillOrder,
+  onSkipOrder,
 }) => {
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
@@ -142,6 +144,15 @@ export const SupermarketTab: React.FC<Props> = ({
                       <Check size={14} />
                       <span>Giao Đơn</span>
                     </button>
+                    {isExpired && onSkipOrder && (
+                      <button
+                        onClick={() => onSkipOrder(order.id)}
+                        className="py-2 px-3 font-bold text-xs flex items-center gap-1 px-btn px-btn-slate"
+                        title="Bỏ đơn hết hạn để nhận đơn mới"
+                      >
+                        <span>Bỏ qua</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
