@@ -126,9 +126,9 @@ export const OrdersBoardSection: React.FC<Props> = ({
       </div>
 
       {/* Orders Board */}
-      <div className="bg-white rounded-3xl p-5 border border-[#EAE6DA] shadow-sm flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="📋" />
           </div>
           <div>
@@ -161,7 +161,7 @@ export const OrdersBoardSection: React.FC<Props> = ({
               {/* Customer Info */}
               <div className="flex items-center justify-between pb-3 border-b border-[#F2EFE9]">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl shadow-inner">
+                  <div className="w-11 h-11 rounded-md bg-amber-50 border flex items-center justify-center text-2xl border-[3px] border-[#3a2b3f]">
                     {CUSTOMER_SPRITES[order.avatarEmoji] ? <SpriteIcon src={CUSTOMER_SPRITES[order.avatarEmoji]} alt={order.customerName} size={36} /> : order.avatarEmoji}
                   </div>
                   <div>

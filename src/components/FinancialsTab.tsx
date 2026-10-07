@@ -44,7 +44,7 @@ export const FinancialsTab: React.FC<Props> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-10">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-amber-200">
+        <div className="w-12 h-12 bg-amber-100 rounded-md flex items-center justify-center text-2xl border border-[3px] border-[#3a2b3f]">
           <GameIcon e="💼" />
         </div>
         <div>
@@ -136,7 +136,7 @@ export const FinancialsTab: React.FC<Props> = ({
             </div>
           </div>
 
-          <div className="bg-white border-2 border-[#E9E4D4] rounded-3xl p-4 sm:p-6 shadow-xs">
+          <div className="px-panel p-4 sm:p-6">
             <h3 className="font-extrabold text-slate-800 mb-4 text-base">Lịch Sử Giao Dịch</h3>
             {transactions.length === 0 ? (
               <div className="text-center py-8 text-slate-400 text-sm font-medium">Chưa có giao dịch nào được ghi nhận.</div>
@@ -211,7 +211,7 @@ export const FinancialsTab: React.FC<Props> = ({
           </div>
 
           {loans.length > 0 && (
-            <div className="bg-white border-2 border-[#E9E4D4] rounded-3xl p-4 sm:p-6 shadow-xs">
+            <div className="px-panel p-4 sm:p-6">
               <h3 className="font-extrabold text-slate-800 mb-4 text-base">Khoản Vay Đang Chờ</h3>
               <div className="space-y-3">
                 {loans.map(loan => (
@@ -236,7 +236,7 @@ export const FinancialsTab: React.FC<Props> = ({
       )}
 
       {activeSubTab === 'tax' && (
-        <div className="bg-white border-2 border-[#E9E4D4] rounded-3xl p-4 sm:p-6 shadow-xs">
+        <div className="px-panel p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <h3 className="font-extrabold text-slate-800 text-lg">Thuế & Phí Làng Cấp</h3>
           </div>

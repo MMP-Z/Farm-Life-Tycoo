@@ -44,9 +44,9 @@ export const ShopTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header Banner — xếp dọc trên mobile để chip tiền không bị ép */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="px-panel p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner shrink-0">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl shrink-0 border-[3px] border-[#3a2b3f]">
             <GameIcon e="🏪" />
           </div>
           <div>
@@ -195,7 +195,7 @@ export const ShopTab: React.FC<Props> = ({
             return (
               <div
                 key={sup.id}
-                className="bg-white rounded-3xl border border-[#E8E2D2] p-5 flex flex-col justify-between shadow-xs hover:border-[#2E4A35] transition-all"
+                className="px-panel p-5 flex flex-col justify-between hover:border-[#2E4A35] transition-all"
               >
                 <div>
                   <div className="flex items-center gap-3 mb-2">
@@ -243,7 +243,7 @@ export const ShopTab: React.FC<Props> = ({
       {shopCategory === 'automation' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Hệ thống tưới tự động */}
-          <div className="bg-white rounded-3xl border border-[#E8E2D2] p-5 sm:p-6 flex flex-col justify-between shadow-xs">
+          <div className="px-panel p-5 sm:p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3.5 mb-2">
                 <div className="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-3xl shadow-inner">
@@ -282,7 +282,7 @@ export const ShopTab: React.FC<Props> = ({
           </div>
 
           {/* Thuê nhân công tự động */}
-          <div className="bg-white rounded-3xl border border-[#E8E2D2] p-5 sm:p-6 flex flex-col justify-between shadow-xs">
+          <div className="px-panel p-5 sm:p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3.5 mb-2">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">

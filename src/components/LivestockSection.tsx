@@ -31,9 +31,9 @@ export const LivestockSection: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Header Banner */}
-      <div className="bg-white rounded-3xl p-5 border border-[#EAE6DA] shadow-sm flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-emerald-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🐮" />
           </div>
           <div>
@@ -76,7 +76,7 @@ export const LivestockSection: React.FC<Props> = ({
             return (
               <div
                 key={cfg.id}
-                className="bg-white rounded-3xl border border-[#EAE6DA] p-5 flex flex-col justify-between min-h-[220px] shadow-sm relative opacity-85"
+                className="px-panel p-5 flex flex-col justify-between min-h-[220px] relative opacity-85"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50">
@@ -124,7 +124,7 @@ export const LivestockSection: React.FC<Props> = ({
               {/* Pen Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
+                  <div className="w-12 h-12 rounded-md bg-emerald-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
                     <GameIcon e={cfg.icon} />
                   </div>
                   <div>

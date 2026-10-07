@@ -45,10 +45,10 @@ export const BarnTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header & Capacity Card */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#E8E2D2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="px-panel p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+            <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
               <GameIcon e="🏡" />
             </div>
             <div>
@@ -141,7 +141,7 @@ export const BarnTab: React.FC<Props> = ({
 
       {/* Inventory Items List */}
       {filteredItems.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-dashed border-[#E8E2D2] p-12 flex flex-col items-center justify-center text-center">
+        <div className="px-panel border-dashed p-12 flex flex-col items-center justify-center text-center">
           <span className="text-5xl mb-2 opacity-50"><GameIcon e="🌾" /></span>
           <p className="font-extrabold text-slate-900 text-base font-display">Không có mặt hàng trong mục này</p>
           <p className="text-xs text-slate-500 mt-1 max-w-sm">
@@ -157,10 +157,10 @@ export const BarnTab: React.FC<Props> = ({
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-3xl border border-[#E8E2D2] p-4 flex items-center justify-between gap-3 shadow-xs hover:border-[#2E4A35] transition-colors"
+                className="px-panel p-4 flex items-center justify-between gap-3 hover:border-[#2E4A35] transition-colors"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FAF8F2] border border-[#E8E2D2] flex items-center justify-center text-3xl shadow-inner shrink-0">
+                  <div className="w-12 h-12 rounded-md bg-[#FAF8F2] border flex items-center justify-center text-3xl shrink-0 border-[3px] border-[#3a2b3f]">
                     {ITEM_SPRITES[item.itemId]
                       ? <SpriteIcon src={ITEM_SPRITES[item.itemId]} alt={item.name} size={36} />
                       : <GameIcon e={item.icon} />}

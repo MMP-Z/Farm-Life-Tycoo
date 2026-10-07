@@ -25,7 +25,7 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
       <div className="max-w-4xl mx-auto w-full p-4 sm:p-6 flex flex-col gap-4">
         
         {/* Thẻ chủ trang trại */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EAE7DD] shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="px-panel p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="w-18 h-18 rounded-3xl bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-amber-300 flex items-center justify-center text-4xl shadow-md shrink-0">
             <GameIcon e="👨‍🌾" />
           </div>
@@ -51,7 +51,7 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
         </div>
 
         {/* Các chứng chỉ nông nghiệp xanh */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-6">
           <h3 className="font-bold text-base text-slate-900 mb-3.5">Chứng Nhận Nông Nghiệp Xanh</h3>
           <div className="flex flex-col gap-2.5 text-xs">
             <div className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#F2EFE9] flex items-center justify-between">
@@ -83,7 +83,7 @@ export const ProfileScreen: React.FC<Props> = ({ soundEnabled, onToggleSound }) 
         </div>
 
         {/* Cài đặt âm thanh & giao diện */}
-        <div className="bg-white rounded-3xl p-6 border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-6">
           <h3 className="font-bold text-base text-slate-900 mb-3.5">Tùy Chọn Trải Nghiệm</h3>
           
           <div className="flex items-center justify-between py-3 border-b border-slate-100 text-xs sm:text-sm">

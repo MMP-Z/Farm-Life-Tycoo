@@ -202,7 +202,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
       {/* Settings Modal */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FAF8F2] border-2 border-[#DFD9C3] rounded-3xl p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="px-panel p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-[#E8E2D2]">
               <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-1.5">
                 <Settings size={18} className="text-amber-800" />
@@ -330,7 +330,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
       {/* Profile Modal */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FAF8F2] border-2 border-[#DFD9C3] rounded-3xl p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="px-panel p-5 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-[#E8E2D2]">
               <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
                 <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={30} />

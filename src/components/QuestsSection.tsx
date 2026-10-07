@@ -77,7 +77,7 @@ export const QuestsSection: React.FC<Props> = ({
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-emerald-950/80 border border-emerald-700/50 flex items-center justify-center text-2xl shadow-inner shrink-0">
+                  <div className="w-11 h-11 rounded-md bg-emerald-950/80 border flex items-center justify-center text-2xl shrink-0 border-[3px] border-[#3a2b3f]">
                     <GameIcon e={quest.icon} />
                   </div>
                   <div>
@@ -153,7 +153,7 @@ export const QuestsSection: React.FC<Props> = ({
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl shadow-inner shrink-0">
+                  <div className="w-11 h-11 rounded-md bg-amber-500/20 border flex items-center justify-center text-2xl shrink-0 border-[3px] border-[#3a2b3f]">
                     <GameIcon e={ach.icon} />
                   </div>
                   <div>

@@ -28,9 +28,9 @@ export const WorkshopSection: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="bg-white rounded-3xl p-5 border border-[#EAE6DA] shadow-sm flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🥖" />
           </div>
           <div>
@@ -71,7 +71,7 @@ export const WorkshopSection: React.FC<Props> = ({
             return (
               <div
                 key={factory.id}
-                className="bg-white rounded-3xl border border-[#EAE6DA] p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm opacity-85"
+                className="px-panel p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 opacity-85"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50 shrink-0">

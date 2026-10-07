@@ -32,9 +32,9 @@ export const WorkshopTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🥖" />
           </div>
           <div>
@@ -63,7 +63,7 @@ export const WorkshopTab: React.FC<Props> = ({
             return (
               <div
                 key={factory.id}
-                className="bg-white rounded-3xl border border-[#E8E2D2] p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs opacity-80"
+                className="px-panel p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 opacity-80"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-4xl opacity-50 shrink-0">
@@ -98,7 +98,7 @@ export const WorkshopTab: React.FC<Props> = ({
           return (
             <div
               key={factory.id}
-              className="bg-white rounded-3xl border border-[#E8E2D2] p-5 sm:p-6 shadow-xs flex flex-col gap-4"
+              className="px-panel p-5 sm:p-6 flex flex-col gap-4"
             >
               {/* Factory Header */}
               <div className="flex items-center justify-between pb-3 border-b border-[#F2EFE9]">
