@@ -123,8 +123,10 @@ export const SupermarketTab: React.FC<Props> = ({
                         <span className="text-emerald-700 font-bold flex items-center gap-1">
                           <Sparkles size={13} /> Đủ hàng!
                         </span>
+                      ) : isExpired ? (
+                        'Đã hết hạn'
                       ) : (
-                        'Chưa đủ hàng'
+                        `Thiếu: ${reqStatus.filter(s => !s.hasEnough).map(s => `${s.req.name} (${s.inStock}/${s.req.amount})`).join(', ') || '?'}` 
                       )}
                     </span>
 
