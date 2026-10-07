@@ -67,7 +67,7 @@ export const ShopTab: React.FC<Props> = ({
       </div>
 
       {/* Category selector */}
-      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 px-panel rounded-md overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 px-panel rounded-md overflow-x-auto no-scrollbar min-w-0">
         {[
           { id: 'seeds', label: '🌱 Hạt Giống' },
           { id: 'animals', label: '🐄 Con Giống' },
@@ -80,7 +80,7 @@ export const ShopTab: React.FC<Props> = ({
               setShopCategory(tab.id as typeof shopCategory);
               sound.playClick();
             }}
-            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 border-[3px] ${
+            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-md text-xs font-bold transition-all whitespace-nowrap cursor-pointer active:scale-95 border-2 min-w-0 ${
               shopCategory === tab.id
                 ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
                 : 'bg-transparent text-slate-600 hover:text-slate-900 border-transparent'

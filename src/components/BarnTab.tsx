@@ -128,7 +128,7 @@ export const BarnTab: React.FC<Props> = ({
               setFilter(tab.id as typeof filter);
               sound.playClick();
             }}
-            className={`min-h-[40px] py-2 px-2 sm:px-3 rounded-md text-xs font-bold transition-all sm:whitespace-nowrap cursor-pointer flex items-center justify-center text-center leading-tight border-[3px] ${
+            className={`min-h-[40px] py-2 px-2 sm:px-3 rounded-md text-xs font-bold transition-all sm:whitespace-nowrap cursor-pointer flex items-center justify-center text-center leading-tight border-2 min-w-0 ${
               filter === tab.id
                 ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
                 : 'text-slate-600 hover:text-slate-900 border-transparent'
