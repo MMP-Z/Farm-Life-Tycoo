@@ -60,12 +60,12 @@ export const SupermarketTab: React.FC<Props> = ({
             {orders.map((order) => {
               const daysLeft = Math.max(0, order.deadlineDay - currentDay);
               const isExpired = daysLeft === 0;
-              const canFulfill =
-                !isExpired &&
-                order.requirements.every((req) => {
-                  const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
-                  return inStock >= req.amount;
-                });
+              // Tính tồn kho 1 lần duy nhất để đảm bảo nhất quán giữa hiển thị và logic
+              const reqStatus = order.requirements.map((req) => {
+                const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
+                return { req, inStock, hasEnough: inStock >= req.amount };
+              });
+              const canFulfill = !isExpired && reqStatus.every((s) => s.hasEnough);
 
               return (
                 <div
@@ -94,10 +94,7 @@ export const SupermarketTab: React.FC<Props> = ({
 
                     {/* Requirements List */}
                     <div className="flex flex-wrap gap-1.5 my-2">
-                      {order.requirements.map((req) => {
-                        const inStock = inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
-                        const hasEnough = inStock >= req.amount;
-
+                      {reqStatus.map(({ req, inStock, hasEnough }) => {
                         return (
                           <div
                             key={req.itemId}
