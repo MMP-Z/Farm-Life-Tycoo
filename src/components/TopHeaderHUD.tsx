@@ -250,9 +250,9 @@ export const TopHeaderHUD: React.FC<Props> = ({
                     <button
                       key={s.speed}
                       onClick={() => onSetGameSpeed(s.speed)}
-                      className={`py-2 rounded-md text-xs font-bold transition-all cursor-pointer border-[3px] ${
+                      className={`py-2 px-1 rounded-md text-xs font-bold transition-all cursor-pointer border-2 min-w-0 ${
                         state.settings.gameSpeed === s.speed
-                          ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
+                          ? 'bg-[#2E4A35] text-white border-[#3a2b3f]'
                           : 'bg-white border-[#3a2b3f] text-slate-700'
                       }`}
                     >
