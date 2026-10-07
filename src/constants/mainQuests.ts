@@ -44,13 +44,16 @@ export const MAIN_QUESTS: MainQuestDef[] = [
   {
     id: 'own_chicken',
     title: 'Người Bạn Đầu Tiên',
-    description: 'Mua 1 con gà về nuôi',
+    description: 'Mua 1 con vật nuôi về chăm sóc',
     targetTab: 'pasture',
     rewardCoins: 40,
     checkProgress: (s) => {
-      const pen = s.pens?.['chicken'];
-      const count = pen?.animals?.length || 0;
-      return { current: Math.min(count, 1), target: 1, done: count >= 1 };
+      // Pens đã migrate gộp thành 'main' — đếm tổng số vật nuôi
+      const totalAnimals = Object.values(s.pens || {}).reduce(
+        (sum, pen: any) => sum + (pen?.animals?.length || 0),
+        0
+      );
+      return { current: Math.min(totalAnimals, 1), target: 1, done: totalAnimals >= 1 };
     },
   },
   {
