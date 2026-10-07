@@ -1,5 +1,5 @@
 import { FarmGameState, Season, WeatherType } from '../types/farmSystem';
-import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG, SEASON_NAMES } from '../config/farmData';
+import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG, SEASON_NAMES, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { SOIL_CONFIG } from '../config/variabilityData';
 import {
   generateSeededMarketProfiles,
@@ -91,19 +91,30 @@ export function advanceGameTime(  state: FarmGameState,
         notifications.push('📈 Xu hướng tiêu dùng tại các chợ đã thay đổi theo năm mới!');
       }
 
-      // Đánh thuế mùa trước (Phase 3)
+      // Đánh thuế mùa trước (Phase 3) — tính theo % tài sản để không quá sốc với người mới
       if (currentDay > 1) { // Không đánh thuế ở ngày 1
-        const taxAmount = 150 + (currentYear * 50) + (state.plots.length * 10);
-        pendingTaxes.push({
-          id: `tax_${Date.now()}`,
-          season: oldSeason,
-          year: state.currentYear,
-          amount: taxAmount,
-          dueDay: currentDay + 5,
-          paid: false,
-          discountPercent: 0
-        });
-        notifications.push(`📜 Làng thông báo thu thuế! Cần nộp ${taxAmount} 💰 thuế ${SEASON_NAMES[oldSeason]?.name || oldSeason} trong 5 ngày tới.`);
+        // Miễn thuế 10 ngày đầu cho người mới
+        const daysPlayed = currentDay - 1;
+        if (daysPlayed <= 10) {
+          notifications.push(`📜 Làng miễn thuế cho nông trại mới trong 10 ngày đầu!`);
+        } else {
+          // Thuế = 10% tiền mặt + 5% giá trị kho, tối thiểu 50, tối đa 2000
+          const inventoryValue = state.inventory.reduce((sum, item) => {
+            const meta = ALL_ITEMS_CATALOG[item.itemId];
+            return sum + (meta?.basePrice || 10) * item.quantity;
+          }, 0);
+          const taxAmount = Math.min(2000, Math.max(50, Math.round(state.money * 0.1 + inventoryValue * 0.05)));
+          pendingTaxes.push({
+            id: `tax_${Date.now()}`,
+            season: oldSeason,
+            year: state.currentYear,
+            amount: taxAmount,
+            dueDay: currentDay + 5,
+            paid: false,
+            discountPercent: 0
+          });
+          notifications.push(`📜 Làng thông báo thu thuế! Cần nộp ${taxAmount} 💰 thuế ${SEASON_NAMES[oldSeason]?.name || oldSeason} trong 5 ngày tới.`);
+        }
       }
     }
   }
@@ -196,6 +207,8 @@ export function advanceGameTime(  state: FarmGameState,
     const pen = { ...updatedPens[penKey] };
 
     let deadCount = 0;
+    let sickDeadCount = 0;
+    let sickDeadNames: string[] = [];
     pen.animals = pen.animals.map((animal) => {
       let a = { ...animal };
       const def = ANIMALS_CONFIG[a.type];
@@ -223,12 +236,28 @@ export function advanceGameTime(  state: FarmGameState,
           a.daysWithoutFood += daysAdvanced;
           a.happiness = Math.max(0, a.happiness - 15 * daysAdvanced);
           if (a.daysWithoutFood >= 4) {
-            a.isSick = true;
+            if (!a.isSick) {
+              a.isSick = true;
+              a.sickDays = 0;
+              notifications.push(`🤒 ${a.name} đã bị ốm! Hãy mua thuốc thú y chữa trị ngay.`);
+            }
+          }
+          // Vật nuôi ốm quá 3 ngày không chữa sẽ chết
+          if (a.isSick) {
+            a.sickDays = (a.sickDays || 0) + daysAdvanced;
+            if (a.sickDays >= 3) {
+              sickDeadCount++;
+              sickDeadNames.push(a.name);
+              return { ...a, _dead: true };
+            }
           }
         }
       }
       return a;
     }).filter((a) => {
+      if ((a as any)._dead) {
+        return false;
+      }
       if (a.daysWithoutFood >= 7) {
         deadCount++;
         return false;
@@ -238,6 +267,9 @@ export function advanceGameTime(  state: FarmGameState,
 
     if (deadCount > 0) {
       notifications.push(`💀 Tin buồn: ${deadCount} vật nuôi đã chết vì bị bỏ đói quá 7 ngày!`);
+    }
+    if (sickDeadCount > 0) {
+      notifications.push(`💀 ${sickDeadNames.join(', ')} đã chết vì bệnh không được chữa trị kịp thời!`);
     }
 
     updatedPens[penKey] = pen;
