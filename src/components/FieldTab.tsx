@@ -272,8 +272,8 @@ export const FieldTab: React.FC<Props> = ({
                         : <span className="text-3xl"><GameIcon e="🌱" /></span>}
                     </span>
                     <span className="text-xs font-bold text-amber-200">Đất đã cày xới</span>
-                    <span className="text-[11px] text-amber-300/90 font-medium">
-                      Gieo {CROPS_CONFIG[selectedCropId]?.name} · {soilFactor.note}
+                    <span className="text-[11px] text-amber-300/90 font-medium leading-tight">
+                      Gieo {CROPS_CONFIG[selectedCropId]?.name}
                     </span>
                   </div>
                 )}
@@ -315,8 +315,8 @@ export const FieldTab: React.FC<Props> = ({
                         : <span className="text-4xl sm:text-5xl"><GameIcon e={crop?.icon} /></span>}
                     </span>
                     <span className="font-black text-xs text-amber-300 font-display">{crop?.name} chín rộ!</span>
-                    <span className="text-[11px] font-extrabold text-emerald-950 bg-amber-400 px-3 py-0.5 rounded-full mt-1 shadow-md">
-                      Thu hoạch ({soilFactor.note})
+                    <span className="text-[11px] font-extrabold text-emerald-950 bg-amber-400 px-2 py-0.5 rounded-md mt-1 shadow-md border-2 border-[#3a2b3f] max-w-full truncate">
+                      Thu hoạch{soilFactor.bonusPercent > 0 ? ` +${soilFactor.bonusPercent}%` : ''}
                     </span>
                   </div>
                 )}
