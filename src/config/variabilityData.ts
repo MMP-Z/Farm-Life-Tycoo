@@ -266,8 +266,8 @@ export const DYNAMIC_EVENTS_POOL: {
         effectType: 'pay_money',
         moneyAmount: 80,
         items: [
-          { itemId: 'strawberry', quantity: 4 },
-          { itemId: 'pumpkin', quantity: 4 },
+          { itemId: 'strawberry_seed', quantity: 4 },
+          { itemId: 'pumpkin_seed', quantity: 4 },
         ],
         toastResult: 'Bạn đã mua được túi hạt giống quý giá từ vị thương nhân du mục!',
       },
