@@ -3,6 +3,7 @@ import { FieldPlot, Season } from '../types/farmSystem';
 import { CROPS_CONFIG } from '../config/farmData';
 import { SOIL_CONFIG } from '../config/variabilityData';
 import { getSoilYieldFactor } from '../utils/seedEngine';
+import { calculateCropGrowth } from '../utils/cropGrowth';
 import { Droplets, Sparkles, Scissors, Shovel, Bug, Plus } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { formatMoney } from '../utils/format';
@@ -181,18 +182,18 @@ export const FieldTab: React.FC<Props> = ({
           let daysLeft = 0;
 
           if (plot.cropId && plot.plantedDay !== null && crop) {
-            const isCorrectSeason = crop.seasons.includes(currentSeason);
-            const seasonFactor = isCorrectSeason ? 1.0 : 0.67;
-            const moistureFactor = plot.moisture > 30 ? 1.0 : 0.5;
-            // FIX: tính theo thời gian thực (kể cả phần lẻ trong ngày) và perk nông dân,
-            // khớp 100% công thức trong timeEngine — trước đây thanh chỉ nhảy theo ngày chẵn
-            // nên trông như "đứng yên" và chậm hơn thực tế
-            const perkFactor = isHardworking ? 1.15 : 1.0;
-            const currentAbsoluteTime = currentDay + (timeOfDay || 0);
-            const effectiveDays =
-              (currentAbsoluteTime - plot.plantedDay) * seasonFactor * moistureFactor * perkFactor;
-            progressPercent = Math.min(100, Math.floor((effectiveDays / crop.growDays) * 100));
-            daysLeft = Math.max(0, Math.ceil(crop.growDays - effectiveDays));
+            // Dùng hàm tính chung với timeEngine — không bao giờ lệch công thức nữa
+            const growth = calculateCropGrowth(
+              plot,
+              plot.cropId,
+              currentDay,
+              timeOfDay || 0,
+              currentSeason,
+              isHardworking,
+              newPlayerBoost
+            );
+            progressPercent = growth.progressPercent;
+            daysLeft = growth.daysLeft;
           }
 
           return (

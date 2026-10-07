@@ -1,11 +1,12 @@
 import { FarmGameState, Season, WeatherType } from '../types/farmSystem';
-import { CROPS_CONFIG, ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG, SEASON_NAMES, ALL_ITEMS_CATALOG } from '../config/farmData';
+import { ANIMALS_CONFIG, VEHICLES_CONFIG, ROUTES_CONFIG, SEASON_NAMES, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { SOIL_CONFIG } from '../config/variabilityData';
 import {
   generateSeededMarketProfiles,
   checkDailyDynamicEvent,
 } from './seedEngine';
 import { processDailyRisks } from './riskEngine';
+import { calculateCropGrowth, isPlotStuck } from './cropGrowth';
 
 export const DAY_REAL_SECONDS = 60; // 1 minute real time = 1 in-game day
 export const DAYS_PER_SEASON = 7;
@@ -162,24 +163,26 @@ export function advanceGameTime(  state: FarmGameState,
       p.moisture = Math.max(50, p.moisture);
     }
 
-    // Growing crops logic
-    if (p.cropId && p.state === 'growing' && p.plantedDay !== null) {
-      const crop = CROPS_CONFIG[p.cropId];
-      if (crop) {
-        const isCorrectSeason = crop.seasons.includes(currentSeason);
-        const seasonFactor = isCorrectSeason ? 1.0 : 0.67;
-        const moistureFactor = p.moisture > 30 ? 1.0 : 0.5;
-        const perkFactor = isHardworking ? 1.15 : 1.0; // Nông dân chăm chỉ lớn nhanh hơn 15%
-        // Boost người mới: 15 phút đầu cây lớn nhanh 50% để tạo cảm giác "đã"
-        const isNewPlayer = Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
-        const newbieFactor = isNewPlayer ? 1.5 : 1.0;
-        const currentAbsoluteTime = currentDay + newTimeOfDay;
-        const effectiveGrowthDays =
-          (currentAbsoluteTime - p.plantedDay) * seasonFactor * moistureFactor * perkFactor * newbieFactor;
-
-        if (effectiveGrowthDays >= crop.growDays) {
-          p.state = 'ready';
-        }
+    // Growing crops logic — dùng hàm tính chung với FieldTab
+    if (p.cropId && p.state === 'growing') {
+      // Tự sửa plot bị kẹt (đang growing nhưng plantedDay null/invalid):
+      // gán lại plantedDay = hiện tại để cây bắt đầu lớn thay vì đứng yên vĩnh viễn
+      if (isPlotStuck(p)) {
+        p.plantedDay = currentDay + newTimeOfDay;
+        notifications.push(`🔧 Ô đất #${p.id} bị lỗi dữ liệu đã được tự động sửa. Cây sẽ lớn bình thường từ bây giờ.`);
+      }
+      const isNewPlayer = Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
+      const growth = calculateCropGrowth(
+        p,
+        p.cropId,
+        currentDay,
+        newTimeOfDay,
+        currentSeason,
+        isHardworking,
+        isNewPlayer
+      );
+      if (growth.isValid && growth.isReady) {
+        p.state = 'ready';
       }
     }
 
