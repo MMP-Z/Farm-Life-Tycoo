@@ -22,7 +22,7 @@ export const AnalyticsScreen: React.FC = () => {
         
         {/* Metric Cards Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="bg-white p-5 rounded-3xl border border-[#EAE7DD] shadow-sm">
+          <div className="px-panel p-5">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng Sản Lượng Thu Hoạch</span>
             <div className="flex items-baseline gap-1.5 my-1.5">
               <span className="text-3xl font-extrabold text-slate-900 font-mono">14,820</span>
@@ -33,7 +33,7 @@ export const AnalyticsScreen: React.FC = () => {
             </span>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-[#EAE7DD] shadow-sm">
+          <div className="px-panel p-5">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Doanh Thu Ước Tính</span>
             <div className="flex items-baseline gap-1.5 my-1.5">
               <span className="text-3xl font-extrabold text-[#1B6634] font-mono">$24,850</span>
@@ -46,7 +46,7 @@ export const AnalyticsScreen: React.FC = () => {
         </div>
 
         {/* Harvest Yield Breakdown */}
-        <div className="bg-white p-6 rounded-3xl border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-6">
           <h3 className="font-bold text-base text-slate-900 mb-4">Sản Lượng Từng Loại Nông Sản</h3>
           <div className="flex flex-col gap-3.5">
             {[
@@ -72,7 +72,7 @@ export const AnalyticsScreen: React.FC = () => {
         </div>
 
         {/* Resource Efficiency */}
-        <div className="bg-white p-6 rounded-3xl border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-6">
           <h3 className="font-bold text-base text-slate-900 mb-4">Chỉ Số Tài Nguyên & Sinh Thái</h3>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="p-4 rounded-2xl bg-[#FAF9F5] border border-[#F2EFE9] flex flex-col items-center">

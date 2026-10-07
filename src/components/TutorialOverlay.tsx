@@ -126,7 +126,7 @@ export const TutorialOverlay: React.FC<Props> = ({ onSelectTab, onDone }) => {
 
       {/* Thẻ hướng dẫn */}
       <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md pointer-events-auto">
-        <div className="bg-white rounded-3xl p-5 shadow-2xl border border-amber-200">
+        <div className="px-panel p-5 shadow-2xl border-amber-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex gap-1.5">
               {STEPS.map((_, i) => (

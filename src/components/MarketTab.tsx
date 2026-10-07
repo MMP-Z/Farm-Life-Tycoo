@@ -25,7 +25,7 @@ export const MarketTab: React.FC<Props> = ({
       {/* Header */}
       <div className="px-panel p-4 sm:p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🏪" />
           </div>
           <div>

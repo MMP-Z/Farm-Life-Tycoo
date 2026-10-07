@@ -42,7 +42,7 @@ export const VillageTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       {/* Cảnh Báo An Ninh & Dự Báo Thời Tiết Sớm */}
       {(!section || section === 'police') && riskAlerts && riskAlerts.length > 0 && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-amber-300 ring-2 ring-amber-300/20 shadow-xs">
+        <div className="px-panel p-4 sm:p-5 border-amber-300 ring-2 ring-amber-300/20">
           <div className="flex items-center gap-2 mb-2.5">
             <AlertTriangle className="text-amber-600 animate-bounce-slight" size={18} />
             <h3 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">

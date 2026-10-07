@@ -98,9 +98,9 @@ export const TransportTab: React.FC<Props> = ({
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       
       {/* Header */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🚚" />
           </div>
           <div>
@@ -189,7 +189,7 @@ export const TransportTab: React.FC<Props> = ({
       )}
       {/* Active Trips on the road */}
       {activeTrips.length > 0 && (
-        <div className="bg-[#FAF8F2] rounded-3xl p-5 border border-[#E8E2D2]">
+        <div className="px-panel p-5">
           <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Truck size={16} className="text-amber-700" />
             <span>Chuyến Hàng Đang Lăn Bánh Trên Đường:</span>
@@ -231,7 +231,7 @@ export const TransportTab: React.FC<Props> = ({
       )}
 
       {/* Step 1: Chọn Xe & Mua Xe Mới */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-5">
         <h3 className="font-extrabold text-sm text-slate-800 mb-3 flex items-center gap-1.5 font-display">
           <span>1. Chọn Phương Tiện Vận Tải:</span>
         </h3>
@@ -303,7 +303,7 @@ export const TransportTab: React.FC<Props> = ({
       </div>
 
       {/* Step 2: Chọn Tuyến Đường / Thị Trường */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-5">
         <h3 className="font-extrabold text-sm text-slate-800 mb-3 flex items-center gap-1.5 font-display">
           <span>2. Chọn Tuyến Đường Đi Chợ:</span>
         </h3>
@@ -352,7 +352,7 @@ export const TransportTab: React.FC<Props> = ({
       </div>
 
       {/* Step 3: Xếp Hàng Hóa Lên Xe & Khởi Hành */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-5">
         <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
           <h3 className="font-extrabold text-sm text-slate-800 font-display">
             3. Xếp Hàng Từ Kho Lên {vehicleDef.name}:

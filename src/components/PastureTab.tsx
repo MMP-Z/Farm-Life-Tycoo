@@ -64,9 +64,9 @@ export const PastureTab: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4 font-sans select-none pb-8">
       {/* Header Info */}
-      <div className="bg-white rounded-3xl p-5 border border-[#E8E2D2] shadow-xs flex items-center justify-between">
+      <div className="px-panel p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-3xl shadow-inner">
+          <div className="w-12 h-12 rounded-md bg-emerald-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
             <GameIcon e="🏡" />
           </div>
           <div>

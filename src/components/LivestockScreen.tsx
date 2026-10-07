@@ -56,7 +56,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
       <div className="max-w-5xl mx-auto w-full p-4 sm:p-6 flex flex-col gap-4">
         
         {/* 1. Thẻ tổng quan đàn gia súc */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-5 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-baseline gap-2">
               <span className="text-4xl sm:text-5xl font-extrabold text-[#1C1C1E] tracking-tight">48</span>
@@ -112,7 +112,7 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
         </div>
 
         {/* 2. Lịch cho ăn hôm nay */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EAE7DD] shadow-sm">
+        <div className="px-panel p-5 sm:p-6">
           <div className="flex items-center justify-between mb-3.5">
             <h2 className="font-bold text-base text-[#1C1C1E]">Lịch cho ăn trong ngày</h2>
             <span className="text-xs font-bold text-[#1B6634] bg-[#D1F2D9] px-3 py-1 rounded-full">
@@ -216,10 +216,10 @@ export const LivestockScreen: React.FC<Props> = ({ onBack }) => {
                 <div
                   key={cow.id}
                   onClick={() => handlePetCow(cow.id)}
-                  className="bg-white rounded-3xl p-4 border border-[#EAE7DD] shadow-sm flex items-center justify-between gap-3 hover:border-emerald-600 transition-all cursor-pointer group"
+                  className="px-panel p-4 flex items-center justify-between gap-3 hover:border-emerald-600 transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-2xl relative shadow-xs">
+                    <div className="w-12 h-12 rounded-md bg-emerald-50 border flex items-center justify-center text-2xl relative shadow-xs border-[3px] border-[#3a2b3f]">
                       <GameIcon e="🐮" />
                       {isPetted && (
                         <Heart size={14} className="text-pink-500 fill-pink-500 absolute -top-1 -right-1 animate-ping" />

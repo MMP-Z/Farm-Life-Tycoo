@@ -44,10 +44,10 @@ export const BarnMarketSection: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Sức chứa kho & Nâng cấp */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EAE6DA] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="px-panel p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-3xl shadow-inner">
+            <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-3xl border-[3px] border-[#3a2b3f]">
               <GameIcon e="🏡" />
             </div>
             <div>
@@ -108,7 +108,7 @@ export const BarnMarketSection: React.FC<Props> = ({
 
       {/* Danh sách vật phẩm */}
       {items.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-dashed border-[#EAE6DA] p-12 flex flex-col items-center justify-center text-center">
+        <div className="px-panel border-dashed p-12 flex flex-col items-center justify-center text-center">
           <span className="text-5xl mb-2 opacity-50"><GameIcon e="🌾" /></span>
           <p className="font-extrabold text-slate-900 text-base">Kho nông sản trống</p>
           <p className="text-xs text-slate-500 mt-1 max-w-sm">
@@ -120,10 +120,10 @@ export const BarnMarketSection: React.FC<Props> = ({
           {items.map((item) => (
             <div
               key={item.itemId}
-              className="bg-white rounded-3xl border border-[#EAE6DA] p-4 flex items-center justify-between gap-3 shadow-xs hover:border-[#234230] transition-colors"
+              className="px-panel p-4 flex items-center justify-between gap-3 hover:border-[#234230] transition-colors"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl shadow-inner">
+                <div className="w-12 h-12 rounded-md bg-amber-50 border flex items-center justify-center text-2xl border-[3px] border-[#3a2b3f]">
                   <GameIcon e={item.icon} />
                 </div>
                 <div>

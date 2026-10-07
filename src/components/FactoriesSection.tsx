@@ -70,7 +70,7 @@ export const FactoriesSection: React.FC<Props> = ({
                 className="bg-[#1a2f20]/90 rounded-2xl border border-emerald-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-black/30 border border-emerald-900/50 flex items-center justify-center text-3xl opacity-60">
+                  <div className="w-12 h-12 rounded-md bg-black/30 border flex items-center justify-center text-3xl opacity-60 border-[3px] border-[#3a2b3f]">
                     <GameIcon e={factory.icon} />
                   </div>
                   <div>

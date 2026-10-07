@@ -59,9 +59,9 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
 
   return (
     <div className="p-4 sm:p-6 pb-24 max-w-4xl mx-auto animation-fade-in">
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-display font-bold text-slate-800">Bản Đồ Nông Trại</h2>
-        <p className="text-sm text-slate-600">Chọn khu vực bạn muốn quản lý</p>
+      <div className="px-titlebar px-4 py-3 mb-6 text-center">
+        <h2 className="text-xl font-display font-bold">Bản Đồ Nông Trại</h2>
+        <p className="text-xs opacity-90 mt-0.5">Chọn khu vực bạn muốn quản lý</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -74,27 +74,27 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
               key={region.id}
               data-tutorial={region.id === 'market' ? 'market-region' : undefined}
               onClick={() => handleRegionClick(region.id, region.cost, isLocked)}
-              className={`relative flex flex-col items-center justify-center p-4 rounded-3xl border-b-4 transition-transform ${
+              className={`px-panel relative flex flex-col items-center justify-center p-4 transition-transform ${
                 shakeId === region.id ? 'animate-shake-x' : ''
               } ${
                 isLocked
-                  ? 'bg-slate-100 border-slate-300 opacity-90'
-                  : `active:scale-95 ${region.color} shadow-sm cursor-pointer`
+                  ? 'opacity-90 cursor-pointer'
+                  : 'active:scale-95 cursor-pointer hover:-translate-y-0.5'
               }`}
             >
               {isLocked && (
-                <div className="absolute top-3 right-3 text-slate-400">
-                  <Lock size={16} />
+                <div className="absolute top-2 right-2 text-slate-400 bg-white/80 rounded-md p-1 border-2 border-[#3a2b3f]">
+                  <Lock size={14} />
                 </div>
               )}
-              
-              <div className={`bg-white p-3 rounded-full mb-3 shadow-inner ${isLocked ? 'grayscale opacity-50' : ''}`}>
+
+              <div className={`px-panel-inset p-2.5 mb-3 flex items-center justify-center ${isLocked ? 'grayscale opacity-50' : ''}`}>
                 {region.icon}
               </div>
-              <span className={`font-bold font-display text-center leading-tight ${isLocked ? 'text-slate-500' : 'text-slate-800'}`}>
+              <span className="font-bold font-display text-center leading-tight text-slate-800 text-sm">
                 {region.label}
               </span>
-              <div className={`text-[11px] mt-1 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-600 font-bold' : 'text-rose-500') : 'text-slate-600'}`}>
+              <div className={`text-[11px] mt-1.5 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-700 font-bold' : 'text-rose-600 font-bold') : 'text-slate-600'}`}>
                 {isLocked ? (
                   <>
                     Mở khóa: <CoinIcon /> {formatMoney(region.cost)}
@@ -115,7 +115,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
           onClick={() => setPendingUnlock(null)}
         >
           <div
-            className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl"
+            className="px-panel p-6 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-display font-bold text-lg text-slate-900 mb-2">
@@ -128,14 +128,14 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
             <div className="flex gap-3">
               <button
                 onClick={() => setPendingUnlock(null)}
-                className="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all active:scale-95"
+                className="flex-1 py-2.5 px-btn px-btn-slate font-bold text-sm"
               >
                 Để sau
               </button>
               <button
                 onClick={confirmUnlock}
                 disabled={money < pendingUnlock.cost}
-                className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40"
+                className="flex-1 py-2.5 px-btn px-btn-green font-bold text-sm disabled:opacity-40"
               >
                 Xác nhận (<CoinIcon /> {formatMoney(pendingUnlock.cost)})
               </button>

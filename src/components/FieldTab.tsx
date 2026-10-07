@@ -104,7 +104,7 @@ export const FieldTab: React.FC<Props> = ({
       </div>
 
       {/* Seed Selection Bar */}
-      <div className="bg-white rounded-3xl p-3 sm:p-5 border border-[#E8E2D2] shadow-xs">
+      <div className="px-panel p-3 sm:p-5">
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
             Chọn Hạt Giống Gieo Trồng:
@@ -362,7 +362,7 @@ export const FieldTab: React.FC<Props> = ({
             onClick={onBuyNewPlot}
             className="rounded-3xl border-2 border-dashed border-emerald-600/50 hover:border-amber-500 bg-emerald-900/5 hover:bg-emerald-900/10 p-4 flex flex-col items-center justify-center min-h-[210px] cursor-pointer transition-all text-center group active:scale-95"
           >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors">
+            <div className="w-12 h-12 rounded-md bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors">
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm font-display">Khai Hoang Ô Đất Mới</span>

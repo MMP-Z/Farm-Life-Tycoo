@@ -56,7 +56,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
     <div className="flex flex-col gap-4">
       
       {/* Seed Selection Bar */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#EAE6DA] shadow-sm">
+      <div className="px-panel p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-xl"><GameIcon e="🌱" /></span>
@@ -83,12 +83,12 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   }
                 }}
                 disabled={isLocked}
-                className={`p-3 rounded-2xl border flex flex-col items-center justify-between text-left transition-all cursor-pointer ${
+                className={`p-3 border-[3px] rounded-md flex flex-col items-center justify-between text-left transition-all cursor-pointer ${
                   isLocked
-                    ? 'opacity-40 bg-slate-100 border-slate-200 cursor-not-allowed'
+                    ? 'opacity-40 bg-slate-100 border-slate-300 cursor-not-allowed'
                     : isSelected
-                    ? 'bg-[#234230] text-white border-[#234230] shadow-md scale-102 ring-2 ring-[#234230]/30'
-                    : 'bg-[#FAF9F5] border-[#EAE6DA] text-slate-800 hover:bg-white'
+                    ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_3px_0_rgba(0,0,0,0.35)] scale-[1.02]'
+                    : 'bg-[#FFFEF9] border-[#3a2b3f] text-slate-800 hover:bg-white shadow-[0_2px_0_rgba(58,43,63,0.2)]'
                 }`}
               >
                 <div className="flex flex-col items-center">
@@ -98,7 +98,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   </span>
                 </div>
 
-                <div className="mt-2 pt-1.5 border-t border-current/15 w-full flex items-center justify-between text-[11px] font-mono">
+                <div className="mt-2 pt-1.5 border-t-2 border-dashed border-current/20 w-full flex items-center justify-between text-[11px] font-mono">
                   {isLocked ? (
                     <span className="text-amber-500 font-bold mx-auto">Khóa (Lv.{crop.minLevel})</span>
                   ) : (
@@ -119,10 +119,10 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
       </div>
 
       {/* Quick Actions Row */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#FAF9F5] p-3.5 rounded-3xl border border-[#EAE6DA]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 px-panel p-3.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-slate-700">Trạng thái cánh đồng:</span>
-          <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+          <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-md border-2 border-[#3a2b3f]">
             {plots.length} ô đất ({readyPlots.length} chín rộ · {emptyPlots.length} ô trống)
           </span>
         </div>
@@ -131,7 +131,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
           {emptyPlots.length > 0 && (
             <button
               onClick={() => onPlantAll(selectedCropId)}
-              className="px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="px-4 py-2 px-btn px-btn-slate font-bold text-xs flex items-center gap-1.5"
             >
               <span>{CROPS[selectedCropId].icon}</span>
               <span>Gieo hết ({emptyPlots.length} ô)</span>
@@ -141,7 +141,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
           {readyPlots.length > 0 && (
             <button
               onClick={onHarvestAll}
-              className="px-4 py-2 rounded-2xl bg-[#234230] hover:bg-[#1a3325] text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer animate-pulse-gentle"
+              className="px-4 py-2 px-btn px-btn-green font-bold text-xs flex items-center gap-1.5 animate-pulse-gentle"
             >
               <span><GameIcon e="🧺" /></span>
               <span>Thu hoạch tất cả ({readyPlots.length})</span>
@@ -177,12 +177,12 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   onHarvestPlot(plot.id, e);
                 }
               }}
-              className={`rounded-3xl p-4 flex flex-col justify-between min-h-[170px] border-2 transition-all relative select-none shadow-sm cursor-pointer ${
+              className={`rounded-md p-4 flex flex-col justify-between min-h-[170px] border-[3px] transition-all relative select-none cursor-pointer ${
                 !plot.cropId
-                  ? 'bg-gradient-to-b from-[#694C35] to-[#543A26] border-[#7F5E43] hover:border-amber-400 hover:scale-[1.02]'
+                  ? 'bg-gradient-to-b from-[#694C35] to-[#543A26] border-[#3a2b3f] hover:border-amber-400 hover:scale-[1.02] shadow-[0_3px_0_rgba(0,0,0,0.3)]'
                   : isReady
-                  ? 'bg-gradient-to-b from-[#2E583A] to-[#1E3F27] border-amber-400 ring-4 ring-amber-400/30 scale-[1.02] shadow-xl'
-                  : 'bg-gradient-to-b from-[#4A3423] to-[#3B281A] border-[#5F442F]'
+                  ? 'bg-gradient-to-b from-[#2E583A] to-[#1E3F27] border-amber-400 shadow-[0_3px_0_rgba(0,0,0,0.3),0_0_0_3px_rgba(251,191,36,0.4)] scale-[1.02]'
+                  : 'bg-gradient-to-b from-[#4A3423] to-[#3B281A] border-[#3a2b3f] shadow-[0_3px_0_rgba(0,0,0,0.3)]'
               }`}
             >
               {/* Plot Header */}
@@ -250,7 +250,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   {!plot.watered && (
                     <button
                       onClick={() => onWaterPlot(plot.id)}
-                      className="flex-1 py-1.5 px-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer shadow-xs"
+                      className="flex-1 py-1.5 px-2 px-btn px-btn-blue font-bold flex items-center justify-center gap-1 text-[11px]"
                       title="Tưới nước giúp tăng tốc độ sinh trưởng gấp đôi"
                     >
                       <Droplets size={12} /> Tưới
@@ -260,7 +260,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
                   {!plot.fertilized && (
                     <button
                       onClick={() => onFertilizePlot(plot.id)}
-                      className="flex-1 py-1.5 px-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer shadow-xs"
+                      className="flex-1 py-1.5 px-2 rounded-md bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer border-[3px] border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)] text-[11px]"
                       title="Bón phân nhận thêm +1 sản lượng khi thu hoạch (20 vàng)"
                     >
                       <Sparkles size={12} /> Phân (20<CoinIcon />)
@@ -269,7 +269,7 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
 
                   <button
                     onClick={() => onInstantGrowPlot(plot.id)}
-                    className="py-1.5 px-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+                    className="py-1.5 px-2.5 px-btn px-btn-amber font-black flex items-center justify-center gap-0.5 text-[11px]"
                     title="Chín tức thì bằng 1 Kim Cương"
                   >
                     <Zap size={12} /> 1<GameIcon e="💎" />
@@ -284,9 +284,9 @@ export const InteractiveFarmCanvas: React.FC<Props> = ({
         {plots.length < maxPlots && (
           <div
             onClick={onUnlockPlot}
-            className="rounded-3xl border-2 border-dashed border-emerald-600/60 hover:border-amber-500 bg-emerald-950/10 hover:bg-emerald-950/20 p-5 flex flex-col items-center justify-center min-h-[170px] cursor-pointer transition-all text-center group shadow-xs"
+            className="rounded-md border-[3px] border-dashed border-emerald-700 hover:border-amber-500 bg-emerald-950/10 hover:bg-emerald-950/20 p-5 flex flex-col items-center justify-center min-h-[170px] cursor-pointer transition-all text-center group shadow-[0_3px_0_rgba(0,0,0,0.2)]"
           >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors">
+            <div className="w-12 h-12 rounded-md bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors border-[3px] border-[#3a2b3f]">
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm">Khai Hoang Ô Đất Mới</span>
