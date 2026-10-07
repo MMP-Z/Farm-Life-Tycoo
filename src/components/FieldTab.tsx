@@ -298,6 +298,10 @@ export const FieldTab: React.FC<Props> = ({
                     <span className="text-[11px] font-mono text-amber-200/90 mt-0.5">
                       Còn ~{daysLeft}d ({soilFactor.bonusPercent > 0 ? `+${soilFactor.bonusPercent}% SL` : '1.0x'})
                     </span>
+                    {/* DEBUG tạm: hiện giá trị thô để chẩn đoán bug cây không lớn */}
+                    <span className="text-[9px] font-mono text-red-300/70 mt-0.5">
+                      dbg: crop={plot.cropId || 'null'} planted={String(plot.plantedDay)} now={(currentDay + (timeOfDay || 0)).toFixed(2)} pct={progressPercent}
+                    </span>
 
                     {/* Pest alert */}
                     {plot.hasPest && (
