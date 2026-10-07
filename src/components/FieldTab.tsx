@@ -84,7 +84,7 @@ export const FieldTab: React.FC<Props> = ({
             <button
               data-tutorial="water-all"
               onClick={onWaterAll}
-              className="flex-1 sm:flex-none px-3.5 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="flex-1 sm:flex-none px-3.5 py-2.5 px-btn px-btn-blue font-bold text-xs flex items-center justify-center gap-1.5"
             >
               <Droplets size={14} />
               <span>Tưới ({dryCount} ô khô)</span>
@@ -94,7 +94,7 @@ export const FieldTab: React.FC<Props> = ({
           {readyCount > 0 && (
             <button
               onClick={onHarvestAll}
-              className="flex-1 sm:flex-none px-4 py-2.5 rounded-2xl bg-[#2E4A35] hover:bg-[#233a29] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer animate-pulse-gentle"
+              className="flex-1 sm:flex-none px-4 py-2.5 px-btn px-btn-green font-bold text-xs flex items-center justify-center gap-1.5 animate-pulse-gentle"
             >
               <Scissors size={14} />
               <span>Thu hoạch ({readyCount})</span>
@@ -128,10 +128,10 @@ export const FieldTab: React.FC<Props> = ({
                   setToolMode('plant');
                   sound.playClick();
                 }}
-                className={`p-2 sm:p-3 rounded-2xl border flex flex-col items-center justify-between text-left transition-all cursor-pointer active:scale-95 ${
+                className={`p-2 sm:p-3 rounded-md border-[3px] flex flex-col items-center justify-between text-left transition-all cursor-pointer active:scale-95 ${
                   isSelected
-                    ? 'bg-[#2E4A35] text-white border-[#2E4A35] shadow-md ring-2 ring-[#2E4A35]/20 scale-102'
-                    : 'bg-[#FAF8F2] border-[#E8E2D2] text-slate-800 hover:bg-white'
+                    ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_3px_0_rgba(0,0,0,0.35)] scale-[1.02]'
+                    : 'bg-[#FAF8F2] border-[#3a2b3f] text-slate-800 hover:bg-white shadow-[0_2px_0_rgba(58,43,63,0.2)]'
                 }`}
               >
                 <div className="flex flex-col items-center text-center w-full">
@@ -202,14 +202,14 @@ export const FieldTab: React.FC<Props> = ({
                   onCurePestPlot(plot.id);
                 }
               }}
-              className={`rounded-3xl p-3 sm:p-4 flex flex-col justify-between min-h-[180px] sm:min-h-[210px] border-2 transition-all relative select-none shadow-xs cursor-pointer ${
+              className={`rounded-md p-3 sm:p-4 flex flex-col justify-between min-h-[180px] sm:min-h-[210px] border-[3px] transition-all relative select-none cursor-pointer ${
                 plot.state === 'empty'
-                  ? 'bg-[#EFE9D7] border-[#DFD7C2] hover:border-amber-400'
+                  ? 'bg-[#EFE9D7] border-[#3a2b3f] hover:border-amber-400 shadow-[0_3px_0_rgba(58,43,63,0.25)]'
                   : plot.state === 'plowed'
-                  ? 'bg-gradient-to-b from-[#6A4D38] to-[#553C2A] border-[#815E45] text-amber-100 hover:border-amber-400'
+                  ? 'bg-gradient-to-b from-[#6A4D38] to-[#553C2A] border-[#3a2b3f] text-amber-100 hover:border-amber-400 shadow-[0_3px_0_rgba(0,0,0,0.3)]'
                   : plot.state === 'ready'
-                  ? 'bg-gradient-to-b from-[#2E583A] to-[#1C3E25] border-amber-400 ring-4 ring-amber-400/20 text-white shadow-md'
-                  : 'bg-gradient-to-b from-[#4C3725] to-[#3A2719] border-[#664931] text-amber-100'
+                  ? 'bg-gradient-to-b from-[#2E583A] to-[#1C3E25] border-amber-400 text-white shadow-[0_3px_0_rgba(0,0,0,0.3),0_0_0_3px_rgba(251,191,36,0.35)]'
+                  : 'bg-gradient-to-b from-[#4C3725] to-[#3A2719] border-[#3a2b3f] text-amber-100 shadow-[0_3px_0_rgba(0,0,0,0.3)]'
               }`}
             >
               {/* Plot Header: ID & Soil Type & Special Feature — gọn trên mobile, không xuống dòng lộn xộn */}
@@ -324,7 +324,7 @@ export const FieldTab: React.FC<Props> = ({
                   <>
                     <button
                       onClick={() => onWaterPlot(plot.id)}
-                      className="flex-1 py-1 px-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+                      className="flex-1 py-1 px-1.5 px-btn px-btn-blue font-bold flex items-center justify-center gap-0.5 text-[11px]"
                       title="Tưới nước giúp đất giữ ẩm"
                     >
                       <Droplets size={11} /> Tưới
@@ -333,7 +333,7 @@ export const FieldTab: React.FC<Props> = ({
                     {!plot.fertilized && (
                       <button
                         onClick={() => onFertilizePlot(plot.id)}
-                        className="flex-1 py-1 px-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+                        className="flex-1 py-1 px-1.5 rounded-md bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer border-[3px] border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)] text-[11px]"
                         title="Bón phân tăng sản lượng (+25%)"
                       >
                         <Sparkles size={11} /> Bón ({fertilizerCount})
@@ -343,7 +343,7 @@ export const FieldTab: React.FC<Props> = ({
                     {plot.hasPest && (
                       <button
                         onClick={() => onCurePestPlot(plot.id)}
-                        className="flex-1 py-1 px-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold flex items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+                        className="flex-1 py-1 px-1.5 px-btn px-btn-red font-bold flex items-center justify-center gap-0.5 text-[11px]"
                         title="Xịt thuốc trừ sâu bảo vệ sản lượng"
                       >
                         <Bug size={11} /> Xịt ({pesticideCount})
@@ -360,9 +360,9 @@ export const FieldTab: React.FC<Props> = ({
         {plots.length < maxPlots && (
           <div
             onClick={onBuyNewPlot}
-            className="rounded-3xl border-2 border-dashed border-emerald-600/50 hover:border-amber-500 bg-emerald-900/5 hover:bg-emerald-900/10 p-4 flex flex-col items-center justify-center min-h-[210px] cursor-pointer transition-all text-center group active:scale-95"
+            className="rounded-md border-[3px] border-dashed border-emerald-700 hover:border-amber-500 bg-emerald-900/5 hover:bg-emerald-900/10 p-4 flex flex-col items-center justify-center min-h-[210px] cursor-pointer transition-all text-center group active:scale-95 shadow-[0_3px_0_rgba(0,0,0,0.15)]"
           >
-            <div className="w-12 h-12 rounded-md bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors">
+            <div className="w-12 h-12 rounded-md bg-emerald-100 group-hover:bg-amber-100 text-emerald-800 group-hover:text-amber-800 flex items-center justify-center mb-2 transition-colors border-[3px] border-[#3a2b3f]">
               <Plus size={24} className="stroke-[3]" />
             </div>
             <span className="font-extrabold text-slate-900 text-sm font-display">Khai Hoang Ô Đất Mới</span>
