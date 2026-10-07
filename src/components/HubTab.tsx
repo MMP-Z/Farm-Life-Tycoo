@@ -3,7 +3,6 @@ import { GameTab } from './NavigationTabs';
 import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock } from 'lucide-react';
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
-import { GameIcon } from './GameIcon';
 
 interface Props {
   onSelectTab: (tab: GameTab) => void;
@@ -20,11 +19,20 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
   const [pendingUnlock, setPendingUnlock] = useState<{ id: string; label: string; cost: number } | null>(null);
   // Hiệu ứng rung + toast khi bấm mở khóa mà không đủ tiền (trước đây im lặng tuyệt đối)
   const [shakeId, setShakeId] = useState<string | null>(null);
-  const regions = [
+  // Giảm sốc hình ảnh: khu vực nâng cao thu gọn mặc định, chỉ mở khi player đã
+  // mở khóa Chợ Làng (cột mốc tiến triển đầu tiên) hoặc tự bấm xem.
+  const marketUnlocked = unlockedRegions.includes('market');
+  const [advancedOpen, setAdvancedOpen] = useState<boolean | null>(null);
+  const showAdvanced = advancedOpen ?? marketUnlocked;
+
+  const mainRegions = [
     { id: 'field', label: 'Khu Trồng Trọt', icon: <Trees size={32} className="text-emerald-600" />, desc: 'Gieo hạt và thu hoạch', color: 'bg-emerald-100 border-emerald-300', cost: 0 },
     { id: 'shop', label: 'Cửa Hàng', icon: <Store size={32} className="text-teal-600" />, desc: 'Mua giống, vật tư', color: 'bg-teal-100 border-teal-300', cost: 0 },
     { id: 'barn', label: 'Nhà Kho', icon: <Package size={32} className="text-stone-600" />, desc: 'Quản lý vật phẩm', color: 'bg-stone-200 border-stone-400', cost: 0 },
     { id: 'market', label: 'Chợ Làng', icon: <ShoppingBag size={32} className="text-blue-600" />, desc: 'Bán nông sản kiếm lời', color: 'bg-blue-100 border-blue-300', cost: 50 },
+  ] as const;
+
+  const advancedRegions = [
     { id: 'pasture', label: 'Khu Chăn Nuôi', icon: <Beef size={32} className="text-amber-600" />, desc: 'Chăm sóc vật nuôi', color: 'bg-amber-100 border-amber-300', cost: 150 },
     // FIX (P1-1): Siêu Thị & Đơn Hàng Thương Lái từng là tính năng "ma" — code xong
     // (SupermarketTab, badge, handleFulfillOrder) nhưng không có đường vào UI.
@@ -34,12 +42,14 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
     { id: 'admin', label: 'Trung Tâm Hành Chính', icon: <ShieldCheck size={32} className="text-slate-600" />, desc: 'Thuế, bảo hiểm', color: 'bg-slate-200 border-slate-400', cost: 1000 },
   ] as const;
 
+  const allRegions = [...mainRegions, ...advancedRegions];
+
   const handleRegionClick = (regionId: string, cost: number, isLocked: boolean) => {
     if (!isLocked) {
       onSelectTab(regionId as GameTab);
       return;
     }
-    const label = regions.find((r) => r.id === regionId)?.label ?? regionId;
+    const label = allRegions.find((r) => r.id === regionId)?.label ?? regionId;
     if (money >= cost) {
       // Mở modal xác nhận trong game thay vì window.confirm
       setPendingUnlock({ id: regionId, label, cost });
@@ -57,6 +67,48 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
     setPendingUnlock(null);
   };
 
+  const renderRegionCard = (region: typeof allRegions[number]) => {
+    const isLocked = !unlockedRegions.includes(region.id);
+    const canAfford = money >= region.cost;
+
+    return (
+      <button
+        key={region.id}
+        data-tutorial={region.id === 'market' ? 'market-region' : undefined}
+        onClick={() => handleRegionClick(region.id, region.cost, isLocked)}
+        className={`px-panel relative flex flex-col items-center justify-center p-4 transition-transform ${
+          shakeId === region.id ? 'animate-shake-x' : ''
+        } ${
+          isLocked
+            ? 'opacity-90 cursor-pointer'
+            : 'active:scale-95 cursor-pointer hover:-translate-y-0.5'
+        }`}
+      >
+        {isLocked && (
+          <div className="absolute top-2 right-2 text-slate-400 bg-white/80 rounded-md p-1 border-2 border-[#3a2b3f]">
+            <Lock size={14} />
+          </div>
+        )}
+
+        <div className={`px-panel-inset p-2.5 mb-3 flex items-center justify-center ${isLocked ? 'grayscale opacity-50' : ''}`}>
+          {region.icon}
+        </div>
+        <span className="font-bold font-display text-center leading-tight text-slate-800 text-sm">
+          {region.label}
+        </span>
+        <div className={`text-[11px] mt-1.5 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-700 font-bold' : 'text-rose-600 font-bold') : 'text-slate-600'}`}>
+          {isLocked ? (
+            <>
+              Mở khóa: <CoinIcon /> {formatMoney(region.cost)}
+            </>
+          ) : (
+            region.desc
+          )}
+        </div>
+      </button>
+    );
+  };
+
   return (
     <div className="p-4 sm:p-6 pb-24 max-w-4xl mx-auto animation-fade-in">
       <div className="px-titlebar px-4 py-3 mb-6 text-center">
@@ -64,48 +116,40 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
         <p className="text-xs opacity-90 mt-0.5">Chọn khu vực bạn muốn quản lý</p>
       </div>
 
+      {/* Khu vực chính — luôn hiện */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {regions.map((region) => {
-          const isLocked = !unlockedRegions.includes(region.id);
-          const canAfford = money >= region.cost;
+        {mainRegions.map(renderRegionCard)}
+      </div>
 
-          return (
-            <button
-              key={region.id}
-              data-tutorial={region.id === 'market' ? 'market-region' : undefined}
-              onClick={() => handleRegionClick(region.id, region.cost, isLocked)}
-              className={`px-panel relative flex flex-col items-center justify-center p-4 transition-transform ${
-                shakeId === region.id ? 'animate-shake-x' : ''
-              } ${
-                isLocked
-                  ? 'opacity-90 cursor-pointer'
-                  : 'active:scale-95 cursor-pointer hover:-translate-y-0.5'
-              }`}
-            >
-              {isLocked && (
-                <div className="absolute top-2 right-2 text-slate-400 bg-white/80 rounded-md p-1 border-2 border-[#3a2b3f]">
-                  <Lock size={14} />
-                </div>
-              )}
+      {/* Khu vực nâng cao — thu gọn mặc định để giảm sốc hình ảnh */}
+      <div className="mt-6">
+        <button
+          onClick={() => setAdvancedOpen(!showAdvanced)}
+          className="w-full px-panel p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-transform text-left"
+        >
+          <div className="px-panel-inset p-2 flex items-center justify-center">
+            <Lock size={20} className="text-slate-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-bold font-display text-slate-800 text-sm">
+              Khu Vực Nâng Cao
+            </div>
+            <div className="text-[11px] text-slate-500 mt-0.5">
+              {marketUnlocked
+                ? 'Chăn nuôi, Siêu thị, Xưởng chế biến, Vận tải, Hành chính'
+                : 'Mở khóa Chợ Làng để khám phá thêm 5 khu vực'}
+            </div>
+          </div>
+          <span className={`text-slate-400 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </button>
 
-              <div className={`px-panel-inset p-2.5 mb-3 flex items-center justify-center ${isLocked ? 'grayscale opacity-50' : ''}`}>
-                {region.icon}
-              </div>
-              <span className="font-bold font-display text-center leading-tight text-slate-800 text-sm">
-                {region.label}
-              </span>
-              <div className={`text-[11px] mt-1.5 text-center font-medium flex items-center justify-center gap-1 ${isLocked ? (canAfford ? 'text-green-700 font-bold' : 'text-rose-600 font-bold') : 'text-slate-600'}`}>
-                {isLocked ? (
-                  <>
-                    Mở khóa: <CoinIcon /> {formatMoney(region.cost)}
-                  </>
-                ) : (
-                  region.desc
-                )}
-              </div>
-            </button>
-          );
-        })}
+        {showAdvanced && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4 animation-fade-in">
+            {advancedRegions.map(renderRegionCard)}
+          </div>
+        )}
       </div>
 
       {/* Modal xác nhận mở khóa trong game (thay window.confirm) */}
