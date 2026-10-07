@@ -786,9 +786,17 @@ export default function App() {
   // ==========================================
   const handleFeedPen = useCallback(
     () => {
-      if (!consumeLabor(1)) return;
       const pen = state.pens['main'];
       if (!pen || pen.animals.length === 0) return;
+
+      // Không cho ăn khi vật nuôi đã no (tránh lãng phí thức ăn)
+      const allFull = pen.animals.every((a) => (a.hunger ?? 0) >= 95);
+      if (allFull) {
+        showToast('Vật nuôi đã no rồi, không cần cho ăn thêm!');
+        return;
+      }
+
+      if (!consumeLabor(1)) return;
 
       const feedNeeded: Record<string, number> = {};
       pen.animals.forEach(a => {
