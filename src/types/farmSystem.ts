@@ -404,4 +404,9 @@ export interface FarmGameState {
   loans: BankLoan[];
   creditScore: number;
   unlockedRegions: string[];
+
+  // Nhiệm vụ chính dẫn dắt (retention)
+  mainQuestIndex: number;
+  // Thời điểm tạo game — dùng cho boost người mới (15 phút đầu cây lớn nhanh)
+  createdAt: number;
 }

@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { GameTab } from './NavigationTabs';
+import { FarmGameState } from '../types/farmSystem';
 import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Package, ShieldCheck, Lock } from 'lucide-react';
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
+import { MainQuestCard } from './MainQuestCard';
 
 interface Props {
+  state: FarmGameState;
   onSelectTab: (tab: GameTab) => void;
   unlockedRegions: string[];
   money: number;
   onUnlockRegion: (regionId: string, cost: number) => void;
+  onClaimQuest: () => void;
   onNotify?: (msg: string) => void;
 }
 
-export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, onUnlockRegion, onNotify }) => {
+export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, money, onUnlockRegion, onClaimQuest, onNotify }) => {
   // FIX (bug mở khóa Chợ Làng): thay window.confirm (native dialog) bằng modal
   // trong game — native dialog bị automation/test chặn (auto-dismiss) và khi bị
   // chặn trình duyệt thì nút bấm trông như "không phản hồi".
@@ -67,8 +71,7 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
     setPendingUnlock(null);
   };
 
-  const renderRegionCard = (region: typeof allRegions[number]) => {
-    const isLocked = !unlockedRegions.includes(region.id);
+  const renderRegionCard = (region: typeof allRegions[number]) => {    const isLocked = !unlockedRegions.includes(region.id);
     const canAfford = money >= region.cost;
 
     return (
@@ -109,12 +112,23 @@ export const HubTab: React.FC<Props> = ({ onSelectTab, unlockedRegions, money, o
     );
   };
 
+  // Đếm ô đã chín để widget "nên làm gì" ưu tiên thu hoạch
+  const readyPlotsCount = state.plots.filter((p) => p.state === 'ready').length;
+
   return (
     <div className="p-4 sm:p-6 pb-24 max-w-4xl mx-auto animation-fade-in">
-      <div className="px-titlebar px-4 py-3 mb-6 text-center">
+      <div className="px-titlebar px-4 py-3 mb-4 text-center">
         <h2 className="text-xl font-display font-bold">Bản Đồ Nông Trại</h2>
         <p className="text-xs opacity-90 mt-0.5">Chọn khu vực bạn muốn quản lý</p>
       </div>
+
+      {/* Widget nhiệm vụ chính + gợi ý hành động tiếp theo */}
+      <MainQuestCard
+        state={state}
+        readyPlotsCount={readyPlotsCount}
+        onSelectTab={onSelectTab}
+        onClaimQuest={onClaimQuest}
+      />
 
       {/* Khu vực chính — luôn hiện */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
