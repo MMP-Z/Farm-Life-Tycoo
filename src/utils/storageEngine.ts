@@ -203,6 +203,8 @@ export function createNewFarmWithProfile(
     },
     
     unlockedRegions: ['field', 'shop', 'barn'],
+    mainQuestIndex: 0,
+    createdAt: Date.now(),
   };
 }
 
@@ -309,6 +311,8 @@ export function parseFarmState(parsed: any): FarmGameState {
       settings: { ...createInitialFarmState().settings, ...(parsed.settings || {}) },
       stats: { ...createInitialFarmState().stats, ...(parsed.stats || {}) },
       unlockedRegions: parsed.unlockedRegions || ['field', 'shop', 'barn'],
+      mainQuestIndex: parsed.mainQuestIndex ?? 0,
+      createdAt: parsed.createdAt || Date.now(),
       lastTimestamp: Date.now(), // Override saved timestamp so offline time doesn't jump the clock
     };
 }

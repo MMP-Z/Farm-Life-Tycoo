@@ -17,6 +17,7 @@ interface Props {
   currentDay: number;
   timeOfDay: number;
   isHardworking: boolean;
+  newPlayerBoost: boolean;
   money: number;
   inventory: { itemId: string; quantity: number }[];
   onPlowPlot: (plotId: number) => void;
@@ -38,6 +39,7 @@ export const FieldTab: React.FC<Props> = ({
   currentDay,
   timeOfDay,
   isHardworking,
+  newPlayerBoost,
   money,
   inventory,
   onPlowPlot,
@@ -75,6 +77,11 @@ export const FieldTab: React.FC<Props> = ({
               <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Chăm sóc thổ nhưỡng theo tính chất đất (Phù sa, Cát, Sét, Đồi), tưới ẩm và luân canh để đạt năng suất cao
               </p>
+              {newPlayerBoost && (
+                <p className="text-[11px] font-bold text-emerald-700 mt-1.5 flex items-center gap-1 bg-emerald-100 px-2 py-1 rounded-md border-2 border-[#3a2b3f] w-fit">
+                  <Sparkles size={12} /> Ưu đãi người mới: cây lớn nhanh 50%!
+                </p>
+              )}
             </div>
           </div>
         </div>

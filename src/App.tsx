@@ -30,7 +30,7 @@ import {
 import { auth, signInWithGoogle, logout } from './config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { LoginScreen } from './components/LoginScreen';
-import { advanceGameTime, DAY_REAL_SECONDS } from './utils/timeEngine';
+import { advanceGameTime, DAY_REAL_SECONDS, isNewPlayerBoostActive } from './utils/timeEngine';
 import { getSoilYieldFactor } from './utils/seedEngine';
 import { sound } from './utils/sound';
 
@@ -46,6 +46,8 @@ import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { HubTab } from './components/HubTab';
+import { MainQuestCard } from './components/MainQuestCard';
+import { MAIN_QUESTS } from './constants/mainQuests';
 import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
 import { FarmLevelUpModal } from './components/FarmLevelUpModal';
@@ -1471,6 +1473,24 @@ export default function App() {
     });
   }, [showToast]);
 
+  // Nhận thưởng nhiệm vụ chính
+  const handleClaimMainQuest = useCallback(() => {
+    setState((prev) => {
+      const idx = prev.mainQuestIndex ?? 0;
+      if (idx >= MAIN_QUESTS.length) return prev;
+      const quest = MAIN_QUESTS[idx];
+      const progress = quest.checkProgress(prev);
+      if (!progress.done) return prev;
+      sound.playCoin();
+      showToast(`Hoàn thành "${quest.title}"! +${quest.rewardCoins} vàng`);
+      return {
+        ...prev,
+        money: prev.money + quest.rewardCoins,
+        mainQuestIndex: idx + 1,
+      };
+    });
+  }, [showToast]);
+
 
   const handleExportSave = useCallback(() => {
     exportSaveFile(state);
@@ -1700,10 +1720,12 @@ export default function App() {
         {activeTab === 'hub' && (
           <>
             <HubTab
+              state={state}
               onSelectTab={setActiveTab}
               unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
               money={state.money}
               onUnlockRegion={handleUnlockRegion}
+              onClaimQuest={handleClaimMainQuest}
               onNotify={showToast}
             />
           </>
@@ -1716,6 +1738,7 @@ export default function App() {
             currentDay={state.currentDay}
             timeOfDay={state.timeOfDay}
             isHardworking={state.startingProfileId === 'hardworking_farmer'}
+            newPlayerBoost={isNewPlayerBoostActive(state)}
             money={state.money}
             inventory={state.inventory}
             onPlowPlot={handlePlowPlot}

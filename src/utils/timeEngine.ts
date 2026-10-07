@@ -17,8 +17,7 @@ export interface TickResult {
   daysAdvanced: number;
 }
 
-export function advanceGameTime(
-  state: FarmGameState,
+export function advanceGameTime(  state: FarmGameState,
   currentTimestamp: number,
   isCatchUp = false
 ): TickResult {
@@ -165,9 +164,12 @@ export function advanceGameTime(
         const seasonFactor = isCorrectSeason ? 1.0 : 0.67;
         const moistureFactor = p.moisture > 30 ? 1.0 : 0.5;
         const perkFactor = isHardworking ? 1.15 : 1.0; // Nông dân chăm chỉ lớn nhanh hơn 15%
+        // Boost người mới: 15 phút đầu cây lớn nhanh 50% để tạo cảm giác "đã"
+        const isNewPlayer = Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
+        const newbieFactor = isNewPlayer ? 1.5 : 1.0;
         const currentAbsoluteTime = currentDay + newTimeOfDay;
         const effectiveGrowthDays =
-          (currentAbsoluteTime - p.plantedDay) * seasonFactor * moistureFactor * perkFactor;
+          (currentAbsoluteTime - p.plantedDay) * seasonFactor * moistureFactor * perkFactor * newbieFactor;
 
         if (effectiveGrowthDays >= crop.growDays) {
           p.state = 'ready';
@@ -360,4 +362,9 @@ export function advanceGameTime(
     notifications,
     daysAdvanced,
   };
+}
+
+/** Kiểm tra boost người mới còn hiệu lực (15 phút đầu) */
+export function isNewPlayerBoostActive(state: FarmGameState): boolean {
+  return Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
 }
