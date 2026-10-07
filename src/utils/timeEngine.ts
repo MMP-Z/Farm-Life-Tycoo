@@ -50,11 +50,6 @@ export function advanceGameTime(  state: FarmGameState,
   else if (newTimeOfDay < 0.75) newDayPart = 'afternoon';
   else newDayPart = 'evening';
 
-  let newLaborHours = state.laborHours ?? 10;
-  if (daysAdvanced > 0) {
-    newLaborHours = 10; // Hồi phục 10 giờ công mỗi sáng
-  }
-
   let currentDay = state.currentDay + daysAdvanced;
   let currentSeason = state.currentSeason;
   let currentYear = state.currentYear;
@@ -363,7 +358,6 @@ export function advanceGameTime(  state: FarmGameState,
     currentYear,
     timeOfDay: newTimeOfDay,
     dayPart: newDayPart,
-    laborHours: newLaborHours,
     lastTimestamp: currentTimestamp,
     weather,
     weatherDaysRemaining: Math.max(1, weatherDays),
