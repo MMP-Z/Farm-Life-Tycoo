@@ -1326,7 +1326,7 @@ export default function App() {
         };
       });
 
-      showToast(`Giao hàng thành công cho ${order.customerName}! Nhận +💰 ${formatMoney(order.rewardMoney)} và +${order.rewardXP} XP!`);
+      showToast(`Giao hàng thành công cho ${order.customerName}! Nhận +<CoinIcon /> ${formatMoney(order.rewardMoney)}!`);
     },
     [state.orders, state.inventory, state.currentDay, consumeItemFromInventory, addParticle, awardXPAndMoney, showToast]
   );
