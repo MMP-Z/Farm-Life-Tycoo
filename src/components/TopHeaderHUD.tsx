@@ -210,7 +210,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
               </h3>
               <button
                 onClick={() => setShowSettingsModal(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1 rounded-md text-slate-400 hover:text-slate-700 cursor-pointer border-2 border-transparent hover:border-[#3a2b3f]"
               >
                 <X size={18} />
               </button>
@@ -218,7 +218,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
 
             <div className="flex flex-col gap-3 py-3">
               {/* Profile & Seed info */}
-              <div className="p-3 bg-white rounded-2xl border border-[#DFD9C3] space-y-1.5">
+              <div className="p-3 px-panel-inset rounded-md space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-600">Hồ sơ khởi đầu:</span>
                   <span className="text-xs font-black text-slate-900 flex items-center gap-1">
@@ -250,10 +250,10 @@ export const TopHeaderHUD: React.FC<Props> = ({
                     <button
                       key={s.speed}
                       onClick={() => onSetGameSpeed(s.speed)}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`py-2 rounded-md text-xs font-bold transition-all cursor-pointer border-[3px] ${
                         state.settings.gameSpeed === s.speed
-                          ? 'bg-[#2E4A35] text-white shadow-xs'
-                          : 'bg-white border border-[#DFD9C3] text-slate-700'
+                          ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
+                          : 'bg-white border-[#3a2b3f] text-slate-700'
                       }`}
                     >
                       {s.icon === 'pause' && <Pause size={12} />}
@@ -271,8 +271,8 @@ export const TopHeaderHUD: React.FC<Props> = ({
                 <span className="text-xs font-bold text-slate-700">Âm thanh & Hiệu ứng:</span>
                 <button
                   onClick={onToggleSound}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    state.settings.soundEnabled ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'
+                  className={`px-3 py-1.5 px-btn text-xs font-bold flex items-center gap-1.5 ${
+                    state.settings.soundEnabled ? 'px-btn-green' : 'px-btn-slate'
                   }`}
                 >
                   {state.settings.soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
@@ -287,7 +287,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                     setShowSettingsModal(false);
                     onOpenNewGameModal();
                   }}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 text-xs font-black flex items-center justify-center gap-2 shadow-xs active:scale-98 cursor-pointer"
+                  className="w-full py-2.5 px-btn px-btn-amber text-xs font-black flex items-center justify-center gap-2"
                 >
                   <Dices size={15} />
                   <span>Khởi Tạo Trang Trại Mới (Seed & Profile)</span>
@@ -301,7 +301,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
                     exportSaveFile(state);
                     setShowSettingsModal(false);
                   }}
-                  className="py-2 rounded-xl bg-white border border-[#DFD9C3] text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#F3EFE0] active:scale-98 cursor-pointer"
+                  className="py-2 px-btn px-btn-slate text-xs font-bold flex items-center justify-center gap-1.5"
                 >
                   <Download size={13} />
                   <span>Xuất file save</span>
@@ -309,7 +309,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
 
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="py-2 rounded-xl bg-white border border-[#DFD9C3] text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#F3EFE0] active:scale-98 cursor-pointer"
+                  className="py-2 px-btn px-btn-slate text-xs font-bold flex items-center justify-center gap-1.5"
                 >
                   <Upload size={13} />
                   <span>Nạp file save</span>
@@ -319,7 +319,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
 
             <button
               onClick={() => setShowSettingsModal(false)}
-              className="w-full py-2 rounded-2xl bg-[#2E4A35] text-white font-bold text-xs shadow-md mt-1 cursor-pointer active:scale-98"
+              className="w-full py-2 px-btn px-btn-green font-bold text-xs mt-1"
             >
               Đóng Cài Đặt
             </button>
@@ -338,7 +338,7 @@ export const TopHeaderHUD: React.FC<Props> = ({
               </h3>
               <button
                 onClick={() => setShowProfileModal(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1 rounded-md text-slate-400 hover:text-slate-700 cursor-pointer border-2 border-transparent hover:border-[#3a2b3f]"
               >
                 <X size={18} />
               </button>

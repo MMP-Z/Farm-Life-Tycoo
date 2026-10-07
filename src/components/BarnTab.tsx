@@ -113,7 +113,7 @@ export const BarnTab: React.FC<Props> = ({
       </div>
 
       {/* Filter Tabs — lưới 3 cột trên mobile (không phải vuốt ngang), hàng ngang trên sm+ */}
-      <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 p-1 bg-[#FAF8F2] rounded-2xl border border-[#E8E2D2]">
+      <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 p-1.5 px-panel rounded-md">
         {[
           { id: 'all', label: 'Tất cả đồ' },
           { id: 'seed', label: '🌱 Hạt giống' },
@@ -128,10 +128,10 @@ export const BarnTab: React.FC<Props> = ({
               setFilter(tab.id as typeof filter);
               sound.playClick();
             }}
-            className={`min-h-[40px] py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all sm:whitespace-nowrap cursor-pointer flex items-center justify-center text-center leading-tight ${
+            className={`min-h-[40px] py-2 px-2 sm:px-3 rounded-md text-xs font-bold transition-all sm:whitespace-nowrap cursor-pointer flex items-center justify-center text-center leading-tight border-[3px] ${
               filter === tab.id
-                ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#2E4A35] text-white border-[#3a2b3f] shadow-[0_2px_0_rgba(0,0,0,0.3)]'
+                : 'text-slate-600 hover:text-slate-900 border-transparent'
             }`}
           >
             <RichText text={tab.label} />
