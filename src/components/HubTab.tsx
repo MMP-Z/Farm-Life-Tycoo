@@ -5,6 +5,9 @@ import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Packa
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
 import { MainQuestCard } from './MainQuestCard';
+import type { WorldData } from './FarmWorld3D';
+
+const FarmWorld3D = React.lazy(() => import('./FarmWorld3D'));
 
 interface Props {
   state: FarmGameState;
@@ -14,9 +17,10 @@ interface Props {
   onUnlockRegion: (regionId: string, cost: number) => void;
   onClaimQuest: () => void;
   onNotify?: (msg: string) => void;
+  world3D: WorldData;
 }
 
-export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, money, onUnlockRegion, onClaimQuest, onNotify }) => {
+export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, money, onUnlockRegion, onClaimQuest, onNotify, world3D }) => {
   // FIX (bug mở khóa Chợ Làng): thay window.confirm (native dialog) bằng modal
   // trong game — native dialog bị automation/test chặn (auto-dismiss) và khi bị
   // chặn trình duyệt thì nút bấm trông như "không phản hồi".
@@ -27,6 +31,7 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
   // mở khóa Chợ Làng (cột mốc tiến triển đầu tiên) hoặc tự bấm xem.
   const marketUnlocked = unlockedRegions.includes('market');
   const [advancedOpen, setAdvancedOpen] = useState<boolean | null>(null);
+  const [view3D, setView3D] = useState(false);
   const showAdvanced = advancedOpen ?? marketUnlocked;
 
   const mainRegions = [
@@ -130,6 +135,37 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
         onClaimQuest={onClaimQuest}
       />
 
+      {/* Toggle 2D / 3D — Phase 4 */}
+      <div className="flex items-center justify-between mt-4 mb-3">
+        <span className="text-xs font-bold text-slate-600">Chế độ xem bản đồ</span>
+        <div className="flex rounded-md border-2 border-[#3a2b3f] overflow-hidden text-xs font-bold">
+          <button
+            onClick={() => setView3D(false)}
+            className={`px-3 py-1.5 ${!view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            2D
+          </button>
+          <button
+            onClick={() => setView3D(true)}
+            className={`px-3 py-1.5 ${view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            3D thử nghiệm
+          </button>
+        </div>
+      </div>
+
+      {view3D ? (
+        <React.Suspense
+          fallback={
+            <div className="rounded-md border-[3px] border-[#3a2b3f] bg-slate-100 p-8 text-center text-sm font-bold text-slate-500">
+              Đang tải 3D…
+            </div>
+          }
+        >
+          <FarmWorld3D data={world3D} initialZone="village" />
+        </React.Suspense>
+      ) : (
+      <>
       {/* Khu vực chính — luôn hiện */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {mainRegions.map(renderRegionCard)}
@@ -165,6 +201,8 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Modal xác nhận mở khóa trong game (thay window.confirm) */}
       {pendingUnlock && (
