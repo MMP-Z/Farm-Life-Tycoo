@@ -257,7 +257,7 @@ export const FarmWorld3D: React.FC<{
           <VoxelClouds />
           <WorldDecor />
           <CameraRig zone={zone} />
-          <group position={[FIELD_POS[0], 0, FIELD_POS[1]]}>
+          <group position={[FIELD_POS[0], 0, FIELD_POS[1]]} visible={zone === 'overview' || zone === 'field'}>
             <Label text="Cánh Đồng" position={[0, 4.6, -3.2]} scale={1.1} />
             <FieldZone
               plots={data.plots}
@@ -278,7 +278,7 @@ export const FarmWorld3D: React.FC<{
               onBuyNewPlot={data.onBuyNewPlot}
             />
           </group>
-          <group position={[PASTURE_POS[0], 0, PASTURE_POS[1]]}>
+          <group position={[PASTURE_POS[0], 0, PASTURE_POS[1]]} visible={zone === 'overview' || zone === 'pasture'}>
             <Label text="Chuồng Trại" position={[0, 4.2, -3.4]} scale={1.1} />
             <PastureZone
               pen={data.pen}
@@ -289,7 +289,7 @@ export const FarmWorld3D: React.FC<{
               onCollectProduce={data.onCollectProduce}
             />
           </group>
-          <group position={[VILLAGE_POS[0], 0, VILLAGE_POS[1]]}>
+          <group position={[VILLAGE_POS[0], 0, VILLAGE_POS[1]]} visible={zone === 'overview' || zone === 'village'}>
             <VillageZone
               regions={data.regions}
               unlockedRegions={data.unlockedRegions}
@@ -297,7 +297,7 @@ export const FarmWorld3D: React.FC<{
               onSelect={(id) => setSelectedRegionId((cur) => (cur === id ? null : id))}
             />
           </group>
-          <group position={[SHOP_POS[0], 0, SHOP_POS[1]]}>
+          <group position={[SHOP_POS[0], 0, SHOP_POS[1]]} visible={zone === 'overview' || zone === 'shop'}>
             <ShopZone
               money={data.money}
               emptyPlotsCount={data.emptyPlotsCount}
@@ -308,10 +308,10 @@ export const FarmWorld3D: React.FC<{
               onSelectProduct={setSelectedProduct}
             />
           </group>
-          <group position={[MARKET_POS[0], 0, MARKET_POS[1]]}>
+          <group position={[MARKET_POS[0], 0, MARKET_POS[1]]} visible={zone === 'overview' || zone === 'market'}>
             <MarketZone stalls={data.marketStalls} onSelectStall={setSelectedStall} />
           </group>
-          <group position={[BARN_POS[0], 0, BARN_POS[1]]}>
+          <group position={[BARN_POS[0], 0, BARN_POS[1]]} visible={zone === 'overview' || zone === 'barn'}>
             <BarnZone
               totalItems={data.barnTotalItems}
               capacity={data.barnCapacity}
@@ -323,7 +323,7 @@ export const FarmWorld3D: React.FC<{
               onBuildColdStorage={data.onBuildColdStorage}
             />
           </group>
-          <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]}>
+          <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]} visible={zone === 'overview' || zone === 'supermarket'}>
             <SupermarketZone
               orders={data.orders}
               currentDay={data.currentDay}
@@ -331,10 +331,10 @@ export const FarmWorld3D: React.FC<{
               onSelectOrder={setSelectedOrder}
             />
           </group>
-          <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]}>
+          <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]} visible={zone === 'overview' || zone === 'workshop'}>
             <WorkshopZone factories={data.factories} onSelectFactory={setSelectedFactory} />
           </group>
-          <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]}>
+          <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]} visible={zone === 'overview' || zone === 'transport'}>
             <TransportZone
               ownedVehicles={data.ownedVehicles}
               activeTrips={data.activeTrips}
@@ -342,7 +342,7 @@ export const FarmWorld3D: React.FC<{
               onSelectVehicle={setSelectedVehicle}
             />
           </group>
-          <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]}>
+          <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]} visible={zone === 'overview' || zone === 'admin'}>
             <AdminZone
               money={data.money}
               onOpenTax={() => data.onOpenAdminPanel('tax')}
