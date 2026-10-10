@@ -11,6 +11,7 @@ import { SpriteIcon } from './SpriteIcon';
 import { CROP_SPRITES, getCropStageSprite } from '../utils/sprites';
 import { CoinIcon } from './CoinIcon';
 import { GameIcon } from './GameIcon';
+const FarmCanvas3D = React.lazy(() => import('./FarmCanvas3D'));
 
 interface Props {
   plots: FieldPlot[];
@@ -56,6 +57,7 @@ export const FieldTab: React.FC<Props> = ({
   maxPlots,
 }) => {
   const [selectedCropId, setSelectedCropId] = useState<string>('wheat');
+  const [view3D, setView3D] = useState(false);
   const [, setToolMode] = useState<'plant' | 'water' | 'fertilize' | 'cure'>('plant');
 
   const readyCount = plots.filter((p) => p.state === 'ready').length;
@@ -170,7 +172,48 @@ export const FieldTab: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Grid of Plots with Soil System */}
+      {/* Toggle 2D / 3D — P0 spike */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-slate-600">Chế độ xem cánh đồng</span>
+        <div className="flex rounded-md border-2 border-[#3a2b3f] overflow-hidden text-xs font-bold">
+          <button
+            onClick={() => setView3D(false)}
+            className={`px-3 py-1.5 ${!view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            2D
+          </button>
+          <button
+            onClick={() => setView3D(true)}
+            className={`px-3 py-1.5 ${view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            3D thử nghiệm
+          </button>
+        </div>
+      </div>
+
+      {view3D ? (
+        <React.Suspense
+          fallback={
+            <div className="rounded-md border-[3px] border-[#3a2b3f] bg-slate-100 p-8 text-center text-sm font-bold text-slate-500">
+              Đang tải 3D…
+            </div>
+          }
+        >
+          <FarmCanvas3D
+            plots={plots}
+            selectedCropId={selectedCropId}
+            currentDay={currentDay}
+            timeOfDay={timeOfDay || 0}
+            currentSeason={currentSeason}
+            isHardworking={isHardworking}
+            newPlayerBoost={newPlayerBoost}
+            onPlowPlot={onPlowPlot}
+            onPlantCrop={onPlantCrop}
+            onHarvestPlot={onHarvestPlot}
+            onCurePestPlot={onCurePestPlot}
+          />
+        </React.Suspense>
+      ) : (
       <div data-tutorial="plots-grid" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
         {plots.map((plot) => {
           const crop = plot.cropId ? CROPS_CONFIG[plot.cropId] : null;
@@ -383,6 +426,7 @@ export const FieldTab: React.FC<Props> = ({
           </div>
         )}
       </div>
+      )}
 
     </div>
   );
