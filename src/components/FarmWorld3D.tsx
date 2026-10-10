@@ -15,6 +15,8 @@ import { FieldZone } from './three/zones/FieldZone';
 import { PastureZone } from './three/zones/PastureZone';
 import { VillageZone, RegionInfo } from './three/zones/VillageZone';
 import { ShopZone, ShopProduct } from './three/zones/ShopZone';
+import { MarketZone, MarketStall } from './three/zones/MarketZone';
+import { BarnZone } from './three/zones/BarnZone';
 
 /**
  * Phase 5 — Thế giới 3D thống nhất: MỘT đảo duy nhất gồm 3 khu
@@ -22,7 +24,7 @@ import { ShopZone, ShopProduct } from './three/zones/ShopZone';
  * Mọi tương tác thế giới làm trực tiếp trong 3D. Logic game giữ nguyên.
  */
 
-export type WorldZone = 'overview' | 'field' | 'pasture' | 'village' | 'shop';
+export type WorldZone = 'overview' | 'field' | 'pasture' | 'village' | 'shop' | 'market' | 'barn';
 
 export interface WorldData {
   plots: FieldPlot[];
@@ -41,6 +43,12 @@ export interface WorldData {
   autoWorkersCount: number;
   autoIrrigationCost: number;
   autoWorkerCost: number;
+  marketStalls: MarketStall[];
+  barnTotalItems: number;
+  barnCapacity: number;
+  hasColdStorage: boolean;
+  barnUpgradeCost: number;
+  coldStorageCost: number;
   onPlowPlot: (plotId: number) => void;
   onPlantCrop: (plotId: number, cropId: string) => void;
   onHarvestPlot: (plotId: number, e: React.MouseEvent) => void;
@@ -58,6 +66,9 @@ export interface WorldData {
   onBuyAnimal: (animalId: string) => void;
   onBuyAutoIrrigation: () => void;
   onHireAutoWorker: () => void;
+  onDirectSell: (itemId: string, qty: number, price: number) => void;
+  onUpgradeBarnCapacity: () => void;
+  onBuildColdStorage: () => void;
   onSelectTab: (tab: GameTab) => void;
   onUnlockRegion: (regionId: string, cost: number) => void;
   onOpenPanel: (panel: GameTab) => void;
@@ -68,6 +79,8 @@ const FIELD_POS: [number, number] = [-5.6, -0.5];
 const PASTURE_POS: [number, number] = [5.4, -1.2];
 const VILLAGE_POS: [number, number] = [0.4, 5.6];
 const SHOP_POS: [number, number] = [0.2, -6.2];
+const MARKET_POS: [number, number] = [-6.8, 2.8];
+const BARN_POS: [number, number] = [6.8, 2.8];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
@@ -77,6 +90,8 @@ const PRESETS: Record<WorldZone, CamPreset> = {
   pasture: { pos: [PASTURE_POS[0] + 9, 8, PASTURE_POS[1] + 9], look: [PASTURE_POS[0], 0, PASTURE_POS[1]], zoom: 33 },
   village: { pos: [VILLAGE_POS[0] + 9, 8, VILLAGE_POS[1] + 9], look: [VILLAGE_POS[0], 0, VILLAGE_POS[1]], zoom: 30 },
   shop: { pos: [SHOP_POS[0] + 9, 8, SHOP_POS[1] + 9], look: [SHOP_POS[0], 0, SHOP_POS[1]], zoom: 30 },
+  market: { pos: [MARKET_POS[0] + 9, 8, MARKET_POS[1] + 9], look: [MARKET_POS[0], 0, MARKET_POS[1]], zoom: 30 },
+  barn: { pos: [BARN_POS[0] + 9, 8, BARN_POS[1] + 9], look: [BARN_POS[0], 0, BARN_POS[1]], zoom: 30 },
 };
 
 /** Camera bay mượt tới khu được chọn */
@@ -164,6 +179,7 @@ export const FarmWorld3D: React.FC<{
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
+  const [selectedStall, setSelectedStall] = useState<MarketStall | null>(null);
 
   const selectedAnimal = data.pen.animals.find((a) => a.id === selectedAnimalId) || null;
   const selectedAnimalDef = selectedAnimal ? ANIMALS_CONFIG[selectedAnimal.type] : null;
@@ -181,6 +197,8 @@ export const FarmWorld3D: React.FC<{
     { id: 'pasture', label: 'Chuồng trại' },
     { id: 'village', label: 'Làng' },
     { id: 'shop', label: 'Cửa hàng' },
+    { id: 'market', label: 'Chợ' },
+    { id: 'barn', label: 'Kho' },
   ];
 
   if (!webglAvailable() || failed) {
@@ -259,6 +277,21 @@ export const FarmWorld3D: React.FC<{
               onSelectProduct={setSelectedProduct}
             />
           </group>
+          <group position={[MARKET_POS[0], 0, MARKET_POS[1]]}>
+            <MarketZone stalls={data.marketStalls} onSelectStall={setSelectedStall} />
+          </group>
+          <group position={[BARN_POS[0], 0, BARN_POS[1]]}>
+            <BarnZone
+              totalItems={data.barnTotalItems}
+              capacity={data.barnCapacity}
+              hasColdStorage={data.hasColdStorage}
+              upgradeCost={data.barnUpgradeCost}
+              coldStorageCost={data.coldStorageCost}
+              money={data.money}
+              onUpgradeCapacity={data.onUpgradeBarnCapacity}
+              onBuildColdStorage={data.onBuildColdStorage}
+            />
+          </group>
           <FpsProbe onFps={setFps} />
         </Canvas>
       </CanvasShell>
@@ -279,6 +312,38 @@ export const FarmWorld3D: React.FC<{
       </div>
 
       {/* Panel con vật đang chọn */}
+      {/* Panel sạp chợ đang chọn */}
+      {selectedStall && (
+        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-800">{selectedStall.name} <span className="text-xs font-normal text-slate-500">(có {selectedStall.stock})</span></p>
+              <p className="mt-1 text-xs font-bold text-emerald-700">
+                <CoinIcon /> {formatMoney(selectedStall.price)} / cái
+                {selectedStall.demand >= 0.95 && <span className="ml-1 text-emerald-600">· Cầu cao</span>}
+                {selectedStall.demand < 0.75 && <span className="ml-1 text-rose-600">· Bão hòa</span>}
+              </p>
+            </div>
+            <button onClick={() => setSelectedStall(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
+          </div>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => { data.onDirectSell(selectedStall.itemId, 1, selectedStall.price); setSelectedStall(null); }}
+              className="flex-1 rounded-lg bg-white border-2 border-slate-300 py-2 text-xs font-bold text-slate-700"
+            >
+              Bán 1
+            </button>
+            {selectedStall.stock > 1 && (
+              <button
+                onClick={() => { data.onDirectSell(selectedStall.itemId, selectedStall.stock, selectedStall.price); setSelectedStall(null); }}
+                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
+              >
+                Bán hết ({selectedStall.stock})
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       {selectedProduct && (
         <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
           <div className="flex items-center justify-between">
