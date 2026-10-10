@@ -14,6 +14,7 @@ import { Label } from './three/Label';
 import { FieldZone } from './three/zones/FieldZone';
 import { PastureZone } from './three/zones/PastureZone';
 import { VillageZone, RegionInfo } from './three/zones/VillageZone';
+import { ShopZone, ShopProduct } from './three/zones/ShopZone';
 
 /**
  * Phase 5 — Thế giới 3D thống nhất: MỘT đảo duy nhất gồm 3 khu
@@ -21,7 +22,7 @@ import { VillageZone, RegionInfo } from './three/zones/VillageZone';
  * Mọi tương tác thế giới làm trực tiếp trong 3D. Logic game giữ nguyên.
  */
 
-export type WorldZone = 'overview' | 'field' | 'pasture' | 'village';
+export type WorldZone = 'overview' | 'field' | 'pasture' | 'village' | 'shop';
 
 export interface WorldData {
   plots: FieldPlot[];
@@ -35,6 +36,11 @@ export interface WorldData {
   regions: RegionInfo[];
   unlockedRegions: string[];
   money: number;
+  emptyPlotsCount: number;
+  hasAutoIrrigation: boolean;
+  autoWorkersCount: number;
+  autoIrrigationCost: number;
+  autoWorkerCost: number;
   onPlowPlot: (plotId: number) => void;
   onPlantCrop: (plotId: number, cropId: string) => void;
   onHarvestPlot: (plotId: number, e: React.MouseEvent) => void;
@@ -47,6 +53,11 @@ export interface WorldData {
   onCollectProduce: () => void;
   onCureAnimal: (animalId: string) => void;
   onSellAnimal: (animalId: string) => void;
+  onBuyItem: (itemId: string, qty: number, price: number) => void;
+  onBuySeedsForEmptyPlots: (itemId: string, qty: number, price: number) => void;
+  onBuyAnimal: (animalId: string) => void;
+  onBuyAutoIrrigation: () => void;
+  onHireAutoWorker: () => void;
   onSelectTab: (tab: GameTab) => void;
   onUnlockRegion: (regionId: string, cost: number) => void;
   onOpenPanel: (panel: GameTab) => void;
@@ -56,6 +67,7 @@ export interface WorldData {
 const FIELD_POS: [number, number] = [-5.6, -0.5];
 const PASTURE_POS: [number, number] = [5.4, -1.2];
 const VILLAGE_POS: [number, number] = [0.4, 5.6];
+const SHOP_POS: [number, number] = [0.2, -6.2];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
@@ -64,6 +76,7 @@ const PRESETS: Record<WorldZone, CamPreset> = {
   field: { pos: [FIELD_POS[0] + 9, 8, FIELD_POS[1] + 9], look: [FIELD_POS[0], 0, FIELD_POS[1]], zoom: 33 },
   pasture: { pos: [PASTURE_POS[0] + 9, 8, PASTURE_POS[1] + 9], look: [PASTURE_POS[0], 0, PASTURE_POS[1]], zoom: 33 },
   village: { pos: [VILLAGE_POS[0] + 9, 8, VILLAGE_POS[1] + 9], look: [VILLAGE_POS[0], 0, VILLAGE_POS[1]], zoom: 30 },
+  shop: { pos: [SHOP_POS[0] + 9, 8, SHOP_POS[1] + 9], look: [SHOP_POS[0], 0, SHOP_POS[1]], zoom: 30 },
 };
 
 /** Camera bay mượt tới khu được chọn */
@@ -150,6 +163,7 @@ export const FarmWorld3D: React.FC<{
   const [selectedCropId, setSelectedCropId] = useState('wheat');
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
 
   const selectedAnimal = data.pen.animals.find((a) => a.id === selectedAnimalId) || null;
   const selectedAnimalDef = selectedAnimal ? ANIMALS_CONFIG[selectedAnimal.type] : null;
@@ -166,6 +180,7 @@ export const FarmWorld3D: React.FC<{
     { id: 'field', label: 'Cánh đồng' },
     { id: 'pasture', label: 'Chuồng trại' },
     { id: 'village', label: 'Làng' },
+    { id: 'shop', label: 'Cửa hàng' },
   ];
 
   if (!webglAvailable() || failed) {
@@ -233,6 +248,17 @@ export const FarmWorld3D: React.FC<{
               onSelect={(id) => setSelectedRegionId((cur) => (cur === id ? null : id))}
             />
           </group>
+          <group position={[SHOP_POS[0], 0, SHOP_POS[1]]}>
+            <ShopZone
+              money={data.money}
+              emptyPlotsCount={data.emptyPlotsCount}
+              hasAutoIrrigation={data.hasAutoIrrigation}
+              autoWorkersCount={data.autoWorkersCount}
+              autoIrrigationCost={data.autoIrrigationCost}
+              autoWorkerCost={data.autoWorkerCost}
+              onSelectProduct={setSelectedProduct}
+            />
+          </group>
           <FpsProbe onFps={setFps} />
         </Canvas>
       </CanvasShell>
@@ -253,6 +279,71 @@ export const FarmWorld3D: React.FC<{
       </div>
 
       {/* Panel con vật đang chọn */}
+      {selectedProduct && (
+        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-800">{selectedProduct.name}</p>
+              <p className="text-[11px] text-slate-500">{selectedProduct.desc}</p>
+              <p className="mt-1 text-xs font-bold text-amber-700">
+                <CoinIcon /> {formatMoney(selectedProduct.price)}
+                {selectedProduct.kind === 'seed' && data.emptyPlotsCount > 1 && (
+                  <span className="text-slate-400"> / túi (cần {data.emptyPlotsCount} túi cho {data.emptyPlotsCount} ô trống)</span>
+                )}
+              </p>
+            </div>
+            <button onClick={() => setSelectedProduct(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
+          </div>
+          <div className="mt-2 flex gap-2">
+            {selectedProduct.kind === 'seed' && data.emptyPlotsCount > 1 ? (
+              <>
+                <button
+                  onClick={() => { data.onBuyItem(selectedProduct.id, 1, selectedProduct.price); setSelectedProduct(null); }}
+                  disabled={data.money < selectedProduct.price}
+                  className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
+                >
+                  Mua 1 túi
+                </button>
+                <button
+                  onClick={() => { data.onBuySeedsForEmptyPlots(selectedProduct.id, data.emptyPlotsCount, selectedProduct.price); setSelectedProduct(null); }}
+                  disabled={data.money < selectedProduct.price * data.emptyPlotsCount}
+                  className="flex-1 rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950 disabled:bg-slate-200 disabled:text-slate-400"
+                >
+                  Mua đủ {data.emptyPlotsCount} ô
+                </button>
+              </>
+            ) : selectedProduct.kind === 'animal' ? (
+              <button
+                onClick={() => { data.onBuyAnimal(selectedProduct.id); setSelectedProduct(null); }}
+                disabled={data.money < selectedProduct.price}
+                className="flex-1 rounded-lg bg-amber-100 py-2 text-xs font-bold text-amber-900 disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                Mua con giống
+              </button>
+            ) : selectedProduct.kind === 'automation' ? (
+              <button
+                onClick={() => {
+                  if (selectedProduct.id === 'auto_irrigation') data.onBuyAutoIrrigation();
+                  else data.onHireAutoWorker();
+                  setSelectedProduct(null);
+                }}
+                disabled={data.money < selectedProduct.price}
+                className="flex-1 rounded-lg bg-sky-700 py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                Mua ngay
+              </button>
+            ) : (
+              <button
+                onClick={() => { data.onBuyItem(selectedProduct.id, 1, selectedProduct.price); setSelectedProduct(null); }}
+                disabled={data.money < selectedProduct.price}
+                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                Mua 1 cái
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       {selectedAnimal && (
         <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
           <div className="flex items-center justify-between">
