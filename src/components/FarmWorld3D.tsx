@@ -14,8 +14,8 @@ import { Label } from './three/Label';
 import { FieldZone } from './three/zones/FieldZone';
 import { PastureZone } from './three/zones/PastureZone';
 import { VillageZone, RegionInfo } from './three/zones/VillageZone';
-import { ShopZone, ShopProduct } from './three/zones/ShopZone';
-import { MarketZone, MarketStall } from './three/zones/MarketZone';
+import { ShopZone } from './three/zones/ShopZone';
+import { MarketZone } from './three/zones/MarketZone';
 import { BarnZone } from './three/zones/BarnZone';
 import { SupermarketZone } from './three/zones/SupermarketZone';
 import { WorkshopZone } from './three/zones/WorkshopZone';
@@ -47,7 +47,6 @@ export interface WorldData {
   autoWorkersCount: number;
   autoIrrigationCost: number;
   autoWorkerCost: number;
-  marketStalls: MarketStall[];
   barnTotalItems: number;
   barnCapacity: number;
   hasColdStorage: boolean;
@@ -91,16 +90,16 @@ export interface WorldData {
 }
 
 /* Vị trí các khu trên đảo */
-const FIELD_POS: [number, number] = [-5.6, -0.5];
-const PASTURE_POS: [number, number] = [5.4, -1.2];
-const VILLAGE_POS: [number, number] = [0.4, 5.6];
-const SHOP_POS: [number, number] = [0.2, -6.2];
-const MARKET_POS: [number, number] = [-6.8, 2.8];
-const BARN_POS: [number, number] = [6.8, 2.8];
-const SUPERMARKET_POS: [number, number] = [-4.5, -7.8];
-const WORKSHOP_POS: [number, number] = [4.5, -7.8];
-const TRANSPORT_POS: [number, number] = [-9.8, -3.2];
-const ADMIN_POS: [number, number] = [9.8, -3.2];
+const FIELD_POS: [number, number] = [-8, -1];
+const PASTURE_POS: [number, number] = [8, -1.5];
+const VILLAGE_POS: [number, number] = [0, 8];
+const SHOP_POS: [number, number] = [0, -9];
+const MARKET_POS: [number, number] = [-10, 4];
+const BARN_POS: [number, number] = [10, 4];
+const SUPERMARKET_POS: [number, number] = [-6.5, -11];
+const WORKSHOP_POS: [number, number] = [6.5, -11];
+const TRANSPORT_POS: [number, number] = [-14, -4.5];
+const ADMIN_POS: [number, number] = [14, -4.5];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
@@ -202,11 +201,6 @@ export const FarmWorld3D: React.FC<{
   const [selectedCropId, setSelectedCropId] = useState('wheat');
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
-  const [selectedStall, setSelectedStall] = useState<MarketStall | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
-  const [selectedFactory, setSelectedFactory] = useState<FactoryBuilding | null>(null);
-  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
 
   const selectedAnimal = data.pen.animals.find((a) => a.id === selectedAnimalId) || null;
   const selectedAnimalDef = selectedAnimal ? ANIMALS_CONFIG[selectedAnimal.type] : null;
@@ -252,7 +246,7 @@ export const FarmWorld3D: React.FC<{
           onError={() => setFailed(true)}
         >
           <Lights />
-          <Island radius={14} />
+          <Island radius={20} />
           <Sea />
           <VoxelClouds />
           <WorldDecor />
@@ -298,57 +292,25 @@ export const FarmWorld3D: React.FC<{
             />
           </group>
           <group position={[SHOP_POS[0], 0, SHOP_POS[1]]} visible={zone === 'overview' || zone === 'shop'}>
-            <ShopZone
-              money={data.money}
-              emptyPlotsCount={data.emptyPlotsCount}
-              hasAutoIrrigation={data.hasAutoIrrigation}
-              autoWorkersCount={data.autoWorkersCount}
-              autoIrrigationCost={data.autoIrrigationCost}
-              autoWorkerCost={data.autoWorkerCost}
-              onSelectProduct={setSelectedProduct}
-            />
+            <ShopZone onOpenShop={() => data.onOpenPanel('shop')} />
           </group>
           <group position={[MARKET_POS[0], 0, MARKET_POS[1]]} visible={zone === 'overview' || zone === 'market'}>
-            <MarketZone stalls={data.marketStalls} onSelectStall={setSelectedStall} />
+            <MarketZone onOpenMarket={() => data.onOpenPanel('market')} />
           </group>
           <group position={[BARN_POS[0], 0, BARN_POS[1]]} visible={zone === 'overview' || zone === 'barn'}>
-            <BarnZone
-              totalItems={data.barnTotalItems}
-              capacity={data.barnCapacity}
-              hasColdStorage={data.hasColdStorage}
-              upgradeCost={data.barnUpgradeCost}
-              coldStorageCost={data.coldStorageCost}
-              money={data.money}
-              onUpgradeCapacity={data.onUpgradeBarnCapacity}
-              onBuildColdStorage={data.onBuildColdStorage}
-            />
+            <BarnZone onOpenBarn={() => data.onOpenPanel('barn')} />
           </group>
           <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]} visible={zone === 'overview' || zone === 'supermarket'}>
-            <SupermarketZone
-              orders={data.orders}
-              currentDay={data.currentDay}
-              inventory={data.inventory}
-              onSelectOrder={setSelectedOrder}
-            />
+            <SupermarketZone onOpenSupermarket={() => data.onOpenPanel('supermarket')} />
           </group>
           <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]} visible={zone === 'overview' || zone === 'workshop'}>
-            <WorkshopZone factories={data.factories} onSelectFactory={setSelectedFactory} />
+            <WorkshopZone onOpenWorkshop={() => data.onOpenPanel('workshop')} />
           </group>
           <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]} visible={zone === 'overview' || zone === 'transport'}>
-            <TransportZone
-              ownedVehicles={data.ownedVehicles}
-              activeTrips={data.activeTrips}
-              money={data.money}
-              onSelectVehicle={setSelectedVehicle}
-            />
+            <TransportZone onOpenTransport={() => data.onOpenPanel('transport')} />
           </group>
           <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]} visible={zone === 'overview' || zone === 'admin'}>
-            <AdminZone
-              money={data.money}
-              onOpenTax={() => data.onOpenAdminPanel('tax')}
-              onOpenLoan={() => data.onOpenAdminPanel('loan')}
-              onOpenInsurance={() => data.onOpenAdminPanel('insurance')}
-            />
+            <AdminZone onOpenAdmin={() => data.onOpenPanel('admin')} />
           </group>
           <FpsProbe onFps={setFps} />
         </Canvas>
@@ -372,200 +334,13 @@ export const FarmWorld3D: React.FC<{
       {/* Panel con vật đang chọn */}
       {/* Panel sạp chợ đang chọn */}
       {/* Panel đơn hàng đang chọn */}
-      {selectedOrder && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-800">{selectedOrder.customerName}</p>
-              <div className="mt-1 space-y-0.5">
-                {selectedOrder.requirements.map((req) => {
-                  const inStock = data.inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
-                  return (
-                    <p key={req.itemId} className={`text-[11px] ${inStock >= req.amount ? 'text-emerald-700' : 'text-rose-600'}`}>
-                      {req.name}: {inStock}/{req.amount}
-                    </p>
-                  );
-                })}
-              </div>
-              <p className="mt-1 text-xs font-bold text-amber-700">
-                Thưởng: <CoinIcon /> {formatMoney(selectedOrder.rewardMoney)}
-              </p>
-            </div>
-            <button onClick={() => setSelectedOrder(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
-          </div>
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={() => { data.onFulfillOrder(selectedOrder.id); setSelectedOrder(null); }}
-              className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
-            >
-              Giao hàng
-            </button>
-            <button
-              onClick={() => { data.onSkipOrder(selectedOrder.id); setSelectedOrder(null); }}
-              className="flex-1 rounded-lg bg-slate-200 py-2 text-xs font-bold text-slate-600"
-            >
-              Bỏ qua
-            </button>
-          </div>
-        </div>
-      )}
+      
       {/* Panel xưởng đang chọn */}
-      {selectedFactory && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-slate-800">{selectedFactory.name}</p>
-            <button onClick={() => setSelectedFactory(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
-          </div>
-          {!selectedFactory.unlocked ? (
-            <button
-              onClick={() => { data.onUnlockFactory(selectedFactory.id); setSelectedFactory(null); }}
-              disabled={data.money < selectedFactory.cost}
-              className="mt-2 w-full rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950 disabled:bg-slate-200 disabled:text-slate-400"
-            >
-              Mở khóa (<CoinIcon /> {formatMoney(selectedFactory.cost)})
-            </button>
-          ) : (
-            <div className="mt-2 space-y-1.5">
-              {selectedFactory.activeTasks.filter((t) => t.completed).map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => { data.onCollectFinishedTask(selectedFactory.id, t.id); }}
-                  className="w-full rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white"
-                >
-                  Thu hoạch thành phẩm
-                </button>
-              ))}
-              <p className="text-[11px] text-slate-500">
-                {selectedFactory.activeTasks.filter((t) => !t.completed).length} mẻ đang chế biến
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+      
       {/* Panel xe đang chọn */}
-      {selectedVehicle && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-slate-800">
-              {data.ownedVehicles.includes(selectedVehicle) ? 'Xe của bạn' : 'Mua xe mới'}
-            </p>
-            <button onClick={() => setSelectedVehicle(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
-          </div>
-          <div className="mt-2 flex gap-2">
-            {data.ownedVehicles.includes(selectedVehicle) ? (
-              <button
-                onClick={() => { data.onDispatchTrip(selectedVehicle); setSelectedVehicle(null); }}
-                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
-              >
-                Xuất chuyến
-              </button>
-            ) : (
-              <button
-                onClick={() => { data.onBuyVehicle(selectedVehicle); setSelectedVehicle(null); }}
-                className="flex-1 rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950"
-              >
-                Mua xe
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-      {selectedStall && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-800">{selectedStall.name} <span className="text-xs font-normal text-slate-500">(có {selectedStall.stock})</span></p>
-              <p className="mt-1 text-xs font-bold text-emerald-700">
-                <CoinIcon /> {formatMoney(selectedStall.price)} / cái
-                {selectedStall.demand >= 0.95 && <span className="ml-1 text-emerald-600">· Cầu cao</span>}
-                {selectedStall.demand < 0.75 && <span className="ml-1 text-rose-600">· Bão hòa</span>}
-              </p>
-            </div>
-            <button onClick={() => setSelectedStall(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
-          </div>
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={() => { data.onDirectSell(selectedStall.itemId, 1, selectedStall.price); setSelectedStall(null); }}
-              className="flex-1 rounded-lg bg-white border-2 border-slate-300 py-2 text-xs font-bold text-slate-700"
-            >
-              Bán 1
-            </button>
-            {selectedStall.stock > 1 && (
-              <button
-                onClick={() => { data.onDirectSell(selectedStall.itemId, selectedStall.stock, selectedStall.price); setSelectedStall(null); }}
-                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
-              >
-                Bán hết ({selectedStall.stock})
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-      {selectedProduct && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-800">{selectedProduct.name}</p>
-              <p className="text-[11px] text-slate-500">{selectedProduct.desc}</p>
-              <p className="mt-1 text-xs font-bold text-amber-700">
-                <CoinIcon /> {formatMoney(selectedProduct.price)}
-                {selectedProduct.kind === 'seed' && data.emptyPlotsCount > 1 && (
-                  <span className="text-slate-400"> / túi (cần {data.emptyPlotsCount} túi cho {data.emptyPlotsCount} ô trống)</span>
-                )}
-              </p>
-            </div>
-            <button onClick={() => setSelectedProduct(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
-          </div>
-          <div className="mt-2 flex gap-2">
-            {selectedProduct.kind === 'seed' && data.emptyPlotsCount > 1 ? (
-              <>
-                <button
-                  onClick={() => { data.onBuyItem(selectedProduct.id, 1, selectedProduct.price); setSelectedProduct(null); }}
-                  disabled={data.money < selectedProduct.price}
-                  className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
-                >
-                  Mua 1 túi
-                </button>
-                <button
-                  onClick={() => { data.onBuySeedsForEmptyPlots(selectedProduct.id, data.emptyPlotsCount, selectedProduct.price); setSelectedProduct(null); }}
-                  disabled={data.money < selectedProduct.price * data.emptyPlotsCount}
-                  className="flex-1 rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950 disabled:bg-slate-200 disabled:text-slate-400"
-                >
-                  Mua đủ {data.emptyPlotsCount} ô
-                </button>
-              </>
-            ) : selectedProduct.kind === 'animal' ? (
-              <button
-                onClick={() => { data.onBuyAnimal(selectedProduct.id); setSelectedProduct(null); }}
-                disabled={data.money < selectedProduct.price}
-                className="flex-1 rounded-lg bg-amber-100 py-2 text-xs font-bold text-amber-900 disabled:bg-slate-200 disabled:text-slate-400"
-              >
-                Mua con giống
-              </button>
-            ) : selectedProduct.kind === 'automation' ? (
-              <button
-                onClick={() => {
-                  if (selectedProduct.id === 'auto_irrigation') data.onBuyAutoIrrigation();
-                  else data.onHireAutoWorker();
-                  setSelectedProduct(null);
-                }}
-                disabled={data.money < selectedProduct.price}
-                className="flex-1 rounded-lg bg-sky-700 py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
-              >
-                Mua ngay
-              </button>
-            ) : (
-              <button
-                onClick={() => { data.onBuyItem(selectedProduct.id, 1, selectedProduct.price); setSelectedProduct(null); }}
-                disabled={data.money < selectedProduct.price}
-                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white disabled:bg-slate-200 disabled:text-slate-400"
-              >
-                Mua 1 cái
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      
+      
+      
       {selectedAnimal && (
         <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
           <div className="flex items-center justify-between">
