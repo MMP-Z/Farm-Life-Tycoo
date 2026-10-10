@@ -237,8 +237,8 @@ export const FarmWorld3D: React.FC<{
   const init = PRESETS[initialZone];
 
   return (
-    <div>
-      <CanvasShell fps={fps} label="Thế giới 3D">
+    <div className="h-full w-full">
+      <CanvasShell fps={fps} label="Thế giới 3D" fullscreen>
         <Canvas
           {...stdCanvasProps}
           camera={{ position: init.pos, zoom: init.zoom, near: 0.1, far: 160 }}
