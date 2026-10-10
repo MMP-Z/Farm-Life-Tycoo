@@ -7,65 +7,6 @@ import { calculateCropGrowth } from '../../../utils/cropGrowth';
 import { setInstance, hideInstance, touchInstances } from '../decor';
 import { Label } from '../Label';
 
-/* Màu bao hạt theo loại cây */
-const CROP_BAG_COLORS: Record<string, string> = {
-  wheat: '#E8C547',
-  carrot: '#E8823C',
-  tomato: '#E15A5A',
-  corn: '#F2D06B',
-  pumpkin: '#E8912D',
-  strawberry: '#E84A6F',
-};
-
-/** Dãy bao hạt giống 3D — bấm để chọn loại hạt */
-function SeedBags({
-  selectedCropId, onSelectCrop, inventory,
-}: {
-  selectedCropId: string;
-  onSelectCrop: (cropId: string) => void;
-  inventory: { itemId: string; quantity: number }[];
-}) {
-  const crops = Object.values(CROPS_CONFIG);
-  return (
-    <group>
-      <Label text="Hạt giống" position={[0, 1.9, 4.0]} scale={0.8} />
-      {crops.map((crop, i) => {
-        const x = (i - (crops.length - 1) / 2) * 1.5;
-        const count = inventory.find((inv) => inv.itemId === `${crop.id}_seed`)?.quantity || 0;
-        const active = selectedCropId === crop.id;
-        const bagColor = CROP_BAG_COLORS[crop.id] || '#D9C9A8';
-        return (
-          <group
-            key={crop.id}
-            position={[x, 0, 4.0]}
-            onClick={(e) => { e.stopPropagation(); onSelectCrop(crop.id); }}
-            onPointerOver={() => (document.body.style.cursor = 'pointer')}
-            onPointerOut={() => (document.body.style.cursor = 'auto')}
-          >
-            {/* Bao hạt */}
-            <mesh position={[0, 0.28, 0]} scale={[1, 0.85, 1]}>
-              <sphereGeometry args={[0.32, 8, 6]} />
-              <meshStandardMaterial color={bagColor} flatShading roughness={0.95} />
-            </mesh>
-            <mesh position={[0, 0.55, 0]}>
-              <cylinderGeometry args={[0.12, 0.16, 0.14, 6]} />
-              <meshStandardMaterial color="#8A5A33" flatShading roughness={1} />
-            </mesh>
-            {/* Vòng chọn */}
-            {active && (
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]} raycast={() => null}>
-                <ringGeometry args={[0.42, 0.54, 18]} />
-                <meshBasicMaterial color="#2E4A35" transparent opacity={0.9} side={THREE.DoubleSide} />
-              </mesh>
-            )}
-            <Label text={`${crop.name} x${count}`} position={[0, 1.05, 0]} scale={0.55} bg="rgba(255,255,255,0.92)" fg="#2E4A35" />
-          </group>
-        );
-      })}
-    </group>
-  );
-}
-
 /** Tháp nước 3D — bấm để tưới hết */
 function WaterTower({ onWaterAll }: { onWaterAll: () => void }) {
   return (
@@ -118,8 +59,6 @@ function HarvestBasket({ onHarvestAll }: { onHarvestAll: () => void }) {
 
 export interface FieldZoneProps {
   plots: FieldPlot[];
-  selectedCropId: string;
-  onSelectCrop: (cropId: string) => void;
   inventory: { itemId: string; quantity: number }[];
   currentDay: number;
   timeOfDay: number;
@@ -128,6 +67,7 @@ export interface FieldZoneProps {
   newPlayerBoost: boolean;
   onPlowPlot: (plotId: number) => void;
   onPlantCrop: (plotId: number, cropId: string) => void;
+  onOpenSeedMenu: (plotId: number) => void;
   onHarvestPlot: (plotId: number, e: React.MouseEvent) => void;
   onCurePestPlot: (plotId: number) => void;
   onWaterAll: () => void;
@@ -170,9 +110,9 @@ function makeFakeMouseEvent(clientX: number, clientY: number): React.MouseEvent 
 
 export function FieldZone(props: FieldZoneProps) {
   const {
-    plots, selectedCropId, onSelectCrop, inventory, currentDay, timeOfDay, currentSeason,
+    plots, inventory, currentDay, timeOfDay, currentSeason,
     isHardworking, newPlayerBoost,
-    onPlowPlot, onPlantCrop, onHarvestPlot, onCurePestPlot,
+    onPlowPlot, onPlantCrop, onHarvestPlot, onCurePestPlot, onOpenSeedMenu,
     onWaterAll, onHarvestAll, onBuyNewPlot,
   } = props;
 
@@ -266,7 +206,7 @@ export function FieldZone(props: FieldZoneProps) {
     const plot = plots[idx];
     const fake = makeFakeMouseEvent(e.nativeEvent.clientX, e.nativeEvent.clientY);
     if (plot.state === 'empty') onPlowPlot(plot.id);
-    else if (plot.state === 'plowed') onPlantCrop(plot.id, selectedCropId);
+    else if (plot.state === 'plowed') onOpenSeedMenu(plot.id);
     else if (plot.state === 'ready') onHarvestPlot(plot.id, fake);
     else if (plot.hasPest) onCurePestPlot(plot.id);
   };
@@ -286,7 +226,6 @@ export function FieldZone(props: FieldZoneProps) {
 
   return (
     <group>
-      <SeedBags selectedCropId={selectedCropId} onSelectCrop={onSelectCrop} inventory={inventory} />
       <WaterTower onWaterAll={onWaterAll} />
       <HarvestBasket onHarvestAll={onHarvestAll} />
       <instancedMesh ref={frameRef} args={[undefined, undefined, n]} {...hoverProps}>
