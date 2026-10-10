@@ -1,89 +1,51 @@
 import React from 'react';
-import { VEHICLES_CONFIG } from '../../../config/farmData';
-import { TransportTrip } from '../../../types/farmSystem';
 import { Label } from '../Label';
 
-/* ---------- Vận tải 3D: bãi xe ---------- */
+/* ---------- Vận tải 3D: môi trường + nhà chính (menu 2D) ---------- */
 
 export interface TransportZoneProps {
-  ownedVehicles: string[];
-  activeTrips: TransportTrip[];
-  money: number;
-  onSelectVehicle: (id: string | null) => void;
+  onOpenTransport: () => void;
 }
 
-export function TransportZone({ ownedVehicles, activeTrips, money, onSelectVehicle }: TransportZoneProps) {
-  const vehicles = Object.values(VEHICLES_CONFIG);
-  const select = (id: string) => (e: any) => {
-    e.stopPropagation();
-    onSelectVehicle(id);
-  };
-
+export function TransportZone({ onOpenTransport }: TransportZoneProps) {
   return (
     <group>
-      <Label text="Vận Tải" position={[0, 4.6, -3.5]} scale={1.1} />
-
-      {/* Nhà để xe */}
-      <group position={[0, 0, -4]}>
-        <mesh position={[0, 1.0, 0]}>
-          <boxGeometry args={[5, 2.0, 3]} />
+      <Label text="Vận Tải" position={[0, 5.2, -4]} scale={1.1} />
+      <group
+        position={[0, 0, -4]}
+        onClick={(e) => { e.stopPropagation(); onOpenTransport(); }}
+        onPointerOver={() => (document.body.style.cursor = 'pointer')}
+        onPointerOut={() => (document.body.style.cursor = 'auto')}
+      >
+        <mesh position={[0, 1.2, 0]}>
+          <boxGeometry args={[6, 2.4, 3.5]} />
           <meshStandardMaterial color="#8A7A5A" flatShading roughness={1} />
         </mesh>
-        <mesh position={[0, 2.2, 0]}>
-          <boxGeometry args={[5.5, 0.3, 3.5]} />
+        <mesh position={[0, 2.7, 0]}>
+          <boxGeometry args={[6.5, 0.3, 4]} />
           <meshStandardMaterial color="#5A4A3A" flatShading roughness={1} />
         </mesh>
-        <mesh position={[0, 0.8, 1.55]}>
-          <boxGeometry args={[3.5, 1.6, 0.1]} />
+        <mesh position={[0, 1.0, 1.8]}>
+          <boxGeometry args={[4, 2.0, 0.12]} />
           <meshStandardMaterial color="#3A2E22" flatShading roughness={1} />
         </mesh>
+        <Label text="Bấm để mở vận tải" position={[0, 3.8, 0]} scale={0.65} />
       </group>
-
-      {/* Xe */}
-      {vehicles.map((v, i) => {
-        const owned = ownedVehicles.includes(v.id);
-        const x = (i - (vehicles.length - 1) / 2) * 2.4;
-        const onTrip = activeTrips.some((t) => t.vehicleId === v.id);
-        return (
-          <group
-            key={v.id}
-            position={[x, 0, 0.5]}
-            onClick={select(v.id)}
-            onPointerOver={() => (document.body.style.cursor = 'pointer')}
-            onPointerOut={() => (document.body.style.cursor = 'auto')}
-          >
-            {/* Thân xe */}
-            <mesh position={[0, 0.45, 0]}>
-              <boxGeometry args={[1.4, 0.5, 0.8]} />
-              <meshStandardMaterial color={owned ? '#4A7AC4' : '#999'} flatShading roughness={0.8} />
+      {/* Xe trang trí */}
+      {[-3.5, 3.5].map((x, i) => (
+        <group key={i} position={[x, 0, 1]} raycast={() => null}>
+          <mesh position={[0, 0.45, 0]}>
+            <boxGeometry args={[1.6, 0.5, 0.9]} />
+            <meshStandardMaterial color="#4A7AC4" flatShading roughness={0.8} />
+          </mesh>
+          {[[-0.5, 0.35], [0.5, 0.35], [-0.5, -0.35], [0.5, -0.35]].map(([wx, wz], j) => (
+            <mesh key={j} position={[wx, 0.22, wz]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.22, 0.22, 0.12, 8]} />
+              <meshStandardMaterial color="#333" flatShading roughness={1} />
             </mesh>
-            {/* Cabin */}
-            <mesh position={[-0.4, 0.85, 0]}>
-              <boxGeometry args={[0.5, 0.5, 0.7]} />
-              <meshStandardMaterial color={owned ? '#2E5A94' : '#777'} flatShading roughness={0.8} />
-            </mesh>
-            {/* Bánh */}
-            {[[-0.45, 0.35], [0.45, 0.35], [-0.45, -0.35], [0.45, -0.35]].map(([wx, wz], j) => (
-              <mesh key={j} position={[wx, 0.22, wz]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.22, 0.22, 0.12, 8]} />
-                <meshStandardMaterial color="#333" flatShading roughness={1} />
-              </mesh>
-            ))}
-            <Label
-              text={owned ? v.name : `${v.name} (Chưa có)`}
-              position={[0, 1.6, 0]}
-              scale={0.55}
-              bg={owned ? undefined : 'rgba(90,90,90,0.92)'}
-            />
-            {!owned && (
-              <Label text={`${v.buyPrice}`} position={[0, 1.2, 0]} scale={0.45} bg="rgba(0,0,0,0.55)" fg="#FFD75E" />
-            )}
-            {onTrip && (
-              <Label text="Đang chạy" position={[0, 2.0, 0]} scale={0.45} bg="rgba(200,120,20,0.92)" />
-            )}
-          </group>
-        );
-      })}
+          ))}
+        </group>
+      ))}
     </group>
   );
 }
