@@ -9,7 +9,8 @@ import { ANIMAL_SPRITES, MOOD_SPRITES } from '../utils/sprites';
 import { CoinIcon } from './CoinIcon';
 import { GameIcon } from './GameIcon';
 
-const PastureCanvas3D = React.lazy(() => import('./PastureCanvas3D'));
+import type { WorldData } from './FarmWorld3D';
+const FarmWorld3D = React.lazy(() => import('./FarmWorld3D'));
 
 interface Props {
   pens: Record<string, AnimalPen>;
@@ -24,6 +25,7 @@ interface Props {
   onUpgradeCapacity: () => void;
   onCleanPen: () => void;
   onSellAnimal: (animalId: string) => void;
+  world3D: WorldData;
 }
 
 export const PastureTab: React.FC<Props> = ({
@@ -39,6 +41,7 @@ export const PastureTab: React.FC<Props> = ({
   onUpgradeCapacity,
   onCleanPen,
   onSellAnimal,
+  world3D,
 }) => {
   const mainPen = pens['main'] || { capacity: 10, animals: [], waterTrough: 100, cleanliness: 100 };
   const [view3D, setView3D] = useState(false);
@@ -190,13 +193,7 @@ export const PastureTab: React.FC<Props> = ({
             </div>
           }
         >
-          <PastureCanvas3D
-            pen={mainPen}
-            onFeedPen={onFeedPen}
-            onFillWaterTrough={onFillWaterTrough}
-            onCureAnimal={onCureAnimal}
-            onSellAnimal={onSellAnimal}
-          />
+          <FarmWorld3D data={world3D} initialZone="pasture" />
         </React.Suspense>
       )}
 

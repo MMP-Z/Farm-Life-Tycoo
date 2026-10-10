@@ -1,20 +1,14 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, ThreeEvent } from '@react-three/fiber';
+import { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
-import { FieldPlot, Season } from '../types/farmSystem';
-import { CROPS_CONFIG } from '../config/farmData';
-import { calculateCropGrowth } from '../utils/cropGrowth';
-import {
-  Lights, Island, Sea, VoxelClouds, FpsProbe, webglAvailable,
-  CanvasShell, stdCanvasProps, setInstance, hideInstance, touchInstances,
-} from './three/decor';
+import { FieldPlot, Season } from '../../../types/farmSystem';
+import { CROPS_CONFIG } from '../../../config/farmData';
+import { calculateCropGrowth } from '../../../utils/cropGrowth';
+import { setInstance, hideInstance, touchInstances } from '../decor';
 
-/**
- * P0 SPIKE v2 — Farm view 3D low-poly, phong cách Airsylum (đảo bay, màu tươi).
- * Render bằng react-three-fiber, lazy-load. Logic game giữ nguyên (tái dùng handler 2D).
- */
+/** Zone cánh đồng trong thế giới 3D thống nhất. Tọa độ local, bọc bởi <group position>. */
 
-interface Props {
+export interface FieldZoneProps {
   plots: FieldPlot[];
   selectedCropId: string;
   currentDay: number;
@@ -61,15 +55,11 @@ function makeFakeMouseEvent(clientX: number, clientY: number): React.MouseEvent 
   return { target: { getBoundingClientRect: () => rect } } as unknown as React.MouseEvent;
 }
 
-function touch(mesh: THREE.InstancedMesh | null) {
-  touchInstances(mesh);
-}
-
-function FarmScene(props: Props & { onFps: (fps: number) => void }) {
+export function FieldZone(props: FieldZoneProps) {
   const {
     plots, selectedCropId, currentDay, timeOfDay, currentSeason,
     isHardworking, newPlayerBoost,
-    onPlowPlot, onPlantCrop, onHarvestPlot, onCurePestPlot, onFps,
+    onPlowPlot, onPlantCrop, onHarvestPlot, onCurePestPlot,
   } = props;
 
   const frameRef = useRef<THREE.InstancedMesh>(null!);
@@ -83,13 +73,11 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
   const n = Math.max(1, plots.length);
   const nRidge = Math.max(1, plots.length * 3);
   const cols = Math.max(1, Math.ceil(Math.sqrt(plots.length)));
-  const rows = Math.max(1, Math.ceil(plots.length / cols));
-  const islandR = cols * SPACING * 0.85 + 1.7;
 
   const gridPos = (i: number): [number, number] => {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    return [(col - (cols - 1) / 2) * SPACING, (row - (rows - 1) / 2) * SPACING];
+    return [(col - (cols - 1) / 2) * SPACING, (row - (Math.ceil(plots.length / cols) - 1) / 2) * SPACING];
   };
 
   const plotData = useMemo(() => {
@@ -118,13 +106,11 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
       const hl = hovered === i ? 1.22 : 1;
       const pest = plot.hasPest;
 
-      // Khung vien + mat o
       setInstance(frame, i, x, 0.03, z, 1.18, 0.3, 1.18,
         new THREE.Color('#3A2A18').multiplyScalar(hl).getStyle());
       setInstance(surf, i, x, 0.06, z, 1.04, 0.36, 1.04,
         new THREE.Color(surfaceColor(plot, stage)).multiplyScalar(hl).getStyle());
 
-      // Ranh cay cho o da cay
       const tilled = stage !== 'empty';
       for (let r = 0; r < 3; r++) {
         const ri = i * 3 + r;
@@ -134,7 +120,6 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
         } else hideInstance(ridge, ri);
       }
 
-      // Cay theo giai doan
       const cy = SURFACE_TOP + 0.05;
       if (stage === 'sprout') {
         const s = 0.5 + progress * 1.4;
@@ -150,16 +135,15 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
         const s = 1.05;
         hideInstance(sprout, i);
         setInstance(stem, i, x, cy + 0.24, z, 1.1, 1.05, 1.1, '#C9A24B');
-        // Bong lua vang + hieu ung sang
         setInstance(crown, i, x, cy + 0.62, z, s, s * 1.15, s, '#EFC44A');
       } else {
         hideInstance(sprout, i); hideInstance(stem, i); hideInstance(crown, i);
       }
     });
 
-    [frame, surf, ridge, sprout, stem, crown].forEach(touch);
+    [frame, surf, ridge, sprout, stem, crown].forEach(touchInstances);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plotData, hovered, cols, rows]);
+  }, [plotData, hovered, cols]);
 
   const handlePlotClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -187,15 +171,7 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
   };
 
   return (
-    <>
-      <Lights />
-      <Island radius={islandR} />
-      <Sea />
-      <VoxelClouds />
-      {/* Cay + nha trang tri */}
-      <Decorations islandR={islandR} />
-
-      {/* Cac o dat: vien + mat — 2 draw calls */}
+    <group>
       <instancedMesh ref={frameRef} args={[undefined, undefined, n]} {...hoverProps}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial flatShading roughness={0.95} />
@@ -204,13 +180,10 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial flatShading roughness={0.95} />
       </instancedMesh>
-      {/* Ranh cay */}
       <instancedMesh ref={ridgeRef} args={[undefined, undefined, nRidge]} raycast={() => null}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial flatShading roughness={1} />
       </instancedMesh>
-
-      {/* Cay: mam (khau the) / than / tan — 3 draw calls */}
       <instancedMesh ref={sproutRef} args={[undefined, undefined, n]} raycast={() => null}>
         <icosahedronGeometry args={[0.16, 0]} />
         <meshStandardMaterial flatShading roughness={0.85} />
@@ -223,80 +196,8 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
         <coneGeometry args={[0.3, 0.8, 6]} />
         <meshStandardMaterial flatShading roughness={0.85} />
       </instancedMesh>
-
-      <FpsProbe onFps={onFps} />
-    </>
-  );
-}
-
-/** Cay + nha trang tri goc dao — vai mesh tinh, re */
-function Decorations({ islandR }: { islandR: number }) {
-  const trees: Array<[number, number]> = [
-    [-islandR + 1.2, -islandR + 1.6],
-    [islandR - 1.4, -islandR + 1.1],
-    [-islandR + 1.0, islandR - 1.8],
-  ];
-  return (
-    <group>
-      {trees.map(([x, z], i) => (
-        <group key={i} position={[x, 0, z]}>
-          <mesh position={[0, 0.35, 0]}>
-            <cylinderGeometry args={[0.09, 0.13, 0.7, 6]} />
-            <meshStandardMaterial color="#7A5230" flatShading roughness={1} />
-          </mesh>
-          <mesh position={[0, 1.05, 0]}>
-            <coneGeometry args={[0.55, 0.9, 7]} />
-            <meshStandardMaterial color="#3E8E41" flatShading roughness={1} />
-          </mesh>
-          <mesh position={[0, 1.6, 0]}>
-            <coneGeometry args={[0.38, 0.65, 7]} />
-            <meshStandardMaterial color="#4DA34F" flatShading roughness={1} />
-          </mesh>
-        </group>
-      ))}
-      {/* Nha nho goc dao */}
-      <group position={[islandR - 1.6, 0, islandR - 1.6]}>
-        <mesh position={[0, 0.35, 0]}>
-          <boxGeometry args={[1.1, 0.7, 0.9]} />
-          <meshStandardMaterial color="#F2E3C2" flatShading roughness={1} />
-        </mesh>
-        <mesh position={[0, 0.95, 0]} rotation={[0, Math.PI / 4, 0]}>
-          <coneGeometry args={[0.95, 0.55, 4]} />
-          <meshStandardMaterial color="#E2725B" flatShading roughness={1} />
-        </mesh>
-      </group>
     </group>
   );
 }
 
-/** Wrapper: Canvas lazy-load + fallback 2D khi khong co WebGL */
-export const FarmCanvas3D: React.FC<Props> = (props) => {
-  const [fps, setFps] = useState(0);
-  const [failed, setFailed] = useState(false);
-
-  if (!webglAvailable() || failed) {
-    return (
-      <div className="rounded-md border-[3px] border-[#3a2b3f] bg-amber-50 p-4 text-center text-sm font-bold text-amber-900">
-        Thiết bị không hỗ trợ WebGL — đang dùng giao diện 2D.
-      </div>
-    );
-  }
-
-  return (
-    <CanvasShell
-      fps={fps}
-      label={`3D thử nghiệm · ${props.plots.length} ô`}
-      hint="Chạm vào ô đất để cày / gieo / thu hoạch như bản 2D. Mục tiêu spike: giữ ≥ 30 FPS."
-    >
-      <Canvas
-        {...stdCanvasProps}
-        onCreated={({ gl }) => gl.setClearColor('#000000', 0)}
-        onError={() => setFailed(true)}
-      >
-        <FarmScene {...props} onFps={setFps} />
-      </Canvas>
-    </CanvasShell>
-  );
-};
-
-export default FarmCanvas3D;
+export default FieldZone;

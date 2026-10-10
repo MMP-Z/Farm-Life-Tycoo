@@ -46,6 +46,8 @@ import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { HubTab } from './components/HubTab';
+import type { WorldData } from './components/FarmWorld3D';
+import { buildRegions3D, REGION_METAS } from './components/three/regions';
 import { MainQuestCard } from './components/MainQuestCard';
 import { MAIN_QUESTS } from './constants/mainQuests';
 import { pickUniqueCustomer } from './constants/customers';
@@ -1722,6 +1724,31 @@ export default function App() {
     return <LoginScreen onLogin={signInWithGoogle} onPlayGuest={() => setIsGuestMode(true)} />;
   }
 
+  // Bundle dữ liệu cho Thế giới 3D thống nhất — Phase 5
+  const world3DData: WorldData = {
+    plots: state.plots,
+    currentDay: state.currentDay,
+    timeOfDay: state.timeOfDay,
+    currentSeason: state.currentSeason,
+    isHardworking: state.startingProfileId === 'hardworking_farmer',
+    newPlayerBoost: isNewPlayerBoostActive(state),
+    inventory: state.inventory,
+    pen: state.pens['main'] || { id: 'main', capacity: 10, animals: [], cleanliness: 100, waterTrough: 100 },
+    regions: buildRegions3D(REGION_METAS),
+    unlockedRegions: state.unlockedRegions || ['field', 'shop', 'barn'],
+    money: state.money,
+    onPlowPlot: handlePlowPlot,
+    onPlantCrop: handlePlantCrop,
+    onHarvestPlot: handleHarvestPlot,
+    onCurePestPlot: handleCurePestPlot,
+    onFeedPen: handleFeedPen,
+    onFillWaterTrough: handleFillWaterTrough,
+    onCureAnimal: handleCureAnimal,
+    onSellAnimal: handleSellAnimal,
+    onSelectTab: setActiveTab,
+    onUnlockRegion: handleUnlockRegion,
+  };
+
   return (
     <div className="min-h-screen px-bg-grass text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
       
@@ -1760,6 +1787,7 @@ export default function App() {
           <>
             <HubTab
               state={state}
+              world3D={world3DData}
               onSelectTab={setActiveTab}
               unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
               money={state.money}
@@ -1791,6 +1819,7 @@ export default function App() {
             onBuyNewPlot={handleBuyNewPlot}
             plotCost={100 + state.plots.length * 50}
             maxPlots={24}
+            world3D={world3DData}
           />
         )}
 
@@ -1808,6 +1837,7 @@ export default function App() {
             onUpgradeCapacity={handleUpgradeCapacity}
             onCleanPen={handleCleanPen}
             onSellAnimal={handleSellAnimal}
+            world3D={world3DData}
           />
         )}
 
