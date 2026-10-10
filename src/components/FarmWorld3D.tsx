@@ -358,6 +358,46 @@ export const FarmWorld3D: React.FC<{
         </div>
       )}
 
+      {/* Nút hành động 2D nổi theo khu */}
+      {zone === 'field' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-20 z-20 flex justify-center gap-2">
+          <button
+            onClick={() => data.onWaterAll()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-sky-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Tưới hết
+          </button>
+          <button
+            onClick={() => data.onHarvestAll()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-amber-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Thu hoạch hết
+          </button>
+        </div>
+      )}
+      {zone === 'pasture' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-20 z-20 flex justify-center gap-2">
+          <button
+            onClick={() => data.onFeedPen()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Cho ăn
+          </button>
+          <button
+            onClick={() => data.onFillWaterTrough()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-sky-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Đổ nước
+          </button>
+          <button
+            onClick={() => data.onCollectProduce()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Thu sản phẩm
+          </button>
+        </div>
+      )}
+
       {/* Thanh di chuyển giữa các khu */}
       <div className="mt-2 flex gap-1.5 overflow-x-auto">
         {zoneTabs.map((z) => (
