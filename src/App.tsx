@@ -37,10 +37,8 @@ import { sound } from './utils/sound';
 import { SlimHUD } from './components/SlimHUD';
 import { SettingsModal } from './components/SettingsModal';
 import { GameTab } from './components/NavigationTabs';
-import { BarnTab } from './components/BarnTab';
 import { WorkshopTab } from './components/WorkshopTab';
 import { TransportTab } from './components/TransportTab';
-import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
 import { AdminCenterTab } from './components/AdminCenterTab';
 import type { WorldData } from './components/FarmWorld3D';
@@ -50,7 +48,7 @@ const FarmWorld3D = React.lazy(() => import('./components/FarmWorld3D'));
 
 /** Các tab quản lý mở dạng panel phủ (tạm 2D cho tới khi có nội thất 3D) */
 function isPanelTab(tab: GameTab): boolean {
-  return !['hub', 'field', 'pasture', 'shop'].includes(tab);
+  return !['hub', 'field', 'pasture', 'shop', 'market', 'barn'].includes(tab);
 }
 
 function panelTitle(tab: GameTab): string {
@@ -72,7 +70,7 @@ import { GameIcon } from './components/GameIcon';
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
   const [activeTab, setActiveTab] = useState<GameTab>('hub');
-  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village' | 'shop'>('overview');
+  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village' | 'shop' | 'market' | 'barn'>('overview');
   const [showSettings, setShowSettings] = useState(false);
   const [showQuest, setShowQuest] = useState(false);
   const [floatingParticles, setFloatingParticles] = useState<FloatingReward[]>([]);
@@ -1779,8 +1777,8 @@ export default function App() {
     onUnlockRegion: handleUnlockRegion,
     onOpenPanel: (panel: GameTab) => {
       sound.playClick();
-      if (panel === 'shop') {
-        setWorldZone('shop');
+      if (panel === 'shop' || panel === 'market' || panel === 'barn') {
+        setWorldZone(panel);
       } else {
         setActiveTab(panel);
       }
@@ -1790,6 +1788,37 @@ export default function App() {
     autoWorkersCount: state.autoWorkersCount,
     autoIrrigationCost: 500,
     autoWorkerCost: 300,
+    marketStalls: Object.entries(ALL_ITEMS_CATALOG)
+      .map(([itemId, meta]) => {
+        const stock = state.inventory.find((i) => i.itemId === itemId)?.quantity || 0;
+        const demand = state.demandMultipliers[itemId] ?? 1.0;
+        return {
+          itemId,
+          name: meta.name,
+          price: Math.max(1, Math.round(meta.basePrice * demand)),
+          stock,
+          demand,
+        };
+      })
+      .filter((s) => s.stock > 0),
+    barnTotalItems: state.inventory.reduce((sum, i) => sum + i.quantity, 0),
+    barnCapacity: state.barnCapacity,
+    hasColdStorage: state.hasColdStorage,
+    barnUpgradeCost: 100 + Math.floor(state.barnCapacity * 1.5),
+    coldStorageCost: 400,
+    onDirectSell: (itemId: string, qty: number, price: number) => {
+      const fakeTarget = {
+        getBoundingClientRect: () => ({
+          left: window.innerWidth / 2, top: window.innerHeight / 2,
+          width: 2, height: 2, right: window.innerWidth / 2 + 2,
+          bottom: window.innerHeight / 2 + 2, x: window.innerWidth / 2, y: window.innerHeight / 2,
+          toJSON: () => ({}),
+        }),
+      };
+      handleDirectSell(itemId, qty, price, { target: fakeTarget } as unknown as React.MouseEvent);
+    },
+    onUpgradeBarnCapacity: handleUpgradeBarnCapacity,
+    onBuildColdStorage: handleBuildColdStorage,
   };
 
   return (
@@ -1871,18 +1900,6 @@ export default function App() {
               </button>
             </div>
             <div className="h-full overflow-y-auto p-3 pb-16">
-              {activeTab === 'barn' && (
-                <BarnTab
-                  inventory={state.inventory}
-                  barnCapacity={state.barnCapacity}
-                  hasColdStorage={state.hasColdStorage}
-                  money={state.money}
-                  onUpgradeCapacity={handleUpgradeBarnCapacity}
-                  onBuildColdStorage={handleBuildColdStorage}
-                  upgradeCost={100 + Math.floor(state.barnCapacity * 1.5)}
-                  coldStorageCost={400}
-                />
-              )}
               {activeTab === 'workshop' && (
                 <WorkshopTab
                   factories={state.factories}
@@ -1906,13 +1923,6 @@ export default function App() {
                   marketProfiles={state.marketProfiles}
                   onDispatchTrip={handleDispatchTrip}
                   onBuyVehicle={handleBuyVehicle}
-                />
-              )}
-              {activeTab === 'market' && (
-                <MarketTab
-                  inventory={state.inventory}
-                  demandMultipliers={state.demandMultipliers}
-                  onDirectSell={handleDirectSell}
                 />
               )}
               {activeTab === 'supermarket' && (
