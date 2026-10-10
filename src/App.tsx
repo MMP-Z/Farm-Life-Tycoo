@@ -38,20 +38,26 @@ import { SlimHUD } from './components/SlimHUD';
 import { SettingsModal } from './components/SettingsModal';
 import { GameTab } from './components/NavigationTabs';
 import { AdminCenterTab } from './components/AdminCenterTab';
+import { ShopTab } from './components/ShopTab';
+import { MarketTab } from './components/MarketTab';
+import { BarnTab } from './components/BarnTab';
+import { SupermarketTab } from './components/SupermarketTab';
+import { WorkshopTab } from './components/WorkshopTab';
+import { TransportTab } from './components/TransportTab';
+
+function panelTitle(tab: GameTab): string {
+  const titles: Record<string, string> = {
+    shop: 'Cửa Hàng', market: 'Chợ Làng', barn: 'Nhà Kho',
+    supermarket: 'Siêu Thị', workshop: 'Xưởng Chế Biến',
+    transport: 'Vận Tải', admin: 'Hành Chính',
+  };
+  return titles[tab] || 'Quản Lý';
+}
 import type { WorldData, WorldZone } from './components/FarmWorld3D';
 import { buildRegions3D, REGION_METAS } from './components/three/regions';
 
 const FarmWorld3D = React.lazy(() => import('./components/FarmWorld3D'));
 
-/** Các tab quản lý mở dạng panel phủ (tạm 2D cho tới khi có nội thất 3D) */
-function isPanelTab(tab: GameTab): boolean {
-  return false; // Tất cả đã 3D — không còn panel 2D nào
-}
-
-function panelTitle(tab: GameTab): string {
-  const meta = REGION_METAS.find((r) => r.id === tab);
-  return meta?.label ?? tab;
-}
 import { MainQuestCard } from './components/MainQuestCard';
 import { MAIN_QUESTS } from './constants/mainQuests';
 import { pickUniqueCustomer } from './constants/customers';
@@ -1776,33 +1782,14 @@ export default function App() {
     onUnlockRegion: handleUnlockRegion,
     onOpenPanel: (panel: GameTab) => {
       sound.playClick();
-      const zoneMap: Record<string, WorldZone> = {
-        field: 'field', pasture: 'pasture', hub: 'village',
-        shop: 'shop', market: 'market', barn: 'barn',
-        supermarket: 'supermarket', workshop: 'workshop',
-        transport: 'transport', admin: 'admin',
-      };
-      const z = zoneMap[panel];
-      if (z) setWorldZone(z);
+      // Bấm nhà trong khu 3D → mở menu 2D (không chuyển camera)
+      setActiveTab(panel);
     },
     emptyPlotsCount,
     hasAutoIrrigation: state.hasAutoIrrigation,
     autoWorkersCount: state.autoWorkersCount,
     autoIrrigationCost: 500,
     autoWorkerCost: 300,
-    marketStalls: Object.entries(ALL_ITEMS_CATALOG)
-      .map(([itemId, meta]) => {
-        const stock = state.inventory.find((i) => i.itemId === itemId)?.quantity || 0;
-        const demand = state.demandMultipliers[itemId] ?? 1.0;
-        return {
-          itemId,
-          name: meta.name,
-          price: Math.max(1, Math.round(meta.basePrice * demand)),
-          stock,
-          demand,
-        };
-      })
-      .filter((s) => s.stock > 0),
     barnTotalItems: state.inventory.reduce((sum, i) => sum + i.quantity, 0),
     barnCapacity: state.barnCapacity,
     hasColdStorage: state.hasColdStorage,
@@ -1925,7 +1912,110 @@ export default function App() {
         )}
       </div>
 
-      {/* Panel quản lý (tạm 2D cho tới khi có nội thất 3D) */}
+      {/* Panel menu 2D — bấm nhà trong khu 3D để mở */}
+      {activeTab !== 'hub' && activeTab !== 'field' && activeTab !== 'pasture' && (
+        <div className="fixed inset-0 z-40">
+          <div
+            className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+            onClick={() => setActiveTab('hub')}
+          />
+          <div className="absolute inset-x-0 bottom-0 top-16 overflow-hidden rounded-t-3xl border-t-[3px] border-x-[3px] border-[#3a2b3f] bg-[#F3EFE0] shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#3a2b3f] bg-[#2E4A35] px-4 py-2.5">
+              <span className="text-sm font-bold text-white">{panelTitle(activeTab)}</span>
+              <button
+                onClick={() => setActiveTab('hub')}
+                className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white hover:bg-white/25"
+              >
+                Đóng
+              </button>
+            </div>
+            <div className="h-full overflow-y-auto p-3 pb-16">
+              {activeTab === 'shop' && (
+                <ShopTab
+                  money={state.money}
+                  playerLevel={1}
+                  emptyPlotsCount={emptyPlotsCount}
+                  hasAutoIrrigation={state.hasAutoIrrigation}
+                  autoWorkersCount={state.autoWorkersCount}
+                  onBuyItem={handleBuyItem}
+                  onBuySeedsForEmptyPlots={handleBuySeedsForEmptyPlots}
+                  onBuyAutoIrrigation={handleBuyAutoIrrigation}
+                  onHireAutoWorker={handleHireAutoWorker}
+                  onBuyAnimal={handleBuyAnimal}
+                  autoIrrigationCost={500}
+                  autoWorkerCost={300}
+                />
+              )}
+              {activeTab === 'market' && (
+                <MarketTab
+                  inventory={state.inventory}
+                  demandMultipliers={state.demandMultipliers}
+                  onDirectSell={(itemId, qty, price) => {
+                    const fakeEvent = { stopPropagation: () => {} } as unknown as React.MouseEvent;
+                    handleDirectSell(itemId, qty, price, fakeEvent);
+                  }}
+                />
+              )}
+              {activeTab === 'barn' && (
+                <BarnTab
+                  inventory={state.inventory}
+                  barnCapacity={state.barnCapacity}
+                  hasColdStorage={state.hasColdStorage}
+                  money={state.money}
+                  onUpgradeCapacity={handleUpgradeBarnCapacity}
+                  onBuildColdStorage={handleBuildColdStorage}
+                  upgradeCost={100 + Math.floor(state.barnCapacity * 1.5)}
+                  coldStorageCost={400}
+                />
+              )}
+              {activeTab === 'supermarket' && (
+                <SupermarketTab
+                  inventory={state.inventory}
+                  orders={state.orders}
+                  currentDay={state.currentDay}
+                  onFulfillOrder={handleFulfillOrder}
+                  onSkipOrder={handleSkipOrder}
+                />
+              )}
+              {activeTab === 'workshop' && (
+                <WorkshopTab
+                  factories={state.factories}
+                  inventory={state.inventory}
+                  money={state.money}
+                  playerLevel={1}
+                  onStartCraft={handleStartCraft}
+                  onCollectFinishedTask={handleCollectFinishedTask}
+                  onUnlockFactory={handleUnlockFactory}
+                  onUpgradeQueue={handleUpgradeQueue}
+                />
+              )}
+              {activeTab === 'transport' && (
+                <TransportTab
+                  ownedVehicles={state.ownedVehicles}
+                  activeTrips={state.activeTrips}
+                  inventory={state.inventory}
+                  currentDay={state.currentDay}
+                  money={state.money}
+                  playerLevel={1}
+                  marketProfiles={state.marketProfiles}
+                  onDispatchTrip={handleDispatchTrip}
+                  onBuyVehicle={handleBuyVehicle}
+                />
+              )}
+              {activeTab === 'admin' && (
+                <AdminCenterTab
+                  state={state}
+                  onBuyDefense={handleBuyDefense}
+                  onBuyInsurance={handleBuyInsurance}
+                  onPayTax={handlePayTax}
+                  onTakeLoan={handleTakeLoan}
+                  onPayLoan={handlePayLoan}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Panel Hành chính (tạm 2D cho các thao tác thuế/vay/bảo hiểm chi tiết) */}
       {showAdminPanel && (
         <div className="fixed inset-0 z-40">
