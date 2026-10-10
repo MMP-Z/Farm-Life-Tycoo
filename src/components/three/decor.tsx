@@ -159,13 +159,28 @@ export function webglAvailable(): boolean {
 
 /** Khung bọc Canvas 3D: nền trời gradient + overlay FPS. Caller tự render <Canvas> bên trong. */
 export function CanvasShell({
-  children, fps, label, hint,
+  children, fps, label, hint, fullscreen,
 }: {
   children: React.ReactNode;
   fps: number;
   label: string;
   hint?: string;
+  fullscreen?: boolean;
 }) {
+  if (fullscreen) {
+    return (
+      <div className="relative h-full w-full">
+        <div className="absolute left-2 top-2 z-10 flex items-center gap-2">
+          <span className="rounded-full bg-black/70 px-2.5 py-1 font-mono text-[11px] font-bold text-emerald-300 backdrop-blur-sm">
+            {fps} FPS
+          </span>
+        </div>
+        <div className="h-full w-full" style={{ background: 'linear-gradient(180deg, #4AA8E8 0%, #8FD0F5 55%, #CDEBF7 100%)' }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="relative">
       <div className="absolute left-2 top-2 z-10 flex items-center gap-2">

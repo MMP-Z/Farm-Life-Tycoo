@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FieldPlot, Season, AnimalPen, OrderItem, FactoryBuilding, TransportTrip } from '../types/farmSystem';
-import { ANIMALS_CONFIG } from '../config/farmData';
+import { ANIMALS_CONFIG, CROPS_CONFIG } from '../config/farmData';
 import { GameTab } from './NavigationTabs';
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
@@ -198,7 +198,7 @@ export const FarmWorld3D: React.FC<{
 }> = ({ data, initialZone, zone, onZoneChange }) => {
   const [fps, setFps] = useState(0);
   const [failed, setFailed] = useState(false);
-  const [selectedCropId, setSelectedCropId] = useState('wheat');
+  const [seedMenuPlotId, setSeedMenuPlotId] = useState<number | null>(null);
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
 
@@ -237,8 +237,8 @@ export const FarmWorld3D: React.FC<{
   const init = PRESETS[initialZone];
 
   return (
-    <div>
-      <CanvasShell fps={fps} label="Thế giới 3D">
+    <div className="h-full w-full">
+      <CanvasShell fps={fps} label="Thế giới 3D" fullscreen>
         <Canvas
           {...stdCanvasProps}
           camera={{ position: init.pos, zoom: init.zoom, near: 0.1, far: 160 }}
@@ -255,8 +255,6 @@ export const FarmWorld3D: React.FC<{
             <Label text="Cánh Đồng" position={[0, 4.6, -3.2]} scale={1.1} />
             <FieldZone
               plots={data.plots}
-              selectedCropId={selectedCropId}
-              onSelectCrop={setSelectedCropId}
               inventory={data.inventory}
               currentDay={data.currentDay}
               timeOfDay={data.timeOfDay}
@@ -265,6 +263,7 @@ export const FarmWorld3D: React.FC<{
               newPlayerBoost={data.newPlayerBoost}
               onPlowPlot={data.onPlowPlot}
               onPlantCrop={data.onPlantCrop}
+              onOpenSeedMenu={setSeedMenuPlotId}
               onHarvestPlot={data.onHarvestPlot}
               onCurePestPlot={data.onCurePestPlot}
               onWaterAll={data.onWaterAll}
@@ -315,6 +314,89 @@ export const FarmWorld3D: React.FC<{
           <FpsProbe onFps={setFps} />
         </Canvas>
       </CanvasShell>
+
+      {/* Menu 2D chọn hạt giống — bấm ô đất đã cày */}
+      {seedMenuPlotId !== null && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setSeedMenuPlotId(null)}
+          />
+          <div className="relative w-full max-w-md rounded-t-3xl border-t-[3px] border-x-[3px] border-[#3a2b3f] bg-[#F3EFE0] p-4 pb-6 sm:rounded-3xl sm:border-[3px]">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-base font-extrabold text-slate-800">Chọn cây trồng</h3>
+              <button
+                onClick={() => setSeedMenuPlotId(null)}
+                className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-600"
+              >
+                Đóng
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.values(CROPS_CONFIG).map((crop) => {
+                const seedCount = data.inventory.find((i) => i.itemId === `${crop.id}_seed`)?.quantity || 0;
+                return (
+                  <button
+                    key={crop.id}
+                    disabled={seedCount <= 0}
+                    onClick={() => {
+                      data.onPlantCrop(seedMenuPlotId, crop.id);
+                      setSeedMenuPlotId(null);
+                    }}
+                    className="flex items-center gap-2 rounded-xl border-2 border-[#3a2b3f] bg-white p-2.5 text-left shadow-[2px_2px_0_#3a2b3f] active:scale-95 disabled:opacity-40"
+                  >
+                    <span className="text-2xl">{crop.icon}</span>
+                    <span>
+                      <span className="block text-xs font-bold text-slate-800">{crop.name}</span>
+                      <span className="block text-[11px] text-slate-500">Còn {seedCount} hạt</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Nút hành động 2D nổi theo khu */}
+      {zone === 'field' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-20 z-20 flex justify-center gap-2">
+          <button
+            onClick={() => data.onWaterAll()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-sky-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Tưới hết
+          </button>
+          <button
+            onClick={() => data.onHarvestAll()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-amber-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Thu hoạch hết
+          </button>
+        </div>
+      )}
+      {zone === 'pasture' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-20 z-20 flex justify-center gap-2">
+          <button
+            onClick={() => data.onFeedPen()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Cho ăn
+          </button>
+          <button
+            onClick={() => data.onFillWaterTrough()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-sky-500 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Đổ nước
+          </button>
+          <button
+            onClick={() => data.onCollectProduce()}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-lg active:scale-95"
+          >
+            Thu sản phẩm
+          </button>
+        </div>
+      )}
 
       {/* Thanh di chuyển giữa các khu */}
       <div className="mt-2 flex gap-1.5 overflow-x-auto">
