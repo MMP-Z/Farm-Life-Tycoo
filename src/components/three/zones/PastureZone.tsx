@@ -3,6 +3,7 @@ import { useFrame, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { AnimalItem, AnimalPen } from '../../../types/farmSystem';
 import { setInstance, touchInstances } from '../decor';
+import { Label } from '../Label';
 
 /** Zone chuồng trại trong thế giới 3D thống nhất. Tọa độ local, bọc bởi <group position>. */
 
@@ -12,6 +13,7 @@ export interface PastureZoneProps {
   onSelect: (id: string | null) => void;
   onFeedPen: () => void;
   onFillWaterTrough: () => void;
+  onCollectProduce: () => void;
 }
 
 const PX = 3.4;
@@ -236,7 +238,8 @@ function Troughs({ onFeedPen, onFillWaterTrough }: { onFeedPen: () => void; onFi
 /* ---------- Zone ---------- */
 
 export function PastureZone(props: PastureZoneProps) {
-  const { pen, selectedId, onSelect, onFeedPen, onFillWaterTrough } = props;
+  const { pen, selectedId, onSelect, onFeedPen, onFillWaterTrough, onCollectProduce } = props;
+  const readyCount = pen.animals.filter((a) => a.daysUntilProduce <= 0 && !a.isSick && a.hunger > 20).length;
   return (
     <group>
       <Fence />
@@ -244,6 +247,23 @@ export function PastureZone(props: PastureZoneProps) {
       {pen.animals.map((a) => (
         <Animal key={a.id} animal={a} selected={selectedId === a.id} onSelect={onSelect} />
       ))}
+      {/* Giỏ thu sản phẩm 3D */}
+      <group
+        position={[0, 0, -3.4]}
+        onClick={(e) => { e.stopPropagation(); onCollectProduce(); }}
+        onPointerOver={() => (document.body.style.cursor = 'pointer')}
+        onPointerOut={() => (document.body.style.cursor = 'auto')}
+      >
+        <mesh position={[0, 0.25, 0]}>
+          <cylinderGeometry args={[0.42, 0.32, 0.5, 8]} />
+          <meshStandardMaterial color="#A9744F" flatShading roughness={1} />
+        </mesh>
+        <mesh position={[0, 0.55, 0]}>
+          <sphereGeometry args={[0.3, 7, 6]} />
+          <meshStandardMaterial color="#F5F2EA" flatShading roughness={0.9} />
+        </mesh>
+        <Label text={readyCount > 0 ? `Thu (${readyCount})` : 'Thu sản phẩm'} position={[0, 1.5, 0]} scale={0.7} />
+      </group>
     </group>
   );
 }
