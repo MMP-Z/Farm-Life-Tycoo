@@ -39,7 +39,6 @@ import { SettingsModal } from './components/SettingsModal';
 import { GameTab } from './components/NavigationTabs';
 import { BarnTab } from './components/BarnTab';
 import { WorkshopTab } from './components/WorkshopTab';
-import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
@@ -51,7 +50,7 @@ const FarmWorld3D = React.lazy(() => import('./components/FarmWorld3D'));
 
 /** Các tab quản lý mở dạng panel phủ (tạm 2D cho tới khi có nội thất 3D) */
 function isPanelTab(tab: GameTab): boolean {
-  return !['hub', 'field', 'pasture'].includes(tab);
+  return !['hub', 'field', 'pasture', 'shop'].includes(tab);
 }
 
 function panelTitle(tab: GameTab): string {
@@ -73,7 +72,7 @@ import { GameIcon } from './components/GameIcon';
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
   const [activeTab, setActiveTab] = useState<GameTab>('hub');
-  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village'>('overview');
+  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village' | 'shop'>('overview');
   const [showSettings, setShowSettings] = useState(false);
   const [showQuest, setShowQuest] = useState(false);
   const [floatingParticles, setFloatingParticles] = useState<FloatingReward[]>([]);
@@ -1771,12 +1770,26 @@ export default function App() {
     },
     onCureAnimal: handleCureAnimal,
     onSellAnimal: handleSellAnimal,
+    onBuyItem: handleBuyItem,
+    onBuySeedsForEmptyPlots: handleBuySeedsForEmptyPlots,
+    onBuyAnimal: handleBuyAnimal,
+    onBuyAutoIrrigation: handleBuyAutoIrrigation,
+    onHireAutoWorker: handleHireAutoWorker,
     onSelectTab: setActiveTab,
     onUnlockRegion: handleUnlockRegion,
     onOpenPanel: (panel: GameTab) => {
       sound.playClick();
-      setActiveTab(panel);
+      if (panel === 'shop') {
+        setWorldZone('shop');
+      } else {
+        setActiveTab(panel);
+      }
     },
+    emptyPlotsCount,
+    hasAutoIrrigation: state.hasAutoIrrigation,
+    autoWorkersCount: state.autoWorkersCount,
+    autoIrrigationCost: 500,
+    autoWorkerCost: 300,
   };
 
   return (
@@ -1880,22 +1893,6 @@ export default function App() {
                   onCollectFinishedTask={handleCollectFinishedTask}
                   onUnlockFactory={handleUnlockFactory}
                   onUpgradeQueue={handleUpgradeQueue}
-                />
-              )}
-              {activeTab === 'shop' && (
-                <ShopTab
-                  money={state.money}
-                  playerLevel={1}
-                  emptyPlotsCount={emptyPlotsCount}
-                  hasAutoIrrigation={state.hasAutoIrrigation}
-                  autoWorkersCount={state.autoWorkersCount}
-                  onBuyItem={handleBuyItem}
-                  onBuySeedsForEmptyPlots={handleBuySeedsForEmptyPlots}
-                  onBuyAutoIrrigation={handleBuyAutoIrrigation}
-                  onHireAutoWorker={handleHireAutoWorker}
-                  onBuyAnimal={handleBuyAnimal}
-                  autoIrrigationCost={500}
-                  autoWorkerCost={300}
                 />
               )}
               {activeTab === 'transport' && (
