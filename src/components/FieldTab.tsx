@@ -11,7 +11,8 @@ import { SpriteIcon } from './SpriteIcon';
 import { CROP_SPRITES, getCropStageSprite } from '../utils/sprites';
 import { CoinIcon } from './CoinIcon';
 import { GameIcon } from './GameIcon';
-const FarmCanvas3D = React.lazy(() => import('./FarmCanvas3D'));
+import type { WorldData } from './FarmWorld3D';
+const FarmWorld3D = React.lazy(() => import('./FarmWorld3D'));
 
 interface Props {
   plots: FieldPlot[];
@@ -33,6 +34,7 @@ interface Props {
   onBuyNewPlot: () => void;
   plotCost: number;
   maxPlots: number;
+  world3D: WorldData;
 }
 
 export const FieldTab: React.FC<Props> = ({
@@ -55,6 +57,7 @@ export const FieldTab: React.FC<Props> = ({
   onBuyNewPlot,
   plotCost,
   maxPlots,
+  world3D,
 }) => {
   const [selectedCropId, setSelectedCropId] = useState<string>('wheat');
   const [view3D, setView3D] = useState(false);
@@ -199,19 +202,7 @@ export const FieldTab: React.FC<Props> = ({
             </div>
           }
         >
-          <FarmCanvas3D
-            plots={plots}
-            selectedCropId={selectedCropId}
-            currentDay={currentDay}
-            timeOfDay={timeOfDay || 0}
-            currentSeason={currentSeason}
-            isHardworking={isHardworking}
-            newPlayerBoost={newPlayerBoost}
-            onPlowPlot={onPlowPlot}
-            onPlantCrop={onPlantCrop}
-            onHarvestPlot={onHarvestPlot}
-            onCurePestPlot={onCurePestPlot}
-          />
+          <FarmWorld3D data={world3D} initialZone="field" />
         </React.Suspense>
       ) : (
       <div data-tutorial="plots-grid" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
