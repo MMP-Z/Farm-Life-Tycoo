@@ -2,17 +2,15 @@ import React, { useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FieldPlot, Season, AnimalPen } from '../types/farmSystem';
-import { CROPS_CONFIG } from '../config/farmData';
 import { ANIMALS_CONFIG } from '../config/farmData';
 import { GameTab } from './NavigationTabs';
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
-import { CROP_SPRITES } from '../utils/sprites';
-import { SpriteIcon } from './SpriteIcon';
 import {
   Lights, Island, Sea, VoxelClouds, FpsProbe, webglAvailable,
   CanvasShell, stdCanvasProps,
 } from './three/decor';
+import { Label } from './three/Label';
 import { FieldZone } from './three/zones/FieldZone';
 import { PastureZone } from './three/zones/PastureZone';
 import { VillageZone, RegionInfo } from './three/zones/VillageZone';
@@ -41,12 +39,17 @@ export interface WorldData {
   onPlantCrop: (plotId: number, cropId: string) => void;
   onHarvestPlot: (plotId: number, e: React.MouseEvent) => void;
   onCurePestPlot: (plotId: number) => void;
+  onWaterAll: () => void;
+  onHarvestAll: () => void;
+  onBuyNewPlot: () => void;
   onFeedPen: () => void;
   onFillWaterTrough: () => void;
+  onCollectProduce: () => void;
   onCureAnimal: (animalId: string) => void;
   onSellAnimal: (animalId: string) => void;
   onSelectTab: (tab: GameTab) => void;
   onUnlockRegion: (regionId: string, cost: number) => void;
+  onOpenPanel: (panel: GameTab) => void;
 }
 
 /* Vị trí các khu trên đảo */
@@ -136,10 +139,14 @@ function WorldDecor() {
 
 /* ---------- World ---------- */
 
-export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> = ({ data, initialZone }) => {
+export const FarmWorld3D: React.FC<{
+  data: WorldData;
+  initialZone: WorldZone;
+  zone: WorldZone;
+  onZoneChange: (zone: WorldZone) => void;
+}> = ({ data, initialZone, zone, onZoneChange }) => {
   const [fps, setFps] = useState(0);
   const [failed, setFailed] = useState(false);
-  const [zone, setZone] = useState<WorldZone>(initialZone);
   const [selectedCropId, setSelectedCropId] = useState('wheat');
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
@@ -187,9 +194,12 @@ export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> 
           <WorldDecor />
           <CameraRig zone={zone} />
           <group position={[FIELD_POS[0], 0, FIELD_POS[1]]}>
+            <Label text="Cánh Đồng" position={[0, 4.6, -3.2]} scale={1.1} />
             <FieldZone
               plots={data.plots}
               selectedCropId={selectedCropId}
+              onSelectCrop={setSelectedCropId}
+              inventory={data.inventory}
               currentDay={data.currentDay}
               timeOfDay={data.timeOfDay}
               currentSeason={data.currentSeason}
@@ -199,15 +209,20 @@ export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> 
               onPlantCrop={data.onPlantCrop}
               onHarvestPlot={data.onHarvestPlot}
               onCurePestPlot={data.onCurePestPlot}
+              onWaterAll={data.onWaterAll}
+              onHarvestAll={data.onHarvestAll}
+              onBuyNewPlot={data.onBuyNewPlot}
             />
           </group>
           <group position={[PASTURE_POS[0], 0, PASTURE_POS[1]]}>
+            <Label text="Chuồng Trại" position={[0, 4.2, -3.4]} scale={1.1} />
             <PastureZone
               pen={data.pen}
               selectedId={selectedAnimalId}
               onSelect={(id) => setSelectedAnimalId((cur) => (cur === id ? null : id))}
               onFeedPen={data.onFeedPen}
               onFillWaterTrough={data.onFillWaterTrough}
+              onCollectProduce={data.onCollectProduce}
             />
           </group>
           <group position={[VILLAGE_POS[0], 0, VILLAGE_POS[1]]}>
@@ -227,7 +242,7 @@ export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> 
         {zoneTabs.map((z) => (
           <button
             key={z.id}
-            onClick={() => setZone(z.id)}
+            onClick={() => onZoneChange(z.id)}
             className={`shrink-0 rounded-full border-2 border-[#3a2b3f] px-3 py-1.5 text-xs font-bold ${
               zone === z.id ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'
             }`}
@@ -236,34 +251,6 @@ export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> 
           </button>
         ))}
       </div>
-
-      {/* Chọn hạt giống (khi đang ở khu cánh đồng) */}
-      {zone === 'field' && (
-        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-2.5">
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-500">Hạt giống đang chọn</p>
-          <div className="flex gap-1.5 overflow-x-auto">
-            {Object.values(CROPS_CONFIG).map((crop) => {
-              const count = data.inventory.find((i) => i.itemId === `${crop.id}_seed`)?.quantity || 0;
-              const active = selectedCropId === crop.id;
-              return (
-                <button
-                  key={crop.id}
-                  onClick={() => setSelectedCropId(crop.id)}
-                  className={`flex shrink-0 flex-col items-center rounded-lg border-2 px-2 py-1.5 ${
-                    active ? 'border-[#2E4A35] bg-emerald-50' : 'border-slate-200 bg-white'
-                  }`}
-                >
-                  {CROP_SPRITES[crop.id]
-                    ? <SpriteIcon src={CROP_SPRITES[crop.id].seed} alt={crop.name} size={26} />
-                    : <span className="text-lg">{crop.icon}</span>}
-                  <span className="mt-0.5 text-[10px] font-bold text-slate-700">{crop.name}</span>
-                  <span className="text-[10px] text-slate-400">x{count}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Panel con vật đang chọn */}
       {selectedAnimal && (
@@ -301,8 +288,23 @@ export const FarmWorld3D: React.FC<{ data: WorldData; initialZone: WorldZone }> 
           </div>
           <div className="mt-2">
             {!regionLocked ? (
-              <button onClick={() => data.onSelectTab(selectedRegion.id)} className="w-full rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white">
-                Mở {selectedRegion.label}
+              <button
+                onClick={() => {
+                  const id = selectedRegion.id;
+                  setSelectedRegionId(null);
+                  if (id === 'field' || id === 'pasture') {
+                    onZoneChange(id);
+                  } else if (id === 'hub') {
+                    onZoneChange('village');
+                  } else {
+                    data.onOpenPanel(id);
+                  }
+                }}
+                className="w-full rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
+              >
+                {selectedRegion.id === 'field' || selectedRegion.id === 'pasture' || selectedRegion.id === 'hub'
+                  ? `Đến ${selectedRegion.label}`
+                  : `Mở ${selectedRegion.label}`}
               </button>
             ) : regionAffordable ? (
               <button onClick={() => { data.onUnlockRegion(selectedRegion.id, selectedRegion.cost); setSelectedRegionId(null); }} className="flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white">
