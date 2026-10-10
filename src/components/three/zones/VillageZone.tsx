@@ -3,6 +3,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GameTab } from '../../NavigationTabs';
 import { setInstance, touchInstances } from '../decor';
+import { Label } from '../Label';
 
 /** Zone làng trong thế giới 3D thống nhất — 9 tòa nhà instanced. Tọa độ local. */
 
@@ -159,6 +160,20 @@ export function VillageZone({ regions, unlockedRegions, selectedId, onSelect }: 
           <meshBasicMaterial color="#F59E0B" transparent opacity={0.9} side={THREE.DoubleSide} />
         </mesh>
       )}
+
+      {/* Biển tên nổi trên mỗi nhà */}
+      {regions.map((region, i) => {
+        const locked = !unlockedRegions.includes(region.id);
+        return (
+          <Label
+            key={`label-${region.id}`}
+            text={region.label}
+            position={[pos[i].x, 2.6, pos[i].z]}
+            scale={0.85}
+            bg={locked ? 'rgba(90, 90, 90, 0.92)' : undefined}
+          />
+        );
+      })}
     </group>
   );
 }

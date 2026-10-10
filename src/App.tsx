@@ -34,24 +34,33 @@ import { advanceGameTime, DAY_REAL_SECONDS, isNewPlayerBoostActive } from './uti
 import { getSoilYieldFactor } from './utils/seedEngine';
 import { sound } from './utils/sound';
 
-import { TopHeaderHUD } from './components/TopHeaderHUD';
-import { NavigationTabs, GameTab } from './components/NavigationTabs';
-import { FieldTab } from './components/FieldTab';
-import { PastureTab } from './components/PastureTab';
+import { SlimHUD } from './components/SlimHUD';
+import { SettingsModal } from './components/SettingsModal';
+import { GameTab } from './components/NavigationTabs';
 import { BarnTab } from './components/BarnTab';
 import { WorkshopTab } from './components/WorkshopTab';
 import { ShopTab } from './components/ShopTab';
 import { TransportTab } from './components/TransportTab';
 import { MarketTab } from './components/MarketTab';
 import { SupermarketTab } from './components/SupermarketTab';
-import { TutorialOverlay } from './components/TutorialOverlay';
-import { HubTab } from './components/HubTab';
+import { AdminCenterTab } from './components/AdminCenterTab';
 import type { WorldData } from './components/FarmWorld3D';
 import { buildRegions3D, REGION_METAS } from './components/three/regions';
+
+const FarmWorld3D = React.lazy(() => import('./components/FarmWorld3D'));
+
+/** Các tab quản lý mở dạng panel phủ (tạm 2D cho tới khi có nội thất 3D) */
+function isPanelTab(tab: GameTab): boolean {
+  return !['hub', 'field', 'pasture'].includes(tab);
+}
+
+function panelTitle(tab: GameTab): string {
+  const meta = REGION_METAS.find((r) => r.id === tab);
+  return meta?.label ?? tab;
+}
 import { MainQuestCard } from './components/MainQuestCard';
 import { MAIN_QUESTS } from './constants/mainQuests';
 import { pickUniqueCustomer } from './constants/customers';
-import { AdminCenterTab } from './components/AdminCenterTab';
 import { NPCGuide } from './components/NPCGuide';
 import { FarmLevelUpModal } from './components/FarmLevelUpModal';
 import { FloatingParticles } from './components/FloatingParticles';
@@ -64,6 +73,9 @@ import { GameIcon } from './components/GameIcon';
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
   const [activeTab, setActiveTab] = useState<GameTab>('hub');
+  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village'>('overview');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showQuest, setShowQuest] = useState(false);
   const [floatingParticles, setFloatingParticles] = useState<FloatingReward[]>([]);
   const [levelUpData, setLevelUpData] = useState<{ level: number; rewardMoney: number } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1741,195 +1753,225 @@ export default function App() {
     onPlantCrop: handlePlantCrop,
     onHarvestPlot: handleHarvestPlot,
     onCurePestPlot: handleCurePestPlot,
+    onWaterAll: handleWaterAll,
+    onHarvestAll: handleHarvestAll,
+    onBuyNewPlot: handleBuyNewPlot,
     onFeedPen: handleFeedPen,
     onFillWaterTrough: handleFillWaterTrough,
+    onCollectProduce: () => {
+      const fakeTarget = {
+        getBoundingClientRect: () => ({
+          left: window.innerWidth / 2, top: window.innerHeight / 2,
+          width: 2, height: 2, right: window.innerWidth / 2 + 2,
+          bottom: window.innerHeight / 2 + 2, x: window.innerWidth / 2, y: window.innerHeight / 2,
+          toJSON: () => ({}),
+        }),
+      };
+      handleCollectProduce({ target: fakeTarget } as unknown as React.MouseEvent);
+    },
     onCureAnimal: handleCureAnimal,
     onSellAnimal: handleSellAnimal,
     onSelectTab: setActiveTab,
     onUnlockRegion: handleUnlockRegion,
+    onOpenPanel: (panel: GameTab) => {
+      sound.playClick();
+      setActiveTab(panel);
+    },
   };
 
   return (
-    <div className="min-h-screen px-bg-grass text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
-      
-      {/* Top Header HUD with Seed & Controls */}
-      <TopHeaderHUD
-        state={state}
-        onSetGameSpeed={(speed) => {
-          setState((prev) => ({
-            ...prev,
-            settings: { ...prev.settings, gameSpeed: speed },
-          }));
-          showToast(`Tốc độ game: ${speed === 0 ? 'Tạm dừng' : speed + 'x'}`);
-        }}
-        onToggleSound={() => {
-          setState((prev) => ({
-            ...prev,
-            settings: { ...prev.settings, soundEnabled: !prev.settings.soundEnabled },
-          }));
-        }}
-        onLoadImportedState={(loaded) => {
-          setState(loaded);
-          saveFarmState(loaded);
-          if (user) {
-            saveCloudFarmState(user.uid, loaded);
-          }
-          showToast('Nạp dữ liệu game thành công!');
-        }}
-        onShowToast={showToast}
-        onOpenNewGameModal={() => setShowNewGameModal(true)}
+    <div className="min-h-screen text-slate-800 flex flex-col font-sans selection:bg-amber-200 overflow-x-clip [touch-action:manipulation]">
+
+      {/* Slim HUD trong suốt — Phase 6 3D-only */}
+      <SlimHUD
+        money={state.money}
+        currentDay={state.currentDay}
+        currentSeason={state.currentSeason}
+        weather={state.weather}
+        startingProfileId={state.startingProfileId}
+        onOpenSettings={() => setShowSettings(true)}
         onFastForward={handleFastForward}
       />
 
-      {/* Main Tab Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 pb-28 sm:pb-12">
-        {activeTab === 'hub' && (
-          <>
-            <HubTab
+      {/* Thế giới 3D toàn màn hình — luôn hiện */}
+      <div className="fixed inset-0 z-0">
+        <React.Suspense
+          fallback={
+            <div className="flex h-full items-center justify-center bg-gradient-to-b from-sky-400 to-sky-200">
+              <p className="text-sm font-bold text-white">Đang tải thế giới 3D…</p>
+            </div>
+          }
+        >
+          <FarmWorld3D
+            data={world3DData}
+            initialZone="overview"
+            zone={worldZone}
+            onZoneChange={setWorldZone}
+          />
+        </React.Suspense>
+      </div>
+
+      {/* Nút nhiệm vụ chính (gọn) */}
+      <div className="fixed bottom-4 left-3 z-30">
+        <button
+          onClick={() => setShowQuest((v) => !v)}
+          className="rounded-full border-2 border-[#3a2b3f] bg-amber-400 px-3 py-2 text-xs font-bold text-amber-950 shadow-lg active:scale-95"
+        >
+          Nhiệm vụ
+        </button>
+        {showQuest && (
+          <div className="absolute bottom-12 left-0 w-72 max-w-[80vw]">
+            <MainQuestCard
               state={state}
-              world3D={world3DData}
-              onSelectTab={setActiveTab}
-              unlockedRegions={state.unlockedRegions || ['field', 'shop', 'barn']}
-              money={state.money}
-              onUnlockRegion={handleUnlockRegion}
+              readyPlotsCount={state.plots.filter((p) => p.state === 'ready').length}
+              onSelectTab={(tab: GameTab) => {
+                setShowQuest(false);
+                if (tab === 'field' || tab === 'pasture') {
+                  setWorldZone(tab);
+                } else if (tab === 'hub') {
+                  setWorldZone('village');
+                } else {
+                  setActiveTab(tab);
+                }
+              }}
               onClaimQuest={handleClaimMainQuest}
-              onNotify={showToast}
             />
-          </>
+          </div>
         )}
-        
-        {activeTab === 'field' && (
-          <FieldTab
-            plots={state.plots}
-            currentSeason={state.currentSeason}
-            currentDay={state.currentDay}
-            timeOfDay={state.timeOfDay}
-            isHardworking={state.startingProfileId === 'hardworking_farmer'}
-            newPlayerBoost={isNewPlayerBoostActive(state)}
-            money={state.money}
-            inventory={state.inventory}
-            onPlowPlot={handlePlowPlot}
-            onPlantCrop={handlePlantCrop}
-            onWaterPlot={handleWaterPlot}
-            onFertilizePlot={handleFertilizePlot}
-            onCurePestPlot={handleCurePestPlot}
-            onHarvestPlot={handleHarvestPlot}
-            onHarvestAll={handleHarvestAll}
-            onWaterAll={handleWaterAll}
-            onBuyNewPlot={handleBuyNewPlot}
-            plotCost={100 + state.plots.length * 50}
-            maxPlots={24}
-            world3D={world3DData}
-          />
-        )}
+      </div>
 
-        {activeTab === 'pasture' && (
-          <PastureTab
-            pens={state.pens}
-            inventory={state.inventory}
-            money={state.money}
-            playerLevel={1}
-            onFeedPen={handleFeedPen}
-            onFillWaterTrough={handleFillWaterTrough}
-            onCureAnimal={handleCureAnimal}
-            onCollectProduce={handleCollectProduce}
-            onBuyAnimal={handleBuyAnimal}
-            onUpgradeCapacity={handleUpgradeCapacity}
-            onCleanPen={handleCleanPen}
-            onSellAnimal={handleSellAnimal}
-            world3D={world3DData}
+      {/* Panel quản lý (tạm 2D cho tới khi có nội thất 3D) */}
+      {isPanelTab(activeTab) && (
+        <div className="fixed inset-0 z-40">
+          <div
+            className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+            onClick={() => setActiveTab('hub')}
           />
-        )}
+          <div className="absolute inset-x-0 bottom-0 top-16 overflow-hidden rounded-t-3xl border-t-[3px] border-x-[3px] border-[#3a2b3f] bg-[#F3EFE0] shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#3a2b3f] bg-[#2E4A35] px-4 py-2.5">
+              <span className="text-sm font-bold text-white">{panelTitle(activeTab)}</span>
+              <button
+                onClick={() => setActiveTab('hub')}
+                className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white hover:bg-white/25"
+              >
+                Đóng
+              </button>
+            </div>
+            <div className="h-full overflow-y-auto p-3 pb-16">
+              {activeTab === 'barn' && (
+                <BarnTab
+                  inventory={state.inventory}
+                  barnCapacity={state.barnCapacity}
+                  hasColdStorage={state.hasColdStorage}
+                  money={state.money}
+                  onUpgradeCapacity={handleUpgradeBarnCapacity}
+                  onBuildColdStorage={handleBuildColdStorage}
+                  upgradeCost={100 + Math.floor(state.barnCapacity * 1.5)}
+                  coldStorageCost={400}
+                />
+              )}
+              {activeTab === 'workshop' && (
+                <WorkshopTab
+                  factories={state.factories}
+                  inventory={state.inventory}
+                  money={state.money}
+                  playerLevel={1}
+                  onStartCraft={handleStartCraft}
+                  onCollectFinishedTask={handleCollectFinishedTask}
+                  onUnlockFactory={handleUnlockFactory}
+                  onUpgradeQueue={handleUpgradeQueue}
+                />
+              )}
+              {activeTab === 'shop' && (
+                <ShopTab
+                  money={state.money}
+                  playerLevel={1}
+                  emptyPlotsCount={emptyPlotsCount}
+                  hasAutoIrrigation={state.hasAutoIrrigation}
+                  autoWorkersCount={state.autoWorkersCount}
+                  onBuyItem={handleBuyItem}
+                  onBuySeedsForEmptyPlots={handleBuySeedsForEmptyPlots}
+                  onBuyAutoIrrigation={handleBuyAutoIrrigation}
+                  onHireAutoWorker={handleHireAutoWorker}
+                  onBuyAnimal={handleBuyAnimal}
+                  autoIrrigationCost={500}
+                  autoWorkerCost={300}
+                />
+              )}
+              {activeTab === 'transport' && (
+                <TransportTab
+                  ownedVehicles={state.ownedVehicles}
+                  activeTrips={state.activeTrips}
+                  inventory={state.inventory}
+                  currentDay={state.currentDay}
+                  money={state.money}
+                  playerLevel={1}
+                  marketProfiles={state.marketProfiles}
+                  onDispatchTrip={handleDispatchTrip}
+                  onBuyVehicle={handleBuyVehicle}
+                />
+              )}
+              {activeTab === 'market' && (
+                <MarketTab
+                  inventory={state.inventory}
+                  demandMultipliers={state.demandMultipliers}
+                  onDirectSell={handleDirectSell}
+                />
+              )}
+              {activeTab === 'supermarket' && (
+                <SupermarketTab
+                  inventory={state.inventory}
+                  orders={state.orders}
+                  currentDay={state.currentDay}
+                  onFulfillOrder={handleFulfillOrder}
+                  onSkipOrder={handleSkipOrder}
+                />
+              )}
+              {activeTab === 'admin' && (
+                <AdminCenterTab
+                  state={state}
+                  onBuyDefense={handleBuyDefense}
+                  onBuyInsurance={handleBuyInsurance}
+                  onPayTax={handlePayTax}
+                  onTakeLoan={handleTakeLoan}
+                  onPayLoan={handlePayLoan}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-        {activeTab === 'barn' && (
-          <BarnTab
-            inventory={state.inventory}
-            barnCapacity={state.barnCapacity}
-            hasColdStorage={state.hasColdStorage}
-            money={state.money}
-            onUpgradeCapacity={handleUpgradeBarnCapacity}
-            onBuildColdStorage={handleBuildColdStorage}
-            upgradeCost={100 + Math.floor(state.barnCapacity * 1.5)}
-            coldStorageCost={400}
-          />
-        )}
-
-        {activeTab === 'workshop' && (
-          <WorkshopTab
-            factories={state.factories}
-            inventory={state.inventory}
-            money={state.money}
-            playerLevel={1}
-            onStartCraft={handleStartCraft}
-            onCollectFinishedTask={handleCollectFinishedTask}
-            onUnlockFactory={handleUnlockFactory}
-            onUpgradeQueue={handleUpgradeQueue}
-          />
-        )}
-
-        {activeTab === 'shop' && (
-          <ShopTab
-            money={state.money}
-            playerLevel={1}
-            emptyPlotsCount={emptyPlotsCount}
-            hasAutoIrrigation={state.hasAutoIrrigation}
-            autoWorkersCount={state.autoWorkersCount}
-            onBuyItem={handleBuyItem}
-            onBuySeedsForEmptyPlots={handleBuySeedsForEmptyPlots}
-            onBuyAutoIrrigation={handleBuyAutoIrrigation}
-            onHireAutoWorker={handleHireAutoWorker}
-            onBuyAnimal={handleBuyAnimal}
-            autoIrrigationCost={500}
-            autoWorkerCost={300}
-          />
-        )}
-
-        {activeTab === 'transport' && (
-          <TransportTab
-            ownedVehicles={state.ownedVehicles}
-            activeTrips={state.activeTrips}
-            inventory={state.inventory}
-            currentDay={state.currentDay}
-            money={state.money}
-            playerLevel={1}
-            marketProfiles={state.marketProfiles}
-            onDispatchTrip={handleDispatchTrip}
-            onBuyVehicle={handleBuyVehicle}
-          />
-        )}
-
-        {activeTab === 'market' && (
-          <MarketTab
-            inventory={state.inventory}
-            demandMultipliers={state.demandMultipliers}
-            onDirectSell={handleDirectSell}
-          />
-        )}
-
-        {/* FIX (P1-1): Tab Siêu Thị từng là tính năng "ma" — component, badge và
-            handler đầy đủ nhưng không có render block */}
-        {activeTab === 'supermarket' && (
-          <SupermarketTab
-            inventory={state.inventory}
-            orders={state.orders}
-            currentDay={state.currentDay}
-            onFulfillOrder={handleFulfillOrder}
-            onSkipOrder={handleSkipOrder}
-          />
-        )}
-
-
-        {activeTab === 'admin' && (
-          <AdminCenterTab
-            state={state}
-            onBuyDefense={handleBuyDefense}
-            onBuyInsurance={handleBuyInsurance}
-            onPayTax={handlePayTax}
-            onTakeLoan={handleTakeLoan}
-            onPayLoan={handlePayLoan}
-          />
-        )}
-      </main>
+      {/* Modal Cài đặt */}
+      {showSettings && (
+        <SettingsModal
+          state={state}
+          onClose={() => setShowSettings(false)}
+          onSetGameSpeed={(speed) => {
+            setState((prev) => ({
+              ...prev,
+              settings: { ...prev.settings, gameSpeed: speed },
+            }));
+            showToast(`Tốc độ game: ${speed === 0 ? 'Tạm dừng' : speed + 'x'}`);
+          }}
+          onToggleSound={() => {
+            setState((prev) => ({
+              ...prev,
+              settings: { ...prev.settings, soundEnabled: !prev.settings.soundEnabled },
+            }));
+          }}
+          onLoadImportedState={(loaded) => {
+            setState(loaded);
+            saveFarmState(loaded);
+            if (user) {
+              saveCloudFarmState(user.uid, loaded);
+            }
+            showToast('Nạp dữ liệu game thành công!');
+          }}
+          onShowToast={showToast}
+          onOpenNewGameModal={() => setShowNewGameModal(true)}
+        />
+      )}
 
       {/* Floating Particles Animation */}
       <FloatingParticles particles={floatingParticles} />
@@ -1942,10 +1984,7 @@ export default function App() {
         </div>
       )}
 
-      {/* FIX (P1-2): Tutorial FTUE cho người chơi mới */}
-      {showTutorial && (
-        <TutorialOverlay onSelectTab={setActiveTab} onDone={handleTutorialDone} />
-      )}
+      {/* Tutorial 2D tạm tắt ở chế độ 3D-only — sẽ làm lại tutorial 3D-native ở Phase 11 */}
 
       {/* Level Up Celebration Popup */}
       {levelUpData && (
@@ -1973,18 +2012,18 @@ export default function App() {
       {/* Các nút nổi ở góc dưới phải (Map & NPC Guide) */}
       <div className="fixed bottom-18 sm:bottom-4 right-3 sm:right-4 z-30 flex flex-col items-end gap-3 pointer-events-none">
         
-        {/* Nút Quay Về Bản Đồ (Map) */}
-        {activeTab !== 'hub' && (
+        {/* Nút Quay Về Tổng Quan (Map) */}
+        {worldZone !== 'overview' && (
           <button
             onClick={() => {
-              setActiveTab('hub');
+              setWorldZone('overview');
               sound.playClick();
             }}
             className="pointer-events-auto bg-[#2E4A35] border border-[#1e3022] text-white p-2.5 sm:p-3 rounded-2xl shadow-lg flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            title="Về Bản Đồ"
+            title="Về Tổng Quan"
           >
             <Map size={24} />
-            <span className="text-xs font-bold font-display hidden sm:inline">Về Bản Đồ</span>
+            <span className="text-xs font-bold font-display hidden sm:inline">Tổng Quan</span>
           </button>
         )}
 
