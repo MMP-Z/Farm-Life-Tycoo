@@ -1,9 +1,13 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
+import { Canvas, ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FieldPlot, Season } from '../types/farmSystem';
 import { CROPS_CONFIG } from '../config/farmData';
 import { calculateCropGrowth } from '../utils/cropGrowth';
+import {
+  Lights, Island, Sea, VoxelClouds, FpsProbe, webglAvailable,
+  CanvasShell, stdCanvasProps, setInstance, hideInstance, touchInstances,
+} from './three/decor';
 
 /**
  * P0 SPIKE v2 — Farm view 3D low-poly, phong cách Airsylum (đảo bay, màu tươi).
@@ -57,37 +61,8 @@ function makeFakeMouseEvent(clientX: number, clientY: number): React.MouseEvent 
   return { target: { getBoundingClientRect: () => rect } } as unknown as React.MouseEvent;
 }
 
-const _m = new THREE.Matrix4();
-const _q = new THREE.Quaternion();
-const _s = new THREE.Vector3();
-const _p = new THREE.Vector3();
-const _c = new THREE.Color();
-
-function setInstance(
-  mesh: THREE.InstancedMesh, i: number,
-  x: number, y: number, z: number,
-  sx: number, sy: number, sz: number, color?: string,
-) {
-  _p.set(x, y, z);
-  _s.set(Math.max(sx, 0.0001), Math.max(sy, 0.0001), Math.max(sz, 0.0001));
-  _q.identity();
-  _m.compose(_p, _q, _s);
-  mesh.setMatrixAt(i, _m);
-  if (color) mesh.setColorAt(i, _c.set(color));
-}
-
-function hideInstance(mesh: THREE.InstancedMesh, i: number) {
-  _p.set(0, -60, 0);
-  _s.set(0.0001, 0.0001, 0.0001);
-  _q.identity();
-  _m.compose(_p, _q, _s);
-  mesh.setMatrixAt(i, _m);
-}
-
 function touch(mesh: THREE.InstancedMesh | null) {
-  if (!mesh) return;
-  mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  touchInstances(mesh);
 }
 
 function FarmScene(props: Props & { onFps: (fps: number) => void }) {
@@ -145,9 +120,9 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
 
       // Khung vien + mat o
       setInstance(frame, i, x, 0.03, z, 1.18, 0.3, 1.18,
-        _c.set('#3A2A18').multiplyScalar(hl).getStyle());
+        new THREE.Color('#3A2A18').multiplyScalar(hl).getStyle());
       setInstance(surf, i, x, 0.06, z, 1.04, 0.36, 1.04,
-        _c.set(surfaceColor(plot, stage)).multiplyScalar(hl).getStyle());
+        new THREE.Color(surfaceColor(plot, stage)).multiplyScalar(hl).getStyle());
 
       // Ranh cay cho o da cay
       const tilled = stage !== 'empty';
@@ -155,7 +130,7 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
         const ri = i * 3 + r;
         if (tilled) {
           setInstance(ridge, ri, x, SURFACE_TOP + 0.02, z - 0.3 + r * 0.3, 0.94, 0.08, 0.14,
-            _c.set(surfaceColor(plot, stage)).multiplyScalar(0.7 * hl).getStyle());
+            new THREE.Color(surfaceColor(plot, stage)).multiplyScalar(0.7 * hl).getStyle());
         } else hideInstance(ridge, ri);
       }
 
@@ -213,35 +188,9 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
 
   return (
     <>
-      <hemisphereLight args={['#cfe8ff', '#7a9a5b', 0.9]} />
-      <directionalLight position={[6, 10, 4]} intensity={1.25} color="#FFF3D6" />
-      <fog attach="fog" args={['#CDEBF7', 20, 46]} />
-
-      {/* Dao bay 3 tang */}
-      <mesh position={[0, -0.28, 0]}>
-        <cylinderGeometry args={[islandR, islandR * 0.94, 0.56, 28]} />
-        <meshStandardMaterial color="#62B44B" flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, -1.05, 0]}>
-        <cylinderGeometry args={[islandR * 0.94, islandR * 0.68, 1.1, 28]} />
-        <meshStandardMaterial color="#8A5A33" flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, -2.35, 0]}>
-        <cylinderGeometry args={[islandR * 0.68, islandR * 0.22, 1.7, 28]} />
-        <meshStandardMaterial color="#B9B2A2" flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, -3.5, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[islandR * 0.22, 0.9, 28]} />
-        <meshStandardMaterial color="#A8A196" flatShading roughness={1} />
-      </mesh>
-
-      {/* Mat bien */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6.4, 0]}>
-        <circleGeometry args={[70, 40]} />
-        <meshStandardMaterial color="#2E9BD6" flatShading roughness={0.6} transparent opacity={0.96} />
-      </mesh>
-
-      {/* May voxel */}
+      <Lights />
+      <Island radius={islandR} />
+      <Sea />
       <VoxelClouds />
       {/* Cay + nha trang tri */}
       <Decorations islandR={islandR} />
@@ -277,52 +226,6 @@ function FarmScene(props: Props & { onFps: (fps: number) => void }) {
 
       <FpsProbe onFps={onFps} />
     </>
-  );
-}
-
-/** May khoi vuong kieu voxel, bob nhe — 1 draw call nho instancing */
-function VoxelClouds() {
-  const ref = useRef<THREE.InstancedMesh>(null!);
-  const group = useRef<THREE.Group>(null!);
-
-  const puffs = useMemo(() => {
-    const arr: Array<[number, number, number, number]> = [];
-    const clouds: Array<[number, number, number, number]> = [
-      [-8.5, 5.4, -5, 1.25], [7.5, 6.4, -7, 1.6], [2, 5.8, 7.5, 1.0], [-6, 6.8, 6, 0.85],
-    ];
-    const shape: Array<[number, number, number, number]> = [
-      [0, 0, 0, 1], [1.15, 0.12, 0.2, 0.72], [-1.1, 0.08, -0.15, 0.66],
-      [0.35, 0.5, -0.3, 0.58], [-0.4, 0.42, 0.35, 0.5],
-    ];
-    clouds.forEach(([cx, cy, cz, cs]) => {
-      shape.forEach(([x, y, z, s]) => arr.push([cx + x * cs, cy + y * cs, cz + z * cs, s * cs]));
-    });
-    return arr;
-  }, []);
-
-  useLayoutEffect(() => {
-    const mesh = ref.current;
-    if (!mesh) return;
-    puffs.forEach(([x, y, z, s], i) => {
-      setInstance(mesh, i, x, y, z, s, s * 0.7, s, '#FFFFFF');
-    });
-    touch(mesh);
-  }, [puffs]);
-
-  useFrame(({ clock }) => {
-    if (group.current) {
-      group.current.position.y = Math.sin(clock.elapsedTime * 0.45) * 0.22;
-      group.current.position.x = Math.sin(clock.elapsedTime * 0.12) * 0.5;
-    }
-  });
-
-  return (
-    <group ref={group}>
-      <instancedMesh ref={ref} args={[undefined, undefined, Math.max(1, puffs.length)]} raycast={() => null}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial flatShading roughness={1} />
-      </instancedMesh>
-    </group>
   );
 }
 
@@ -366,37 +269,6 @@ function Decorations({ islandR }: { islandR: number }) {
   );
 }
 
-/** Dem FPS, bao ra ngoai toi da 1 lan/giay */
-function FpsProbe({ onFps }: { onFps: (fps: number) => void }) {
-  const frames = useRef(0);
-  const last = useRef(performance.now());
-  const cb = useRef(onFps);
-  cb.current = onFps;
-  useFrame(() => {
-    frames.current += 1;
-    const now = performance.now();
-    const dt = now - last.current;
-    if (dt >= 1000) {
-      cb.current(Math.round((frames.current * 1000) / dt));
-      frames.current = 0;
-      last.current = now;
-    }
-  });
-  return null;
-}
-
-function webglAvailable(): boolean {
-  try {
-    const c = document.createElement('canvas');
-    return !!(
-      window.WebGLRenderingContext &&
-      (c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl'))
-    );
-  } catch {
-    return false;
-  }
-}
-
 /** Wrapper: Canvas lazy-load + fallback 2D khi khong co WebGL */
 export const FarmCanvas3D: React.FC<Props> = (props) => {
   const [fps, setFps] = useState(0);
@@ -411,38 +283,19 @@ export const FarmCanvas3D: React.FC<Props> = (props) => {
   }
 
   return (
-    <div className="relative">
-      <div className="absolute left-2 top-2 z-10 flex items-center gap-2">
-        <span className="rounded-full bg-black/70 px-2.5 py-1 font-mono text-[11px] font-bold text-emerald-300 backdrop-blur-sm">
-          {fps} FPS
-        </span>
-        <span className="rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-bold text-amber-200 backdrop-blur-sm">
-          3D thử nghiệm · {props.plots.length} ô
-        </span>
-      </div>
-      <div
-        className="overflow-hidden rounded-xl border-[3px] border-[#3a2b3f]"
-        style={{ background: 'linear-gradient(180deg, #4AA8E8 0%, #8FD0F5 55%, #CDEBF7 100%)' }}
+    <CanvasShell
+      fps={fps}
+      label={`3D thử nghiệm · ${props.plots.length} ô`}
+      hint="Chạm vào ô đất để cày / gieo / thu hoạch như bản 2D. Mục tiêu spike: giữ ≥ 30 FPS."
+    >
+      <Canvas
+        {...stdCanvasProps}
+        onCreated={({ gl }) => gl.setClearColor('#000000', 0)}
+        onError={() => setFailed(true)}
       >
-        <Canvas
-          flat
-          orthographic
-          dpr={[1, 1.5]}
-          camera={{ position: [9, 8, 9], zoom: 36, near: 0.1, far: 120 }}
-          style={{ height: 420, width: '100%', touchAction: 'pan-y' }}
-          gl={{ antialias: true, alpha: true }}
-          onCreated={({ gl }) => {
-            gl.setClearColor('#000000', 0);
-          }}
-          onError={() => setFailed(true)}
-        >
-          <FarmScene {...props} onFps={setFps} />
-        </Canvas>
-      </div>
-      <p className="mt-1.5 text-center text-[11px] font-medium text-slate-500">
-        Chạm vào ô đất để cày / gieo / thu hoạch như bản 2D. Mục tiêu spike: giữ ≥ 30 FPS.
-      </p>
-    </div>
+        <FarmScene {...props} onFps={setFps} />
+      </Canvas>
+    </CanvasShell>
   );
 };
 
