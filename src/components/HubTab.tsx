@@ -5,6 +5,9 @@ import { Trees, Beef, CookingPot, Store, ShoppingBag, ShoppingCart, Truck, Packa
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
 import { MainQuestCard } from './MainQuestCard';
+import type { RegionInfo } from './VillageCanvas3D';
+
+const VillageCanvas3D = React.lazy(() => import('./VillageCanvas3D'));
 
 interface Props {
   state: FarmGameState;
@@ -27,6 +30,7 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
   // mở khóa Chợ Làng (cột mốc tiến triển đầu tiên) hoặc tự bấm xem.
   const marketUnlocked = unlockedRegions.includes('market');
   const [advancedOpen, setAdvancedOpen] = useState<boolean | null>(null);
+  const [view3D, setView3D] = useState(false);
   const showAdvanced = advancedOpen ?? marketUnlocked;
 
   const mainRegions = [
@@ -47,6 +51,27 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
   ] as const;
 
   const allRegions = [...mainRegions, ...advancedRegions];
+
+  // Màu nhà 3D cho từng khu vực — Phase 4
+  const regionColors: Record<string, { wall: string; roof: string }> = {
+    field: { wall: '#F2E3C2', roof: '#3E8E41' },
+    shop: { wall: '#F5E6C8', roof: '#2E9BD6' },
+    barn: { wall: '#D9C9A8', roof: '#8A5A33' },
+    market: { wall: '#FBE8B0', roof: '#E2725B' },
+    pasture: { wall: '#F2E3C2', roof: '#E8A33D' },
+    supermarket: { wall: '#E8F0FE', roof: '#E15A5A' },
+    workshop: { wall: '#E8E0D0', roof: '#7A6A5A' },
+    transport: { wall: '#DCE8F5', roof: '#4A6FA5' },
+    admin: { wall: '#F0EDE8', roof: '#5A6A7A' },
+  };
+  const regions3D: RegionInfo[] = allRegions.map((r) => ({
+    id: r.id as RegionInfo['id'],
+    label: r.label,
+    desc: r.desc,
+    cost: r.cost,
+    wall: regionColors[r.id]?.wall ?? '#F2E3C2',
+    roof: regionColors[r.id]?.roof ?? '#8A5A33',
+  }));
 
   const handleRegionClick = (regionId: string, cost: number, isLocked: boolean) => {
     if (!isLocked) {
@@ -130,6 +155,43 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
         onClaimQuest={onClaimQuest}
       />
 
+      {/* Toggle 2D / 3D — Phase 4 */}
+      <div className="flex items-center justify-between mt-4 mb-3">
+        <span className="text-xs font-bold text-slate-600">Chế độ xem bản đồ</span>
+        <div className="flex rounded-md border-2 border-[#3a2b3f] overflow-hidden text-xs font-bold">
+          <button
+            onClick={() => setView3D(false)}
+            className={`px-3 py-1.5 ${!view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            2D
+          </button>
+          <button
+            onClick={() => setView3D(true)}
+            className={`px-3 py-1.5 ${view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            3D thử nghiệm
+          </button>
+        </div>
+      </div>
+
+      {view3D ? (
+        <React.Suspense
+          fallback={
+            <div className="rounded-md border-[3px] border-[#3a2b3f] bg-slate-100 p-8 text-center text-sm font-bold text-slate-500">
+              Đang tải 3D…
+            </div>
+          }
+        >
+          <VillageCanvas3D
+            regions={regions3D}
+            unlockedRegions={unlockedRegions}
+            money={money}
+            onSelectTab={onSelectTab}
+            onUnlockRegion={onUnlockRegion}
+          />
+        </React.Suspense>
+      ) : (
+      <>
       {/* Khu vực chính — luôn hiện */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {mainRegions.map(renderRegionCard)}
@@ -165,6 +227,8 @@ export const HubTab: React.FC<Props> = ({ state, onSelectTab, unlockedRegions, m
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Modal xác nhận mở khóa trong game (thay window.confirm) */}
       {pendingUnlock && (
