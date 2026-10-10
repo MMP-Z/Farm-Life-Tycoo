@@ -37,18 +37,15 @@ import { sound } from './utils/sound';
 import { SlimHUD } from './components/SlimHUD';
 import { SettingsModal } from './components/SettingsModal';
 import { GameTab } from './components/NavigationTabs';
-import { WorkshopTab } from './components/WorkshopTab';
-import { TransportTab } from './components/TransportTab';
-import { SupermarketTab } from './components/SupermarketTab';
 import { AdminCenterTab } from './components/AdminCenterTab';
-import type { WorldData } from './components/FarmWorld3D';
+import type { WorldData, WorldZone } from './components/FarmWorld3D';
 import { buildRegions3D, REGION_METAS } from './components/three/regions';
 
 const FarmWorld3D = React.lazy(() => import('./components/FarmWorld3D'));
 
 /** Các tab quản lý mở dạng panel phủ (tạm 2D cho tới khi có nội thất 3D) */
 function isPanelTab(tab: GameTab): boolean {
-  return !['hub', 'field', 'pasture', 'shop', 'market', 'barn'].includes(tab);
+  return false; // Tất cả đã 3D — không còn panel 2D nào
 }
 
 function panelTitle(tab: GameTab): string {
@@ -70,9 +67,11 @@ import { GameIcon } from './components/GameIcon';
 export default function App() {
   const [state, setState] = useState<FarmGameState>(() => loadSavedFarmState());
   const [activeTab, setActiveTab] = useState<GameTab>('hub');
-  const [worldZone, setWorldZone] = useState<'overview' | 'field' | 'pasture' | 'village' | 'shop' | 'market' | 'barn'>('overview');
+  const [worldZone, setWorldZone] = useState<WorldZone>('overview');
   const [showSettings, setShowSettings] = useState(false);
   const [showQuest, setShowQuest] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [adminSection, setAdminSection] = useState<'tax' | 'loan' | 'insurance'>('tax');
   const [floatingParticles, setFloatingParticles] = useState<FloatingReward[]>([]);
   const [levelUpData, setLevelUpData] = useState<{ level: number; rewardMoney: number } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1777,11 +1776,14 @@ export default function App() {
     onUnlockRegion: handleUnlockRegion,
     onOpenPanel: (panel: GameTab) => {
       sound.playClick();
-      if (panel === 'shop' || panel === 'market' || panel === 'barn') {
-        setWorldZone(panel);
-      } else {
-        setActiveTab(panel);
-      }
+      const zoneMap: Record<string, WorldZone> = {
+        field: 'field', pasture: 'pasture', hub: 'village',
+        shop: 'shop', market: 'market', barn: 'barn',
+        supermarket: 'supermarket', workshop: 'workshop',
+        transport: 'transport', admin: 'admin',
+      };
+      const z = zoneMap[panel];
+      if (z) setWorldZone(z);
     },
     emptyPlotsCount,
     hasAutoIrrigation: state.hasAutoIrrigation,
@@ -1819,6 +1821,47 @@ export default function App() {
     },
     onUpgradeBarnCapacity: handleUpgradeBarnCapacity,
     onBuildColdStorage: handleBuildColdStorage,
+    orders: state.orders,
+    factories: state.factories,
+    ownedVehicles: state.ownedVehicles,
+    activeTrips: state.activeTrips,
+    onFulfillOrder: (orderId: string) => {
+      const fakeTarget = {
+        getBoundingClientRect: () => ({
+          left: window.innerWidth / 2, top: window.innerHeight / 2,
+          width: 2, height: 2, right: window.innerWidth / 2 + 2,
+          bottom: window.innerHeight / 2 + 2, x: window.innerWidth / 2, y: window.innerHeight / 2,
+          toJSON: () => ({}),
+        }),
+      };
+      handleFulfillOrder(orderId, { target: fakeTarget } as unknown as React.MouseEvent);
+    },
+    onSkipOrder: handleSkipOrder,
+    onStartCraft: handleStartCraft,
+    onCollectFinishedTask: (factoryId: string, taskId: string) => {
+      const fakeTarget = {
+        getBoundingClientRect: () => ({
+          left: window.innerWidth / 2, top: window.innerHeight / 2,
+          width: 2, height: 2, right: window.innerWidth / 2 + 2,
+          bottom: window.innerHeight / 2 + 2, x: window.innerWidth / 2, y: window.innerHeight / 2,
+          toJSON: () => ({}),
+        }),
+      };
+      handleCollectFinishedTask(factoryId, taskId, { target: fakeTarget } as unknown as React.MouseEvent);
+    },
+    onUnlockFactory: handleUnlockFactory,
+    onBuyVehicle: handleBuyVehicle,
+    onDispatchTrip: (vehicleId: string) => {
+      const v = VEHICLES_CONFIG[vehicleId];
+      if (!v) return;
+      const routeId = v.routes?.[0] || 'village';
+      handleDispatchTrip(vehicleId, routeId, [], 0, 0);
+    },
+    onOpenAdminPanel: (section: 'tax' | 'loan' | 'insurance') => {
+      // Mở panel admin 2D tạm cho section cụ thể — sẽ 3D hóa chi tiết sau
+      setAdminSection(section);
+      setShowAdminPanel(true);
+    },
   };
 
   return (
@@ -1883,67 +1926,34 @@ export default function App() {
       </div>
 
       {/* Panel quản lý (tạm 2D cho tới khi có nội thất 3D) */}
-      {isPanelTab(activeTab) && (
+      {/* Panel Hành chính (tạm 2D cho các thao tác thuế/vay/bảo hiểm chi tiết) */}
+      {showAdminPanel && (
         <div className="fixed inset-0 z-40">
           <div
             className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
-            onClick={() => setActiveTab('hub')}
+            onClick={() => setShowAdminPanel(false)}
           />
           <div className="absolute inset-x-0 bottom-0 top-16 overflow-hidden rounded-t-3xl border-t-[3px] border-x-[3px] border-[#3a2b3f] bg-[#F3EFE0] shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#3a2b3f] bg-[#2E4A35] px-4 py-2.5">
-              <span className="text-sm font-bold text-white">{panelTitle(activeTab)}</span>
+              <span className="text-sm font-bold text-white">
+                Hành Chính — {adminSection === 'tax' ? 'Thuế' : adminSection === 'loan' ? 'Vay vốn' : 'Bảo hiểm'}
+              </span>
               <button
-                onClick={() => setActiveTab('hub')}
+                onClick={() => setShowAdminPanel(false)}
                 className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white hover:bg-white/25"
               >
                 Đóng
               </button>
             </div>
             <div className="h-full overflow-y-auto p-3 pb-16">
-              {activeTab === 'workshop' && (
-                <WorkshopTab
-                  factories={state.factories}
-                  inventory={state.inventory}
-                  money={state.money}
-                  playerLevel={1}
-                  onStartCraft={handleStartCraft}
-                  onCollectFinishedTask={handleCollectFinishedTask}
-                  onUnlockFactory={handleUnlockFactory}
-                  onUpgradeQueue={handleUpgradeQueue}
-                />
-              )}
-              {activeTab === 'transport' && (
-                <TransportTab
-                  ownedVehicles={state.ownedVehicles}
-                  activeTrips={state.activeTrips}
-                  inventory={state.inventory}
-                  currentDay={state.currentDay}
-                  money={state.money}
-                  playerLevel={1}
-                  marketProfiles={state.marketProfiles}
-                  onDispatchTrip={handleDispatchTrip}
-                  onBuyVehicle={handleBuyVehicle}
-                />
-              )}
-              {activeTab === 'supermarket' && (
-                <SupermarketTab
-                  inventory={state.inventory}
-                  orders={state.orders}
-                  currentDay={state.currentDay}
-                  onFulfillOrder={handleFulfillOrder}
-                  onSkipOrder={handleSkipOrder}
-                />
-              )}
-              {activeTab === 'admin' && (
-                <AdminCenterTab
-                  state={state}
-                  onBuyDefense={handleBuyDefense}
-                  onBuyInsurance={handleBuyInsurance}
-                  onPayTax={handlePayTax}
-                  onTakeLoan={handleTakeLoan}
-                  onPayLoan={handlePayLoan}
-                />
-              )}
+              <AdminCenterTab
+                state={state}
+                onBuyDefense={handleBuyDefense}
+                onBuyInsurance={handleBuyInsurance}
+                onPayTax={handlePayTax}
+                onTakeLoan={handleTakeLoan}
+                onPayLoan={handlePayLoan}
+              />
             </div>
           </div>
         </div>

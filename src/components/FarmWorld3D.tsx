@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { FieldPlot, Season, AnimalPen } from '../types/farmSystem';
+import { FieldPlot, Season, AnimalPen, OrderItem, FactoryBuilding, TransportTrip } from '../types/farmSystem';
 import { ANIMALS_CONFIG } from '../config/farmData';
 import { GameTab } from './NavigationTabs';
 import { formatMoney } from '../utils/format';
@@ -17,6 +17,10 @@ import { VillageZone, RegionInfo } from './three/zones/VillageZone';
 import { ShopZone, ShopProduct } from './three/zones/ShopZone';
 import { MarketZone, MarketStall } from './three/zones/MarketZone';
 import { BarnZone } from './three/zones/BarnZone';
+import { SupermarketZone } from './three/zones/SupermarketZone';
+import { WorkshopZone } from './three/zones/WorkshopZone';
+import { TransportZone } from './three/zones/TransportZone';
+import { AdminZone } from './three/zones/AdminZone';
 
 /**
  * Phase 5 — Thế giới 3D thống nhất: MỘT đảo duy nhất gồm 3 khu
@@ -24,7 +28,7 @@ import { BarnZone } from './three/zones/BarnZone';
  * Mọi tương tác thế giới làm trực tiếp trong 3D. Logic game giữ nguyên.
  */
 
-export type WorldZone = 'overview' | 'field' | 'pasture' | 'village' | 'shop' | 'market' | 'barn';
+export type WorldZone = 'overview' | 'field' | 'pasture' | 'village' | 'shop' | 'market' | 'barn' | 'supermarket' | 'workshop' | 'transport' | 'admin';
 
 export interface WorldData {
   plots: FieldPlot[];
@@ -69,6 +73,18 @@ export interface WorldData {
   onDirectSell: (itemId: string, qty: number, price: number) => void;
   onUpgradeBarnCapacity: () => void;
   onBuildColdStorage: () => void;
+  orders: OrderItem[];
+  factories: Record<string, FactoryBuilding>;
+  ownedVehicles: string[];
+  activeTrips: TransportTrip[];
+  onFulfillOrder: (orderId: string) => void;
+  onSkipOrder: (orderId: string) => void;
+  onStartCraft: (factoryId: string, recipeId: string) => void;
+  onCollectFinishedTask: (factoryId: string, taskId: string) => void;
+  onUnlockFactory: (factoryId: string) => void;
+  onBuyVehicle: (vehicleId: string) => void;
+  onDispatchTrip: (vehicleId: string) => void;
+  onOpenAdminPanel: (section: 'tax' | 'loan' | 'insurance') => void;
   onSelectTab: (tab: GameTab) => void;
   onUnlockRegion: (regionId: string, cost: number) => void;
   onOpenPanel: (panel: GameTab) => void;
@@ -81,6 +97,10 @@ const VILLAGE_POS: [number, number] = [0.4, 5.6];
 const SHOP_POS: [number, number] = [0.2, -6.2];
 const MARKET_POS: [number, number] = [-6.8, 2.8];
 const BARN_POS: [number, number] = [6.8, 2.8];
+const SUPERMARKET_POS: [number, number] = [-4.5, -7.8];
+const WORKSHOP_POS: [number, number] = [4.5, -7.8];
+const TRANSPORT_POS: [number, number] = [-9.8, -3.2];
+const ADMIN_POS: [number, number] = [9.8, -3.2];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
@@ -92,6 +112,10 @@ const PRESETS: Record<WorldZone, CamPreset> = {
   shop: { pos: [SHOP_POS[0] + 9, 8, SHOP_POS[1] + 9], look: [SHOP_POS[0], 0, SHOP_POS[1]], zoom: 30 },
   market: { pos: [MARKET_POS[0] + 9, 8, MARKET_POS[1] + 9], look: [MARKET_POS[0], 0, MARKET_POS[1]], zoom: 30 },
   barn: { pos: [BARN_POS[0] + 9, 8, BARN_POS[1] + 9], look: [BARN_POS[0], 0, BARN_POS[1]], zoom: 30 },
+  supermarket: { pos: [SUPERMARKET_POS[0] + 9, 8, SUPERMARKET_POS[1] + 9], look: [SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]], zoom: 30 },
+  workshop: { pos: [WORKSHOP_POS[0] + 9, 8, WORKSHOP_POS[1] + 9], look: [WORKSHOP_POS[0], 0, WORKSHOP_POS[1]], zoom: 30 },
+  transport: { pos: [TRANSPORT_POS[0] + 9, 8, TRANSPORT_POS[1] + 9], look: [TRANSPORT_POS[0], 0, TRANSPORT_POS[1]], zoom: 30 },
+  admin: { pos: [ADMIN_POS[0] + 9, 8, ADMIN_POS[1] + 9], look: [ADMIN_POS[0], 0, ADMIN_POS[1]], zoom: 30 },
 };
 
 /** Camera bay mượt tới khu được chọn */
@@ -180,6 +204,9 @@ export const FarmWorld3D: React.FC<{
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
   const [selectedStall, setSelectedStall] = useState<MarketStall | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
+  const [selectedFactory, setSelectedFactory] = useState<FactoryBuilding | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
 
   const selectedAnimal = data.pen.animals.find((a) => a.id === selectedAnimalId) || null;
   const selectedAnimalDef = selectedAnimal ? ANIMALS_CONFIG[selectedAnimal.type] : null;
@@ -199,6 +226,10 @@ export const FarmWorld3D: React.FC<{
     { id: 'shop', label: 'Cửa hàng' },
     { id: 'market', label: 'Chợ' },
     { id: 'barn', label: 'Kho' },
+    { id: 'supermarket', label: 'Siêu thị' },
+    { id: 'workshop', label: 'Xưởng' },
+    { id: 'transport', label: 'Vận tải' },
+    { id: 'admin', label: 'Hành chính' },
   ];
 
   if (!webglAvailable() || failed) {
@@ -221,7 +252,7 @@ export const FarmWorld3D: React.FC<{
           onError={() => setFailed(true)}
         >
           <Lights />
-          <Island radius={11.5} />
+          <Island radius={14} />
           <Sea />
           <VoxelClouds />
           <WorldDecor />
@@ -292,6 +323,33 @@ export const FarmWorld3D: React.FC<{
               onBuildColdStorage={data.onBuildColdStorage}
             />
           </group>
+          <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]}>
+            <SupermarketZone
+              orders={data.orders}
+              currentDay={data.currentDay}
+              inventory={data.inventory}
+              onSelectOrder={setSelectedOrder}
+            />
+          </group>
+          <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]}>
+            <WorkshopZone factories={data.factories} onSelectFactory={setSelectedFactory} />
+          </group>
+          <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]}>
+            <TransportZone
+              ownedVehicles={data.ownedVehicles}
+              activeTrips={data.activeTrips}
+              money={data.money}
+              onSelectVehicle={setSelectedVehicle}
+            />
+          </group>
+          <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]}>
+            <AdminZone
+              money={data.money}
+              onOpenTax={() => data.onOpenAdminPanel('tax')}
+              onOpenLoan={() => data.onOpenAdminPanel('loan')}
+              onOpenInsurance={() => data.onOpenAdminPanel('insurance')}
+            />
+          </group>
           <FpsProbe onFps={setFps} />
         </Canvas>
       </CanvasShell>
@@ -313,6 +371,105 @@ export const FarmWorld3D: React.FC<{
 
       {/* Panel con vật đang chọn */}
       {/* Panel sạp chợ đang chọn */}
+      {/* Panel đơn hàng đang chọn */}
+      {selectedOrder && (
+        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-800">{selectedOrder.customerName}</p>
+              <div className="mt-1 space-y-0.5">
+                {selectedOrder.requirements.map((req) => {
+                  const inStock = data.inventory.find((i) => i.itemId === req.itemId)?.quantity || 0;
+                  return (
+                    <p key={req.itemId} className={`text-[11px] ${inStock >= req.amount ? 'text-emerald-700' : 'text-rose-600'}`}>
+                      {req.name}: {inStock}/{req.amount}
+                    </p>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-xs font-bold text-amber-700">
+                Thưởng: <CoinIcon /> {formatMoney(selectedOrder.rewardMoney)}
+              </p>
+            </div>
+            <button onClick={() => setSelectedOrder(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
+          </div>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => { data.onFulfillOrder(selectedOrder.id); setSelectedOrder(null); }}
+              className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
+            >
+              Giao hàng
+            </button>
+            <button
+              onClick={() => { data.onSkipOrder(selectedOrder.id); setSelectedOrder(null); }}
+              className="flex-1 rounded-lg bg-slate-200 py-2 text-xs font-bold text-slate-600"
+            >
+              Bỏ qua
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Panel xưởng đang chọn */}
+      {selectedFactory && (
+        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-slate-800">{selectedFactory.name}</p>
+            <button onClick={() => setSelectedFactory(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
+          </div>
+          {!selectedFactory.unlocked ? (
+            <button
+              onClick={() => { data.onUnlockFactory(selectedFactory.id); setSelectedFactory(null); }}
+              disabled={data.money < selectedFactory.cost}
+              className="mt-2 w-full rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950 disabled:bg-slate-200 disabled:text-slate-400"
+            >
+              Mở khóa (<CoinIcon /> {formatMoney(selectedFactory.cost)})
+            </button>
+          ) : (
+            <div className="mt-2 space-y-1.5">
+              {selectedFactory.activeTasks.filter((t) => t.completed).map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => { data.onCollectFinishedTask(selectedFactory.id, t.id); }}
+                  className="w-full rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white"
+                >
+                  Thu hoạch thành phẩm
+                </button>
+              ))}
+              <p className="text-[11px] text-slate-500">
+                {selectedFactory.activeTasks.filter((t) => !t.completed).length} mẻ đang chế biến
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      {/* Panel xe đang chọn */}
+      {selectedVehicle && (
+        <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-slate-800">
+              {data.ownedVehicles.includes(selectedVehicle) ? 'Xe của bạn' : 'Mua xe mới'}
+            </p>
+            <button onClick={() => setSelectedVehicle(null)} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Đóng</button>
+          </div>
+          <div className="mt-2 flex gap-2">
+            {data.ownedVehicles.includes(selectedVehicle) ? (
+              <button
+                onClick={() => { data.onDispatchTrip(selectedVehicle); setSelectedVehicle(null); }}
+                className="flex-1 rounded-lg bg-[#2E4A35] py-2 text-xs font-bold text-white"
+              >
+                Xuất chuyến
+              </button>
+            ) : (
+              <button
+                onClick={() => { data.onBuyVehicle(selectedVehicle); setSelectedVehicle(null); }}
+                className="flex-1 rounded-lg bg-amber-500 py-2 text-xs font-black text-slate-950"
+              >
+                Mua xe
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       {selectedStall && (
         <div className="mt-2 rounded-xl border-[3px] border-[#3a2b3f] bg-white p-3 shadow-[4px_4px_0_#3a2b3f]">
           <div className="flex items-center justify-between">
