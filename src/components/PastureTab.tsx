@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AnimalPen } from '../types/farmSystem';
 import { ANIMALS_CONFIG, ALL_ITEMS_CATALOG } from '../config/farmData';
 import { Heart, Plus, Droplets, Sparkles, AlertTriangle, Pill, ShieldCheck, DollarSign } from 'lucide-react';
@@ -8,6 +8,8 @@ import { SpriteIcon } from './SpriteIcon';
 import { ANIMAL_SPRITES, MOOD_SPRITES } from '../utils/sprites';
 import { CoinIcon } from './CoinIcon';
 import { GameIcon } from './GameIcon';
+
+const PastureCanvas3D = React.lazy(() => import('./PastureCanvas3D'));
 
 interface Props {
   pens: Record<string, AnimalPen>;
@@ -39,6 +41,7 @@ export const PastureTab: React.FC<Props> = ({
   onSellAnimal,
 }) => {
   const mainPen = pens['main'] || { capacity: 10, animals: [], waterTrough: 100, cleanliness: 100 };
+  const [view3D, setView3D] = useState(false);
   const vetMedCount = inventory.find((i) => i.itemId === 'vet_medicine')?.quantity || 0;
   const upgradeCost = 150 + mainPen.capacity * 40;
 
@@ -159,6 +162,43 @@ export const PastureTab: React.FC<Props> = ({
         </button>
       </div>
 
+
+      {/* Toggle 2D / 3D — Phase 3 */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-slate-600">Chế độ xem chuồng trại</span>
+        <div className="flex rounded-md border-2 border-[#3a2b3f] overflow-hidden text-xs font-bold">
+          <button
+            onClick={() => setView3D(false)}
+            className={`px-3 py-1.5 ${!view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            2D
+          </button>
+          <button
+            onClick={() => setView3D(true)}
+            className={`px-3 py-1.5 ${view3D ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'}`}
+          >
+            3D thử nghiệm
+          </button>
+        </div>
+      </div>
+
+      {view3D && (
+        <React.Suspense
+          fallback={
+            <div className="rounded-md border-[3px] border-[#3a2b3f] bg-slate-100 p-8 text-center text-sm font-bold text-slate-500">
+              Đang tải 3D…
+            </div>
+          }
+        >
+          <PastureCanvas3D
+            pen={mainPen}
+            onFeedPen={onFeedPen}
+            onFillWaterTrough={onFillWaterTrough}
+            onCureAnimal={onCureAnimal}
+            onSellAnimal={onSellAnimal}
+          />
+        </React.Suspense>
+      )}
 
       {/* Animal List */}
       <div className="bg-[#FBF9F5] rounded-3xl p-4 border border-[#EFECE1]">
