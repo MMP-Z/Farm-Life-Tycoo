@@ -211,7 +211,7 @@ function Troughs({ onFeedPen, onFillWaterTrough }: { onFeedPen: () => void; onFi
   };
   return (
     <group>
-      <group position={[-2.7, 0, -1.9]} onClick={(e) => { e.stopPropagation(); onFeedPen(); }} {...hover}>
+      <group position={[-2.7, 0, -1.9]} raycast={() => null}>
         <mesh position={[0, 0.22, 0]}>
           <boxGeometry args={[1.2, 0.3, 0.55]} />
           <meshStandardMaterial color="#8A5A33" flatShading roughness={1} />
@@ -221,7 +221,7 @@ function Troughs({ onFeedPen, onFillWaterTrough }: { onFeedPen: () => void; onFi
           <meshStandardMaterial color="#E8C547" flatShading roughness={1} />
         </mesh>
       </group>
-      <group position={[2.7, 0, -1.9]} onClick={(e) => { e.stopPropagation(); onFillWaterTrough(); }} {...hover}>
+      <group position={[2.7, 0, -1.9]} raycast={() => null}>
         <mesh position={[0, 0.22, 0]}>
           <boxGeometry args={[1.2, 0.3, 0.55]} />
           <meshStandardMaterial color="#7A6A5A" flatShading roughness={1} />
@@ -248,12 +248,7 @@ export function PastureZone(props: PastureZoneProps) {
         <Animal key={a.id} animal={a} selected={selectedId === a.id} onSelect={onSelect} />
       ))}
       {/* Giỏ thu sản phẩm 3D */}
-      <group
-        position={[0, 0, -3.4]}
-        onClick={(e) => { e.stopPropagation(); onCollectProduce(); }}
-        onPointerOver={() => (document.body.style.cursor = 'pointer')}
-        onPointerOut={() => (document.body.style.cursor = 'auto')}
-      >
+      <group position={[0, 0, -3.4]} raycast={() => null}>
         <mesh position={[0, 0.25, 0]}>
           <cylinderGeometry args={[0.42, 0.32, 0.5, 8]} />
           <meshStandardMaterial color="#A9744F" flatShading roughness={1} />
