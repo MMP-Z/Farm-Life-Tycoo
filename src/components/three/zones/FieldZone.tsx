@@ -7,53 +7,7 @@ import { calculateCropGrowth } from '../../../utils/cropGrowth';
 import { setInstance, hideInstance, touchInstances } from '../decor';
 import { Label } from '../Label';
 
-/** Tháp nước 3D — bấm để tưới hết */
-function WaterTower({ onWaterAll }: { onWaterAll: () => void }) {
-  return (
-    <group
-      position={[-4.6, 0, 2.6]}
-      onClick={(e) => { e.stopPropagation(); onWaterAll(); }}
-      onPointerOver={() => (document.body.style.cursor = 'pointer')}
-      onPointerOut={() => (document.body.style.cursor = 'auto')}
-    >
-      <mesh position={[0, 0.5, 0]}>
-        <cylinderGeometry args={[0.12, 0.16, 1.0, 6]} />
-        <meshStandardMaterial color="#8A5A33" flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, 1.25, 0]}>
-        <cylinderGeometry args={[0.45, 0.45, 0.6, 10]} />
-        <meshStandardMaterial color="#4AA8E8" flatShading roughness={0.7} />
-      </mesh>
-      <mesh position={[0, 1.62, 0]}>
-        <coneGeometry args={[0.55, 0.3, 10]} />
-        <meshStandardMaterial color="#2E6FA5" flatShading roughness={0.8} />
-      </mesh>
-      <Label text="Tưới hết" position={[0, 2.1, 0]} scale={0.7} />
-    </group>
-  );
-}
-
-/** Giỏ thu hoạch 3D — bấm để thu hoạch hết */
-function HarvestBasket({ onHarvestAll }: { onHarvestAll: () => void }) {
-  return (
-    <group
-      position={[4.6, 0, 2.6]}
-      onClick={(e) => { e.stopPropagation(); onHarvestAll(); }}
-      onPointerOver={() => (document.body.style.cursor = 'pointer')}
-      onPointerOut={() => (document.body.style.cursor = 'auto')}
-    >
-      <mesh position={[0, 0.25, 0]}>
-        <cylinderGeometry args={[0.4, 0.3, 0.5, 8]} />
-        <meshStandardMaterial color="#A9744F" flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, 0.55, 0]}>
-        <sphereGeometry args={[0.28, 7, 6]} />
-        <meshStandardMaterial color="#EFC44A" flatShading roughness={0.9} />
-      </mesh>
-      <Label text="Thu hoạch hết" position={[0, 1.5, 0]} scale={0.7} />
-    </group>
-  );
-}
+/** Cánh đồng 3D — chỉ còn các ô ruộng (tương tác chính) */
 
 /** Zone cánh đồng trong thế giới 3D thống nhất. Tọa độ local, bọc bởi <group position>. */
 
@@ -226,8 +180,6 @@ export function FieldZone(props: FieldZoneProps) {
 
   return (
     <group>
-      <WaterTower onWaterAll={onWaterAll} />
-      <HarvestBasket onHarvestAll={onHarvestAll} />
       <instancedMesh ref={frameRef} args={[undefined, undefined, n]} {...hoverProps}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial flatShading roughness={0.95} />
