@@ -75,42 +75,42 @@ export function PlayerCharacter() {
       {/* Đầu */}
       <mesh position={[0, 0.85, 0]} raycast={() => null}>
         <sphereGeometry args={[0.22, 8, 6]} />
-        <meshStandardMaterial color="#F2C99B" flatShading roughness={1} />
+        <meshStandardMaterial color="#F5C89B" flatShading roughness={0.85} />
       </mesh>
       {/* Mũ rơm */}
       <mesh position={[0, 1.05, 0]} raycast={() => null}>
         <coneGeometry args={[0.3, 0.18, 8]} />
-        <meshStandardMaterial color="#D9A441" flatShading roughness={1} />
+        <meshStandardMaterial color="#D9A441" flatShading roughness={0.85} />
       </mesh>
       {/* Thân / áo */}
       <mesh position={[0, 0.5, 0]} raycast={() => null}>
         <boxGeometry args={[0.36, 0.42, 0.24]} />
-        <meshStandardMaterial color="#3E8E41" flatShading roughness={1} />
+        <meshStandardMaterial color="#4A9A4F" flatShading roughness={0.85} />
       </mesh>
       {/* Tay trái */}
       <mesh position={[-0.24, 0.5, 0]} raycast={() => null}>
         <cylinderGeometry args={[0.06, 0.06, 0.3, 8]} />
-        <meshStandardMaterial color="#3E8E41" flatShading roughness={1} />
+        <meshStandardMaterial color="#4A9A4F" flatShading roughness={0.85} />
       </mesh>
       {/* Tay phải */}
       <mesh position={[0.24, 0.5, 0]} raycast={() => null}>
         <cylinderGeometry args={[0.06, 0.06, 0.3, 8]} />
-        <meshStandardMaterial color="#3E8E41" flatShading roughness={1} />
+        <meshStandardMaterial color="#4A9A4F" flatShading roughness={0.85} />
       </mesh>
       {/* Quần */}
       <mesh position={[0, 0.22, 0]} raycast={() => null}>
         <boxGeometry args={[0.32, 0.18, 0.22]} />
-        <meshStandardMaterial color="#4A6FA5" flatShading roughness={1} />
+        <meshStandardMaterial color="#7A9BC4" flatShading roughness={0.85} />
       </mesh>
       {/* Chân trái */}
       <mesh position={[-0.1, 0.08, 0]} raycast={() => null}>
         <cylinderGeometry args={[0.07, 0.07, 0.22, 8]} />
-        <meshStandardMaterial color="#5A3D26" flatShading roughness={1} />
+        <meshStandardMaterial color="#5A3D26" flatShading roughness={0.85} />
       </mesh>
       {/* Chân phải */}
       <mesh position={[0.1, 0.08, 0]} raycast={() => null}>
         <cylinderGeometry args={[0.07, 0.07, 0.22, 8]} />
-        <meshStandardMaterial color="#5A3D26" flatShading roughness={1} />
+        <meshStandardMaterial color="#5A3D26" flatShading roughness={0.85} />
       </mesh>
     </group>
   );
