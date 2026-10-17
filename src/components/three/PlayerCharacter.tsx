@@ -3,25 +3,24 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { playerInput, playerState, getMoveVector } from './playerInput';
 
-// Danh sách vật cản tĩnh: các colliders gốc cộng thêm 9 ngôi nhà làng.
+// Danh sách vật cản: giếng + các công trình theo bố cục làng chữ nhật mới.
 const BASE_COLLIDERS: [number, number, number][] = [
-  [-0.5, -6.8, 1.8],
-  [-8, -1, 1.6],
-  [8, -1.5, 1.6],
-  [0, 8, 1.6],
-  [0, -9, 1.6],
-  [-10, 4, 1.6],
-  [10, 4, 1.6],
-  [-6.5, -11, 1.6],
-  [6.5, -11, 1.6],
-  [-14, -4.5, 1.6],
-  [14, -4.5, 1.6],
+  [0, 0, 1.4],      // giếng nước giữa quảng trường
+  [0, 5, 1.8],      // trung tâm hành chính
+  [-14, -2, 2.5],   // khu ruộng (cụm ô đất)
+  [14, 10, 3.0],    // chuồng trại (có hàng rào)
+  [15, -8, 1.8],    // cửa hàng
+  [15, -2, 1.8],    // chợ làng
+  [15, 4, 1.8],     // siêu thị
+  [-8, 12, 1.8],    // nhà kho
+  [-14, 10, 1.8],   // xưởng chế biến
+  [-18, 12, 1.8],   // đội vận tải
 ];
 
 const HOUSE_COLLIDERS: [number, number, number][] = [];
 for (let col = -1; col <= 1; col++) {
   for (let row = -1; row <= 1; row++) {
-    HOUSE_COLLIDERS.push([col * 2.75, 8 + row * 2.75, 1.2]);
+    HOUSE_COLLIDERS.push([col * 2.75, 11 + row * 2.75, 1.2]);
   }
 }
 const COLLIDERS: [number, number, number][] = [...BASE_COLLIDERS, ...HOUSE_COLLIDERS];
@@ -51,13 +50,9 @@ export function PlayerCharacter() {
       grp.position.y = THREE.MathUtils.lerp(grp.position.y, 0, Math.min(1, dt * 8));
     }
 
-    // Va chạm (a): giới hạn trong đảo tròn bán kính 19.
-    const radius = Math.hypot(grp.position.x, grp.position.z);
-    if (radius > 19) {
-      const scale = 19 / radius;
-      grp.position.x *= scale;
-      grp.position.z *= scale;
-    }
+    // Va chạm (a): giới hạn trong nền làng chữ nhật 44x32.
+    grp.position.x = THREE.MathUtils.clamp(grp.position.x, -21, 21);
+    grp.position.z = THREE.MathUtils.clamp(grp.position.z, -15, 15);
 
     // Va chạm (b): đẩy ra khỏi các vật cản.
     for (const [cx, cz, r] of COLLIDERS) {
