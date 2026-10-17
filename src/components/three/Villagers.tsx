@@ -100,17 +100,17 @@ function Villager({ shirtColor, startPosition, waypoints, random }: VillagerProp
       {/* Đầu */}
       <mesh position={[0, 0.85, 0]} raycast={() => null}>
         <sphereGeometry args={[0.2, 8, 6]} />
-        <meshStandardMaterial color="#F2C89B" flatShading roughness={1} />
+        <meshStandardMaterial color="#F5C89B" flatShading roughness={0.85} />
       </mesh>
       {/* Thân / áo */}
       <mesh position={[0, 0.5, 0]} raycast={() => null}>
         <boxGeometry args={[0.36, 0.42, 0.24]} />
-        <meshStandardMaterial color={shirtColor} flatShading roughness={1} />
+        <meshStandardMaterial color={shirtColor} flatShading roughness={0.85} />
       </mesh>
       {/* Quần */}
       <mesh position={[0, 0.22, 0]} raycast={() => null}>
         <boxGeometry args={[0.32, 0.18, 0.22]} />
-        <meshStandardMaterial color="#3A3A4A" flatShading roughness={1} />
+        <meshStandardMaterial color="#5A4A3A" flatShading roughness={0.85} />
       </mesh>
     </group>
   );
@@ -119,12 +119,12 @@ function Villager({ shirtColor, startPosition, waypoints, random }: VillagerProp
 export function Villagers() {
   return (
     <group>
-      <Villager shirtColor="#FF0000" startPosition={NPC1_WAYPOINTS[0]} waypoints={NPC1_WAYPOINTS} />
-      <Villager shirtColor="#0000FF" startPosition={[0, -13]} waypoints={NPC2_WAYPOINTS} />
-      <Villager shirtColor="#FFFF00" startPosition={[-19, 0]} waypoints={NPC3_WAYPOINTS} />
-      <Villager shirtColor="#800080" startPosition={randomWaypoint()} random />
-      <Villager shirtColor="#FFA500" startPosition={randomWaypoint()} random />
-      <Villager shirtColor="#FFC0CB" startPosition={randomWaypoint()} random />
+      <Villager shirtColor="#E07856" startPosition={NPC1_WAYPOINTS[0]} waypoints={NPC1_WAYPOINTS} />
+      <Villager shirtColor="#6A8FC4" startPosition={[0, -13]} waypoints={NPC2_WAYPOINTS} />
+      <Villager shirtColor="#F2D06B" startPosition={[-19, 0]} waypoints={NPC3_WAYPOINTS} />
+      <Villager shirtColor="#9A6AA8" startPosition={randomWaypoint()} random />
+      <Villager shirtColor="#E8A04C" startPosition={randomWaypoint()} random />
+      <Villager shirtColor="#F2A7B8" startPosition={randomWaypoint()} random />
     </group>
   );
 }
