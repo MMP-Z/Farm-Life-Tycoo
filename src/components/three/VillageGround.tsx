@@ -1,15 +1,47 @@
 import React from "react";
 
-const GRASS = "#62B44B";
+const GRASS = "#7FB069";
 const DIRT = "#8A5A33";
-const STONE = "#B9B2A2";
-const PATH = "#A67C52";
+const STONE = "#C9C2B4";
+const PATH = "#B08968";
 const WOOD = "#6B4A2B";
-const WATER = "#4A90D9";
+const WATER = "#5AA8D8";
+const PATCH_A = "#8FBC6F";
+const PATCH_B = "#6FA055";
 
 const m = (color: string) => (
-  <meshStandardMaterial color={color} flatShading roughness={1} />
+  <meshStandardMaterial color={color} flatShading roughness={0.85} />
 );
+
+// Seeded RNG để patch cỏ mỗi lần load giống nhau
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+// Patch cỏ loang 2 tông xanh — tránh đường (x=0, z=0), quảng trường (r<5.5) và cụm công trình
+const PATCHES: [number, number, number, string][] = (() => {
+  const rand = seededRandom(20261017);
+  const spots: [number, number, number, string][] = [];
+  const avoid: [number, number, number][] = [
+    [0, 0, 5.5], [0, 5, 3], [0, 11, 5], [15, -8, 3], [15, -2, 3],
+    [15, 4, 3], [-14, -2, 4], [14, 10, 4.5], [-14, 10, 3], [-8, 12, 3], [-18, 12, 3],
+  ];
+  let guard = 0;
+  while (spots.length < 14 && guard++ < 200) {
+    const x = (rand() * 2 - 1) * 20;
+    const z = (rand() * 2 - 1) * 14;
+    if (Math.abs(x) < 2 || Math.abs(z) < 2) continue;
+    if (avoid.some(([ax, az, r]) => Math.hypot(x - ax, z - az) < r)) continue;
+    if (spots.some(([px, pz]) => Math.hypot(x - px, z - pz) < 4)) continue;
+    const r = 1.5 + rand() * 2;
+    spots.push([x, z, r, spots.length % 2 === 0 ? PATCH_A : PATCH_B]);
+  }
+  return spots;
+})();
 
 const clusters: [number, number][] = [
   [0, 11],
@@ -32,6 +64,14 @@ export function VillageGround() {
         <boxGeometry args={[44, 0.3, 32]} />
         {m(GRASS)}
       </mesh>
+
+      {/* Patch cỏ loang 2 tông xanh cho đỡ phẳng */}
+      {PATCHES.map(([x, z, r, c], i) => (
+        <mesh key={`patch-${i}`} position={[x, 0.012, z]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
+          <circleGeometry args={[r, 20]} />
+          {m(c)}
+        </mesh>
+      ))}
 
       {/* Stone border */}
       <mesh position={[0, 0.05, 16]} receiveShadow>

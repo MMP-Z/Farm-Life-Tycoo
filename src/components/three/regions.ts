@@ -3,11 +3,11 @@ import { RegionInfo } from './zones/VillageZone';
 /** Danh sách khu vực + màu nhà 3D — dùng chung cho HubTab 2D/3D và FarmWorld3D. */
 
 export const REGION_COLORS: Record<string, { wall: string; roof: string }> = {
-  field: { wall: '#F2E3C2', roof: '#3E8E41' },
+  field: { wall: '#F5E8C8', roof: '#4A9A4F' },
   shop: { wall: '#F5E6C8', roof: '#2E9BD6' },
   barn: { wall: '#D9C9A8', roof: '#8A5A33' },
   market: { wall: '#FBE8B0', roof: '#E2725B' },
-  pasture: { wall: '#F2E3C2', roof: '#E8A33D' },
+  pasture: { wall: '#F5E8C8', roof: '#E8A33D' },
   supermarket: { wall: '#E8F0FE', roof: '#E15A5A' },
   workshop: { wall: '#E8E0D0', roof: '#7A6A5A' },
   transport: { wall: '#DCE8F5', roof: '#4A6FA5' },
@@ -40,7 +40,7 @@ export function buildRegions3D(metas: RegionMeta[]): RegionInfo[] {
     label: r.label,
     desc: r.desc,
     cost: r.cost,
-    wall: REGION_COLORS[r.id]?.wall ?? '#F2E3C2',
+    wall: REGION_COLORS[r.id]?.wall ?? '#F5E8C8',
     roof: REGION_COLORS[r.id]?.roof ?? '#8A5A33',
   }));
 }
