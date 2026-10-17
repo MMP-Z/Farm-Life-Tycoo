@@ -215,7 +215,7 @@ export const TransportTab: React.FC<Props> = ({
                         Chở: {trip.cargo.map((c) => `${c.quantity}x ${c.name}`).join(', ')}
                       </p>
                       <span className="text-[11px] text-emerald-800 font-mono font-bold">
-                        Dự kiến thu: +<CoinIcon /> {trip.totalEarnings.toLocaleString()}
+                        Dự kiến thu: +<CoinIcon /> {formatMoney(trip.totalEarnings)}
                       </span>
                     </div>
                   </div>
