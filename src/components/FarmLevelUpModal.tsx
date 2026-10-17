@@ -3,6 +3,7 @@ import { LEVEL_UNLOCKS } from '../config/farmData';
 import { Sparkles, Trophy, Award, CheckCircle } from 'lucide-react';
 import { CoinIcon } from './CoinIcon';
 import { GameIcon } from './GameIcon';
+import { formatMoney } from '../utils/format';
 
 interface Props {
   level: number;
@@ -41,7 +42,7 @@ export const FarmLevelUpModal: React.FC<Props> = ({ level, rewardMoney, onClose 
           <div className="flex flex-col text-left">
             <span className="text-xs text-emerald-300 font-semibold">Phần Thưởng Thăng Cấp:</span>
             <span className="font-mono font-black text-amber-300 text-lg sm:text-xl">
-              +{rewardMoney.toLocaleString()} Tiền Vàng
+              +{formatMoney(rewardMoney)} Tiền Vàng
             </span>
           </div>
         </div>

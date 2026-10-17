@@ -99,7 +99,8 @@ export function calculateCropGrowth(
  * hay không. Dùng để tự sửa thay vì để cây đứng yên vĩnh viễn.
  */
 export function isPlotStuck(plot: FieldPlot): boolean {
-  if (plot.state !== 'growing' || !plot.cropId) return false;
+  if (plot.state !== 'growing') return false;
+  if (!plot.cropId) return true; // đang growing nhưng mất cropId: kẹt vĩnh viễn
   const crop = CROPS_CONFIG[plot.cropId];
   if (!crop) return true; // cropId không tồn tại trong config
   if (plot.plantedDay === null || plot.plantedDay === undefined) return true;

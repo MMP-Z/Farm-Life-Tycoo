@@ -244,11 +244,18 @@ export function parseFarmState(parsed: any): FarmGameState {
     // Đảm bảo các ô đất cũ có soilType
     const plots = (parsed.plots || []).map((p: any, idx: number) => {
       const defaultSoils: any[] = ['alluvial', 'sandy', 'clay', 'hill'];
-      return {
+      const plot = {
         ...p,
         soilType: p.soilType || defaultSoils[idx % defaultSoils.length],
         specialFeature: p.specialFeature ?? null,
       };
+      // Validate: ô đất báo đang trồng nhưng không có cropId hợp lệ là dữ liệu hỏng
+      // (gây kẹt vĩnh viễn 0%/0d) — reset về đất đã cày ngay khi load
+      if (plot.state === 'growing' && !plot.cropId) {
+        plot.state = 'plowed';
+        plot.plantedDay = null;
+      }
+      return plot;
     });
 
     const marketProfiles = parsed.marketProfiles || generateSeededMarketProfiles(seed, parsed.currentYear || 1);
