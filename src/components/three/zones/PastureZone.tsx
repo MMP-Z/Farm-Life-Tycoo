@@ -228,7 +228,7 @@ function Troughs({ onFeedPen, onFillWaterTrough }: { onFeedPen: () => void; onFi
         </mesh>
         <mesh position={[0, 0.36, 0]}>
           <boxGeometry args={[1.05, 0.06, 0.42]} />
-          <meshStandardMaterial color="#4AA8E8" flatShading roughness={0.4} />
+          <meshStandardMaterial color="#6BB8E8" flatShading roughness={0.4} />
         </mesh>
       </group>
     </group>
