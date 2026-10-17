@@ -332,6 +332,7 @@ export const FarmWorld3D: React.FC<{
       <CanvasShell fps={fps} label="Thế giới 3D" fullscreen>
         <Canvas
           {...stdCanvasProps}
+          shadows
           style={{ ...stdCanvasProps.style, height: '100dvh', width: '100vw' }}
           camera={{ position: init.pos, zoom: init.zoom, near: 0.1, far: 160 }}
           onCreated={({ gl }) => gl.setClearColor('#000000', 0)}
@@ -417,7 +418,7 @@ export const FarmWorld3D: React.FC<{
         <div className="pointer-events-none absolute inset-x-0 bottom-28 z-30 flex justify-center">
           <button
             onClick={() => openSpot(nearbySpot.id)}
-            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg active:scale-95"
+            className="pointer-events-auto rounded-full border-2 border-[#2d4a2f] bg-gradient-to-b from-[#5aa860] to-[#3d7a44] px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_12px_rgba(61,122,68,0.45)] active:scale-95"
           >
             Vào {nearbySpot.label}
           </button>
