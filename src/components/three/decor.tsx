@@ -40,9 +40,17 @@ export function touchInstances(mesh: THREE.InstancedMesh | null) {
 export function Lights() {
   return (
     <>
-      <hemisphereLight args={['#cfe8ff', '#7a9a5b', 0.9]} />
-      <directionalLight position={[6, 10, 4]} intensity={1.25} color="#FFF3D6" />
-      <fog attach="fog" args={['#CDEBF7', 20, 46]} />
+      <hemisphereLight args={['#FFE8C8', '#8A9A6B', 1.0]} />
+      <directionalLight
+        position={[8, 12, 6]}
+        intensity={1.1}
+        color="#FFE0B0"
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-radius={4}
+      />
+      <ambientLight color="#FFF5E0" intensity={0.25} />
+      <fog attach="fog" args={['#F5E0B8', 20, 46]} />
     </>
   );
 }
@@ -54,7 +62,7 @@ export function Island({ radius }: { radius: number }) {
     <group>
       <mesh position={[0, -0.28, 0]}>
         <cylinderGeometry args={[r, r * 0.94, 0.56, 28]} />
-        <meshStandardMaterial color="#62B44B" flatShading roughness={1} />
+        <meshStandardMaterial color="#7FB069" flatShading roughness={0.85} />
       </mesh>
       <mesh position={[0, -1.05, 0]}>
         <cylinderGeometry args={[r * 0.94, r * 0.68, 1.1, 28]} />
@@ -62,7 +70,7 @@ export function Island({ radius }: { radius: number }) {
       </mesh>
       <mesh position={[0, -2.35, 0]}>
         <cylinderGeometry args={[r * 0.68, r * 0.22, 1.7, 28]} />
-        <meshStandardMaterial color="#B9B2A2" flatShading roughness={1} />
+        <meshStandardMaterial color="#C9C2B4" flatShading roughness={0.85} />
       </mesh>
       <mesh position={[0, -3.5, 0]} rotation={[Math.PI, 0, 0]}>
         <coneGeometry args={[r * 0.22, 0.9, 28]} />
@@ -77,7 +85,7 @@ export function Sea() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6.4, 0]} raycast={() => null}>
       <circleGeometry args={[70, 40]} />
-      <meshStandardMaterial color="#2E9BD6" flatShading roughness={0.6} transparent opacity={0.96} />
+      <meshStandardMaterial color="#5AA8D8" flatShading roughness={0.6} transparent opacity={0.96} />
     </mesh>
   );
 }
@@ -175,7 +183,7 @@ export function CanvasShell({
             {fps} FPS
           </span>
         </div>
-        <div className="h-full w-full" style={{ background: 'linear-gradient(180deg, #4AA8E8 0%, #8FD0F5 55%, #CDEBF7 100%)' }}>
+        <div className="h-full w-full" style={{ background: 'linear-gradient(180deg, #6BB8E8 0%, #A8D8F0 55%, #FDE8C8 100%)' }}>
           {children}
         </div>
       </div>
@@ -193,7 +201,7 @@ export function CanvasShell({
       </div>
       <div
         className="overflow-hidden rounded-xl border-[3px] border-[#3a2b3f]"
-        style={{ background: 'linear-gradient(180deg, #4AA8E8 0%, #8FD0F5 55%, #CDEBF7 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #6BB8E8 0%, #A8D8F0 55%, #FDE8C8 100%)' }}
       >
         {children}
       </div>
