@@ -40,7 +40,7 @@ export const SlimHUD: React.FC<Props> = ({
   const profileInfo = STARTING_PROFILES_CONFIG[startingProfileId] || STARTING_PROFILES_CONFIG.hardworking_farmer;
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-0 z-30 flex justify-center pt-2 px-2">
-      <div className="pointer-events-auto flex max-w-full items-center gap-1.5 overflow-x-auto rounded-full border border-white/20 bg-black/45 py-1.5 pl-2 pr-1.5 shadow-lg backdrop-blur-md no-scrollbar">
+      <div className="pointer-events-auto flex max-w-full items-center gap-1.5 overflow-x-auto rounded-full border border-amber-200/30 bg-gradient-to-b from-[#3a2b20]/70 to-[#1a1410]/70 py-1.5 pl-2 pr-1.5 shadow-lg backdrop-blur-md no-scrollbar">
         <span className="flex shrink-0 items-center gap-1" title={profileInfo.name}>
           <SpriteIcon src={FARMER_SPRITE} alt={profileInfo.name} size={22} />
         </span>
