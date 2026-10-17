@@ -44,7 +44,7 @@ export function ShopZone({ onOpenShop }: ShopZoneProps) {
         <group key={i} position={[x, 0, z]}>
           <mesh position={[0, 0.5, 0]}>
             <cylinderGeometry args={[0.12, 0.16, 1.0, 6]} />
-            <meshStandardMaterial color="#7A5230" flatShading roughness={1} />
+            <meshStandardMaterial color="#8A5F3C" flatShading roughness={1} />
           </mesh>
           <mesh position={[0, 1.4, 0]}>
             <coneGeometry args={[0.8, 1.4, 7]} />
