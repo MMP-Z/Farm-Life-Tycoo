@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FieldPlot, Season, AnimalPen, OrderItem, FactoryBuilding, TransportTrip } from '../types/farmSystem';
@@ -11,6 +11,9 @@ import {
   CanvasShell, stdCanvasProps,
 } from './three/decor';
 import { Label } from './three/Label';
+import { PlayerCharacter } from './three/PlayerCharacter';
+import { playerInput, playerState } from './three/playerInput';
+import Joystick from './three/Joystick';
 import { FieldZone } from './three/zones/FieldZone';
 import { PastureZone } from './three/zones/PastureZone';
 import { VillageZone, RegionInfo } from './three/zones/VillageZone';
@@ -103,6 +106,20 @@ const ADMIN_POS: [number, number] = [14, -4.5];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
+/* Bảng công trình tương tác theo khoảng cách — đi bộ tới gần thì hiện nút "Vào khu" */
+const SPOTS: Array<{ id: string; label: string; x: number; z: number }> = [
+  { id: 'field', label: 'Cánh đồng', x: -8, z: -1 },
+  { id: 'pasture', label: 'Chuồng trại', x: 8, z: -1.5 },
+  { id: 'village', label: 'Làng', x: 0, z: 8 },
+  { id: 'shop', label: 'Cửa hàng', x: 0, z: -9 },
+  { id: 'market', label: 'Chợ làng', x: -10, z: 4 },
+  { id: 'barn', label: 'Nhà kho', x: 10, z: 4 },
+  { id: 'supermarket', label: 'Siêu thị', x: -6.5, z: -11 },
+  { id: 'workshop', label: 'Xưởng chế biến', x: 6.5, z: -11 },
+  { id: 'transport', label: 'Đội vận tải', x: -14, z: -4.5 },
+  { id: 'admin', label: 'Hành chính', x: 14, z: -4.5 },
+];
+
 const PRESETS: Record<WorldZone, CamPreset> = {
   overview: { pos: [15, 14, 16], look: [0, 0, 1.2], zoom: 21 },
   field: { pos: [FIELD_POS[0] + 9, 8, FIELD_POS[1] + 9], look: [FIELD_POS[0], 0, FIELD_POS[1]], zoom: 33 },
@@ -117,29 +134,39 @@ const PRESETS: Record<WorldZone, CamPreset> = {
   admin: { pos: [ADMIN_POS[0] + 9, 8, ADMIN_POS[1] + 9], look: [ADMIN_POS[0], 0, ADMIN_POS[1]], zoom: 30 },
 };
 
-/** Camera bay mượt tới khu được chọn */
-function CameraRig({ zone }: { zone: WorldZone }) {
+/** Camera bay mượt: chế độ follow đi theo nhân vật, hoặc preset cố định theo khu */
+function CameraRig({ zone, follow }: { zone: WorldZone; follow: boolean }) {
   const camera = useThree((s) => s.camera) as THREE.OrthographicCamera;
   const look = useRef(new THREE.Vector3(...PRESETS[zone].look));
   const first = useRef(true);
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.05);
-    const p = PRESETS[zone];
+    // Mục tiêu camera: follow nhân vật hoặc preset của khu
+    let tx: number, ty: number, tz: number, lx: number, lz: number, zm: number;
+    if (follow) {
+      const px = playerState.x, pz = playerState.z;
+      tx = px + 9; ty = 8; tz = pz + 9;
+      lx = px; lz = pz; zm = 30;
+    } else {
+      const p = PRESETS[zone];
+      tx = p.pos[0]; ty = p.pos[1]; tz = p.pos[2];
+      lx = p.look[0]; lz = p.look[2]; zm = p.zoom;
+    }
     if (first.current) {
-      camera.position.set(...p.pos);
-      look.current.set(...p.look);
-      camera.zoom = p.zoom;
+      camera.position.set(tx, ty, tz);
+      look.current.set(lx, 0, lz);
+      camera.zoom = zm;
       camera.updateProjectionMatrix();
       camera.lookAt(look.current);
       first.current = false;
       return;
     }
     const k = 1 - Math.exp(-3.2 * dt);
-    camera.position.lerp(new THREE.Vector3(...p.pos), k);
-    look.current.lerp(new THREE.Vector3(...p.look), k);
+    camera.position.lerp(new THREE.Vector3(tx, ty, tz), k);
+    look.current.lerp(new THREE.Vector3(lx, 0, lz), k);
     camera.lookAt(look.current);
-    camera.zoom += (p.zoom - camera.zoom) * k;
+    camera.zoom += (zm - camera.zoom) * k;
     camera.updateProjectionMatrix();
   });
   return null;
@@ -201,6 +228,10 @@ export const FarmWorld3D: React.FC<{
   const [seedMenuPlotId, setSeedMenuPlotId] = useState<number | null>(null);
   const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<GameTab | null>(null);
+  // Chế độ đi bộ: camera follow nhân vật, hiện joystick. Mặc định bật.
+  const [followMode, setFollowMode] = useState(true);
+  // Công trình gần nhất trong tầm tương tác (để hiện nút "Vào khu")
+  const [nearbyId, setNearbyId] = useState<string | null>(null);
 
   const selectedAnimal = data.pen.animals.find((a) => a.id === selectedAnimalId) || null;
   const selectedAnimalDef = selectedAnimal ? ANIMALS_CONFIG[selectedAnimal.type] : null;
@@ -226,6 +257,63 @@ export const FarmWorld3D: React.FC<{
     { id: 'admin', label: 'Hành chính' },
   ];
 
+  // Phím WASD / mũi tên cho desktop (ghi vào playerInput.keys)
+  useEffect(() => {
+    const KEYS = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
+    const down = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if (KEYS.includes(k)) {
+        playerInput.keys.add(k);
+        if (k.startsWith('arrow')) e.preventDefault();
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      playerInput.keys.delete(e.key.toLowerCase());
+    };
+    const blur = () => playerInput.keys.clear();
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', blur);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', blur);
+    };
+  }, []);
+
+  // Quét công trình gần nhân vật mỗi 200ms — chỉ setState khi đổi để tránh render thừa
+  useEffect(() => {
+    if (!followMode) {
+      setNearbyId(null);
+      return;
+    }
+    const timer = setInterval(() => {
+      let best: string | null = null;
+      let bestD = 2.5;
+      for (const s of SPOTS) {
+        const d = Math.hypot(playerState.x - s.x, playerState.z - s.z);
+        if (d < bestD) {
+          bestD = d;
+          best = s.id;
+        }
+      }
+      setNearbyId((cur) => (cur === best ? cur : best));
+    }, 200);
+    return () => clearInterval(timer);
+  }, [followMode]);
+
+  const nearbySpot = SPOTS.find((s) => s.id === nearbyId) || null;
+
+  // Mở khu khi bấm nút "Vào ...": field/pasture/village đổi góc camera, còn lại mở menu 2D
+  const openSpot = (id: string) => {
+    if (id === 'field' || id === 'pasture' || id === 'village') {
+      setFollowMode(false);
+      onZoneChange(id);
+    } else {
+      data.onOpenPanel(id as GameTab);
+    }
+  };
+
   if (!webglAvailable() || failed) {
     return (
       <div className="rounded-md border-[3px] border-[#3a2b3f] bg-amber-50 p-4 text-center text-sm font-bold text-amber-900">
@@ -237,10 +325,11 @@ export const FarmWorld3D: React.FC<{
   const init = PRESETS[initialZone];
 
   return (
-    <div className="h-full w-full">
+    <div className="relative h-full w-full">
       <CanvasShell fps={fps} label="Thế giới 3D" fullscreen>
         <Canvas
           {...stdCanvasProps}
+          style={{ ...stdCanvasProps.style, height: '100dvh', width: '100vw' }}
           camera={{ position: init.pos, zoom: init.zoom, near: 0.1, far: 160 }}
           onCreated={({ gl }) => gl.setClearColor('#000000', 0)}
           onError={() => setFailed(true)}
@@ -250,8 +339,9 @@ export const FarmWorld3D: React.FC<{
           <Sea />
           <VoxelClouds />
           <WorldDecor />
-          <CameraRig zone={zone} />
-          <group position={[FIELD_POS[0], 0, FIELD_POS[1]]} visible={zone === 'overview' || zone === 'field'}>
+          <PlayerCharacter />
+          <CameraRig zone={zone} follow={followMode} />
+          <group position={[FIELD_POS[0], 0, FIELD_POS[1]]} visible={followMode || zone === 'overview' || zone === 'field'}>
             <Label text="Cánh Đồng" position={[0, 4.6, -3.2]} scale={1.1} />
             <FieldZone
               plots={data.plots}
@@ -271,7 +361,7 @@ export const FarmWorld3D: React.FC<{
               onBuyNewPlot={data.onBuyNewPlot}
             />
           </group>
-          <group position={[PASTURE_POS[0], 0, PASTURE_POS[1]]} visible={zone === 'overview' || zone === 'pasture'}>
+          <group position={[PASTURE_POS[0], 0, PASTURE_POS[1]]} visible={followMode || zone === 'overview' || zone === 'pasture'}>
             <Label text="Chuồng Trại" position={[0, 4.2, -3.4]} scale={1.1} />
             <PastureZone
               pen={data.pen}
@@ -282,7 +372,7 @@ export const FarmWorld3D: React.FC<{
               onCollectProduce={data.onCollectProduce}
             />
           </group>
-          <group position={[VILLAGE_POS[0], 0, VILLAGE_POS[1]]} visible={zone === 'overview' || zone === 'village'}>
+          <group position={[VILLAGE_POS[0], 0, VILLAGE_POS[1]]} visible={followMode || zone === 'overview' || zone === 'village'}>
             <VillageZone
               regions={data.regions}
               unlockedRegions={data.unlockedRegions}
@@ -290,30 +380,58 @@ export const FarmWorld3D: React.FC<{
               onSelect={(id) => setSelectedRegionId((cur) => (cur === id ? null : id))}
             />
           </group>
-          <group position={[SHOP_POS[0], 0, SHOP_POS[1]]} visible={zone === 'overview' || zone === 'shop'}>
+          <group position={[SHOP_POS[0], 0, SHOP_POS[1]]} visible={followMode || zone === 'overview' || zone === 'shop'}>
             <ShopZone onOpenShop={() => data.onOpenPanel('shop')} />
           </group>
-          <group position={[MARKET_POS[0], 0, MARKET_POS[1]]} visible={zone === 'overview' || zone === 'market'}>
+          <group position={[MARKET_POS[0], 0, MARKET_POS[1]]} visible={followMode || zone === 'overview' || zone === 'market'}>
             <MarketZone onOpenMarket={() => data.onOpenPanel('market')} />
           </group>
-          <group position={[BARN_POS[0], 0, BARN_POS[1]]} visible={zone === 'overview' || zone === 'barn'}>
+          <group position={[BARN_POS[0], 0, BARN_POS[1]]} visible={followMode || zone === 'overview' || zone === 'barn'}>
             <BarnZone onOpenBarn={() => data.onOpenPanel('barn')} />
           </group>
-          <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]} visible={zone === 'overview' || zone === 'supermarket'}>
+          <group position={[SUPERMARKET_POS[0], 0, SUPERMARKET_POS[1]]} visible={followMode || zone === 'overview' || zone === 'supermarket'}>
             <SupermarketZone onOpenSupermarket={() => data.onOpenPanel('supermarket')} />
           </group>
-          <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]} visible={zone === 'overview' || zone === 'workshop'}>
+          <group position={[WORKSHOP_POS[0], 0, WORKSHOP_POS[1]]} visible={followMode || zone === 'overview' || zone === 'workshop'}>
             <WorkshopZone onOpenWorkshop={() => data.onOpenPanel('workshop')} />
           </group>
-          <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]} visible={zone === 'overview' || zone === 'transport'}>
+          <group position={[TRANSPORT_POS[0], 0, TRANSPORT_POS[1]]} visible={followMode || zone === 'overview' || zone === 'transport'}>
             <TransportZone onOpenTransport={() => data.onOpenPanel('transport')} />
           </group>
-          <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]} visible={zone === 'overview' || zone === 'admin'}>
+          <group position={[ADMIN_POS[0], 0, ADMIN_POS[1]]} visible={followMode || zone === 'overview' || zone === 'admin'}>
             <AdminZone onOpenAdmin={() => data.onOpenPanel('admin')} />
           </group>
           <FpsProbe onFps={setFps} />
         </Canvas>
       </CanvasShell>
+
+      {/* Joystick ảo — chỉ hiện ở chế độ đi bộ */}
+      {followMode && <Joystick />}
+
+      {/* Nút "Vào khu" — hiện khi nhân vật đứng gần công trình */}
+      {followMode && nearbySpot && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-28 z-30 flex justify-center">
+          <button
+            onClick={() => openSpot(nearbySpot.id)}
+            className="pointer-events-auto rounded-full border-2 border-[#3a2b3f] bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg active:scale-95"
+          >
+            Vào {nearbySpot.label}
+          </button>
+        </div>
+      )}
+
+      {/* Nút bật lại chế độ đi bộ khi đang xem preset khu */}
+      {!followMode && (
+        <button
+          onClick={() => {
+            setFollowMode(true);
+            onZoneChange('overview');
+          }}
+          className="absolute bottom-6 right-6 z-30 rounded-full border-2 border-[#3a2b3f] bg-[#2E4A35] px-4 py-2.5 text-sm font-bold text-white shadow-lg active:scale-95"
+        >
+          Đi bộ
+        </button>
+      )}
 
       {/* Menu 2D chọn hạt giống — bấm ô đất đã cày */}
       {seedMenuPlotId !== null && (
@@ -398,12 +516,15 @@ export const FarmWorld3D: React.FC<{
         </div>
       )}
 
-      {/* Thanh di chuyển giữa các khu */}
+      {/* Thanh di chuyển giữa các khu — bấm là tắt chế độ đi bộ, về preset camera cũ */}
       <div className="mt-2 flex gap-1.5 overflow-x-auto">
         {zoneTabs.map((z) => (
           <button
             key={z.id}
-            onClick={() => onZoneChange(z.id)}
+            onClick={() => {
+              setFollowMode(false);
+              onZoneChange(z.id);
+            }}
             className={`shrink-0 rounded-full border-2 border-[#3a2b3f] px-3 py-1.5 text-xs font-bold ${
               zone === z.id ? 'bg-[#2E4A35] text-white' : 'bg-white text-slate-600'
             }`}
