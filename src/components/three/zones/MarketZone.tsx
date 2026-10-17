@@ -51,7 +51,7 @@ export function MarketZone({ onOpenMarket }: MarketZoneProps) {
           {[[-0.7, 0], [0.7, 0]].map(([px], j) => (
             <mesh key={j} position={[px, 1.0, 0]}>
               <cylinderGeometry args={[0.06, 0.06, 1.4, 6]} />
-              <meshStandardMaterial color="#7A5230" flatShading roughness={1} />
+              <meshStandardMaterial color="#8A5F3C" flatShading roughness={1} />
             </mesh>
           ))}
           <mesh position={[0, 1.6, 0]}>
