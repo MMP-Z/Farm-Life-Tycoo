@@ -124,13 +124,13 @@ export function VillageDecor() {
           z: range(-0.25, 0.25),
           rot: rand() * Math.PI,
           h: 0.25 + rand() * 0.25,
-          color: rand() < 0.5 ? "#3a7d2a" : "#4a9d3a",
+          color: rand() < 0.5 ? "#5A8F3C" : "#6FA055",
         });
       }
       grass.push({ x, z, blades });
     }
 
-    const flowerColors = ["#e74c3c", "#f1c40f", "#ffffff"];
+    const flowerColors = ["#E85D4A", "#F5C542", "#FFF8E8"];
     const flowers: { x: number; z: number; color: string; h: number }[] = [];
     while (flowers.length < 15) {
       const x = range(-22, 22);
@@ -162,7 +162,7 @@ export function VillageDecor() {
               raycast={raycast}
             >
               <coneGeometry args={[0.05, b.h, 5]} />
-              <meshStandardMaterial color={b.color} flatShading roughness={1} />
+              <meshStandardMaterial color={b.color} flatShading roughness={0.85} />
             </mesh>
           ))}
         </group>
@@ -171,11 +171,11 @@ export function VillageDecor() {
         <group key={`flower-${fi}`} position={[f.x, 0, f.z]}>
           <mesh position={[0, f.h / 2, 0]} raycast={raycast}>
             <cylinderGeometry args={[0.02, 0.02, f.h, 6]} />
-            <meshStandardMaterial color="#3a7d2a" flatShading roughness={1} />
+            <meshStandardMaterial color="#5A8F3C" flatShading roughness={0.85} />
           </mesh>
           <mesh position={[0, f.h + 0.05, 0]} raycast={raycast}>
             <sphereGeometry args={[0.07, 8, 6]} />
-            <meshStandardMaterial color={f.color} flatShading roughness={1} />
+            <meshStandardMaterial color={f.color} flatShading roughness={0.85} />
           </mesh>
         </group>
       ))}
@@ -185,15 +185,15 @@ export function VillageDecor() {
         <group key={`tree-${ti}`} position={[t[0], 0, t[1]]}>
           <mesh position={[0, 0.6, 0]} raycast={raycast}>
             <cylinderGeometry args={[0.12, 0.15, 1.2, 6]} />
-            <meshStandardMaterial color="#6b4f2a" flatShading roughness={1} />
+            <meshStandardMaterial color="#8A5F3C" flatShading roughness={0.85} />
           </mesh>
           <mesh position={[0, 1.8, 0]} raycast={raycast}>
             <coneGeometry args={[0.9, 1.2, 6]} />
-            <meshStandardMaterial color="#2f6b2f" flatShading roughness={1} />
+            <meshStandardMaterial color="#4A8F43" flatShading roughness={0.85} />
           </mesh>
           <mesh position={[0, 2.7, 0]} raycast={raycast}>
             <coneGeometry args={[0.6, 1.0, 6]} />
-            <meshStandardMaterial color="#3a7d3a" flatShading roughness={1} />
+            <meshStandardMaterial color="#5AA055" flatShading roughness={0.85} />
           </mesh>
         </group>
       ))}
@@ -203,11 +203,11 @@ export function VillageDecor() {
         <group key={`light-${li}`} position={[l[0], 0, l[1]]}>
           <mesh position={[0, 0.8, 0]} raycast={raycast}>
             <cylinderGeometry args={[0.06, 0.08, 1.6, 6]} />
-            <meshStandardMaterial color="#888888" flatShading roughness={1} />
+            <meshStandardMaterial color="#7A6A55" flatShading roughness={0.85} />
           </mesh>
           <mesh position={[0, 1.75, 0]} raycast={raycast}>
             <sphereGeometry args={[0.15, 8, 6]} />
-            <meshStandardMaterial color="#ffd24d" flatShading roughness={1} />
+            <meshStandardMaterial color="#FFD98A" flatShading roughness={0.85} />
           </mesh>
         </group>
       ))}
@@ -218,13 +218,13 @@ export function VillageDecor() {
           {fence.posts.map((p, pi) => (
             <mesh key={`post-${pi}`} position={[p[0], 0.35, p[1]]} raycast={raycast}>
               <boxGeometry args={[0.12, 0.7, 0.12]} />
-              <meshStandardMaterial color="#8b6f47" flatShading roughness={1} />
+              <meshStandardMaterial color="#8A5F3C" flatShading roughness={0.85} />
             </mesh>
           ))}
           {fence.rails.map((r, ri) => (
             <mesh key={`rail-${ri}`} position={r.pos} raycast={raycast}>
               <boxGeometry args={r.size} />
-              <meshStandardMaterial color="#8b6f47" flatShading roughness={1} />
+              <meshStandardMaterial color="#8A5F3C" flatShading roughness={0.85} />
             </mesh>
           ))}
         </group>
