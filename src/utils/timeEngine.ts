@@ -7,6 +7,7 @@ import {
 } from './seedEngine';
 import { processDailyRisks } from './riskEngine';
 import { calculateCropGrowth, isPlotStuck } from './cropGrowth';
+import { formatMoney } from './format';
 
 export const DAY_REAL_SECONDS = 60; // 1 minute real time = 1 in-game day
 export const DAYS_PER_SEASON = 7;
@@ -164,25 +165,33 @@ export function advanceGameTime(  state: FarmGameState,
     }
 
     // Growing crops logic — dùng hàm tính chung với FieldTab
-    if (p.cropId && p.state === 'growing') {
-      // Tự sửa plot bị kẹt (đang growing nhưng plantedDay null/invalid):
-      // gán lại plantedDay = hiện tại để cây bắt đầu lớn thay vì đứng yên vĩnh viễn
-      if (isPlotStuck(p)) {
-        p.plantedDay = currentDay + newTimeOfDay;
-        notifications.push(`🔧 Ô đất #${p.id} bị lỗi dữ liệu đã được tự động sửa. Cây sẽ lớn bình thường từ bây giờ.`);
-      }
-      const isNewPlayer = Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
-      const growth = calculateCropGrowth(
-        p,
-        p.cropId,
-        currentDay,
-        newTimeOfDay,
-        currentSeason,
-        isHardworking,
-        isNewPlayer
-      );
-      if (growth.isValid && growth.isReady) {
-        p.state = 'ready';
+    if (p.state === 'growing') {
+      // Ô đất báo đang trồng nhưng mất cropId: dữ liệu hỏng, không bao giờ lớn được.
+      // Reset về đất đã cày để người chơi trồng lại (trước đây kẹt vĩnh viễn, hiện 0%/0d).
+      if (!p.cropId) {
+        p.state = 'plowed';
+        p.plantedDay = null;
+        notifications.push(`🔧 Ô đất #${p.id} bị lỗi dữ liệu đã được tự động sửa (trở về đất đã cày).`);
+      } else {
+        // Tự sửa plot bị kẹt (đang growing nhưng plantedDay null/invalid):
+        // gán lại plantedDay = hiện tại để cây bắt đầu lớn thay vì đứng yên vĩnh viễn
+        if (isPlotStuck(p)) {
+          p.plantedDay = currentDay + newTimeOfDay;
+          notifications.push(`🔧 Ô đất #${p.id} bị lỗi dữ liệu đã được tự động sửa. Cây sẽ lớn bình thường từ bây giờ.`);
+        }
+        const isNewPlayer = Date.now() - (state.createdAt || Date.now()) < 15 * 60 * 1000;
+        const growth = calculateCropGrowth(
+          p,
+          p.cropId,
+          currentDay,
+          newTimeOfDay,
+          currentSeason,
+          isHardworking,
+          isNewPlayer
+        );
+        if (growth.isValid && growth.isReady) {
+          p.state = 'ready';
+        }
       }
     }
 
@@ -301,7 +310,7 @@ export function advanceGameTime(  state: FarmGameState,
       const finalEarning = Math.round(t.totalEarnings * merchantBonus);
       moneyGain += finalEarning;
       notifications.push(
-        `🚚 Chuyến xe đã bán xong tại ${ROUTES_CONFIG[t.routeId]?.name}! Thu về +${finalEarning.toLocaleString()} 💰.`
+        `🚚 Chuyến xe đã bán xong tại ${ROUTES_CONFIG[t.routeId]?.name}! Thu về +${formatMoney(finalEarning)} 💰.`
       );
     }
     return t;
