@@ -7,9 +7,12 @@ import { GameTab } from './NavigationTabs';
 import { formatMoney } from '../utils/format';
 import { CoinIcon } from './CoinIcon';
 import {
-  Lights, Island, Sea, VoxelClouds, FpsProbe, webglAvailable,
+  Lights, Sea, VoxelClouds, FpsProbe, webglAvailable,
   CanvasShell, stdCanvasProps,
 } from './three/decor';
+import { VillageGround } from './three/VillageGround';
+import { VillageDecor } from './three/VillageDecor';
+import { Villagers } from './three/Villagers';
 import { Label } from './three/Label';
 import { PlayerCharacter } from './three/PlayerCharacter';
 import { playerInput, playerState } from './three/playerInput';
@@ -92,36 +95,36 @@ export interface WorldData {
   onOpenPanel: (panel: GameTab) => void;
 }
 
-/* Vị trí các khu trên đảo */
-const FIELD_POS: [number, number] = [-8, -1];
-const PASTURE_POS: [number, number] = [8, -1.5];
-const VILLAGE_POS: [number, number] = [0, 8];
-const SHOP_POS: [number, number] = [0, -9];
-const MARKET_POS: [number, number] = [-10, 4];
-const BARN_POS: [number, number] = [10, 4];
-const SUPERMARKET_POS: [number, number] = [-6.5, -11];
-const WORKSHOP_POS: [number, number] = [6.5, -11];
-const TRANSPORT_POS: [number, number] = [-14, -4.5];
-const ADMIN_POS: [number, number] = [14, -4.5];
+/* Vị trí các khu trên làng chữ nhật (nền 44x32) */
+const FIELD_POS: [number, number] = [-14, -2];
+const PASTURE_POS: [number, number] = [14, 10];
+const VILLAGE_POS: [number, number] = [0, 11];
+const SHOP_POS: [number, number] = [15, -8];
+const MARKET_POS: [number, number] = [15, -2];
+const BARN_POS: [number, number] = [-8, 12];
+const SUPERMARKET_POS: [number, number] = [15, 4];
+const WORKSHOP_POS: [number, number] = [-14, 10];
+const TRANSPORT_POS: [number, number] = [-18, 12];
+const ADMIN_POS: [number, number] = [0, 5];
 
 interface CamPreset { pos: [number, number, number]; look: [number, number, number]; zoom: number; }
 
 /* Bảng công trình tương tác theo khoảng cách — đi bộ tới gần thì hiện nút "Vào khu" */
 const SPOTS: Array<{ id: string; label: string; x: number; z: number }> = [
-  { id: 'field', label: 'Cánh đồng', x: -8, z: -1 },
-  { id: 'pasture', label: 'Chuồng trại', x: 8, z: -1.5 },
-  { id: 'village', label: 'Làng', x: 0, z: 8 },
-  { id: 'shop', label: 'Cửa hàng', x: 0, z: -9 },
-  { id: 'market', label: 'Chợ làng', x: -10, z: 4 },
-  { id: 'barn', label: 'Nhà kho', x: 10, z: 4 },
-  { id: 'supermarket', label: 'Siêu thị', x: -6.5, z: -11 },
-  { id: 'workshop', label: 'Xưởng chế biến', x: 6.5, z: -11 },
-  { id: 'transport', label: 'Đội vận tải', x: -14, z: -4.5 },
-  { id: 'admin', label: 'Hành chính', x: 14, z: -4.5 },
+  { id: 'field', label: 'Cánh đồng', x: -14, z: -2 },
+  { id: 'pasture', label: 'Chuồng trại', x: 14, z: 10 },
+  { id: 'village', label: 'Làng', x: 0, z: 11 },
+  { id: 'shop', label: 'Cửa hàng', x: 15, z: -8 },
+  { id: 'market', label: 'Chợ làng', x: 15, z: -2 },
+  { id: 'barn', label: 'Nhà kho', x: -8, z: 12 },
+  { id: 'supermarket', label: 'Siêu thị', x: 15, z: 4 },
+  { id: 'workshop', label: 'Xưởng chế biến', x: -14, z: 10 },
+  { id: 'transport', label: 'Đội vận tải', x: -18, z: 12 },
+  { id: 'admin', label: 'Hành chính', x: 0, z: 5 },
 ];
 
 const PRESETS: Record<WorldZone, CamPreset> = {
-  overview: { pos: [15, 14, 16], look: [0, 0, 1.2], zoom: 21 },
+  overview: { pos: [22, 20, 24], look: [0, 0, 0], zoom: 15 },
   field: { pos: [FIELD_POS[0] + 9, 8, FIELD_POS[1] + 9], look: [FIELD_POS[0], 0, FIELD_POS[1]], zoom: 33 },
   pasture: { pos: [PASTURE_POS[0] + 9, 8, PASTURE_POS[1] + 9], look: [PASTURE_POS[0], 0, PASTURE_POS[1]], zoom: 33 },
   village: { pos: [VILLAGE_POS[0] + 9, 8, VILLAGE_POS[1] + 9], look: [VILLAGE_POS[0], 0, VILLAGE_POS[1]], zoom: 30 },
@@ -335,10 +338,11 @@ export const FarmWorld3D: React.FC<{
           onError={() => setFailed(true)}
         >
           <Lights />
-          <Island radius={20} />
+          <VillageGround />
           <Sea />
           <VoxelClouds />
-          <WorldDecor />
+          <VillageDecor />
+          <Villagers />
           <PlayerCharacter />
           <CameraRig zone={zone} follow={followMode} />
           <group position={[FIELD_POS[0], 0, FIELD_POS[1]]} visible={followMode || zone === 'overview' || zone === 'field'}>
