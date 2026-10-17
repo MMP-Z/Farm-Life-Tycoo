@@ -59,11 +59,11 @@ export default function Joystick() {
       onPointerUp={release}
       onPointerCancel={release}
       style={styleBase}
-      className="absolute bottom-6 left-6 z-30 w-[110px] h-[110px] rounded-full bg-white/30 border-2 border-white/60"
+      className="absolute bottom-6 left-6 z-30 w-[110px] h-[110px] rounded-full bg-white/25 border-2 border-white/50 shadow-[0_4px_16px_rgba(0,0,0,0.2)] backdrop-blur-sm"
     >
       <div
         ref={knobRef}
-        className="absolute top-1/2 left-1/2 w-[48px] h-[48px] rounded-full bg-white/80 shadow"
+        className="absolute top-1/2 left-1/2 w-[48px] h-[48px] rounded-full bg-gradient-to-b from-[#c98f5a] to-[#8a5f3c] shadow-[0_2px_8px_rgba(0,0,0,0.3)] border border-white/40"
         style={{ transform: 'translate(0px, 0px)', marginLeft: -24, marginTop: -24 }}
       />
     </div>
